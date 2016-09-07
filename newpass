@@ -1,0 +1,2 @@
+#!/bin/bash
+apg -M SNCL -t -m 8 -x 12 -n 10 -c $(head /dev/urandom)

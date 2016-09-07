@@ -113,10 +113,20 @@ if ! shopt -oq posix; then
   fi
 fi
 
-#add OpenFoam tools to the path
+## add OpenFoam tools to the path
 #. /opt/openfoam30/etc/bashrc
+## correcting doubled-up commands
+# alias R='/usr/bin/R'
+# alias foamR='/opt/openfoam30/platforms/linux64GccDPInt32Opt/bin/R'
+
 
 #User defined aliases
 #alias R='. /usr/local/bin/R'
 alias sta='git status'
 alias githome='cd "$(git rev-parse --show-toplevel)"'
+alias pl='pwd;ls'
+alias lf='ls -d -- */'
+
+# add tlmgr to the PATH
+# unclear if this is still necessary
+PATH=/usr/local/texlive/2016/bin/x86_64-linux:$PATH; export PATH

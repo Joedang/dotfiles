@@ -1,6 +1,15 @@
 " turn on line numbers
 set relativenumber
 
+" To get around Chrome grabbing <C-w>
+" Mostly useful for ChromeOS terminal
+nmap <C-H> <C-W><C-H>
+nmap <C-J> <C-W><C-J>
+nmap <C-K> <C-W><C-K>
+nmap <C-L> <C-W><C-L>
+
+syntax on
+
 " turn on omnicompletion
 filetype plugin on
 set omnifunc=syntaxcomplete#Complete
@@ -71,4 +80,4 @@ filetype plugin indent on    " required
 " Put your non-Plugin stuff after this line
 "~~~~~~~~~~ end of Vundle stuff ~~~~~~~~~~
 
-
+let g:vim_markdown_folding_style_pythonic = 1

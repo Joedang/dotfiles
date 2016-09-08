@@ -28,6 +28,8 @@ set mouse=a
 " not freeze the pane as soon as it is left.
 " map <c-k> <F9><Enter><Esc><C-W>k
 
+command NT NERDTreeToggle
+
 "~~~~~~~~~~ Vundle stuff ~~~~~~~~~~
 set nocompatible              " be iMproved, required
 filetype off                  " required
@@ -47,6 +49,7 @@ Plugin 'plasticboy/vim-markdown'
 Plugin 'tarruda/vim-conque-repl'
 Plugin 'ctrlpvim/ctrlp.vim'
 Plugin 'tpope/vim-surround'
+Plugin 'scrooloose/nerdTree'
 " The following are examples of different formats supported.
 " Keep Plugin commands between vundle#begin/end.
 " plugin on GitHub repo

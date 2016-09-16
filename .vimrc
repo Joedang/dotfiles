@@ -22,7 +22,7 @@ set runtimepath+=$HOME/.vim/manual/*
 " Notes:
 " Conque-Term comes from https://code.google.com/archive/p/conque/downloads
 
-set mouse=a
+set mouse=n
 
 " This would be a nice way to have RStudio-like functionality, if Vim would
 " not freeze the pane as soon as it is left.

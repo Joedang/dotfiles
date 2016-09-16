@@ -126,6 +126,7 @@ alias sta='git status'
 alias githome='cd "$(git rev-parse --show-toplevel)"'
 alias pl='pwd;ls'
 alias lf='ls -d -- */'
+alias infovi='info --vi-keys'
 
 # add tlmgr to the PATH
 # unclear if this is still necessary

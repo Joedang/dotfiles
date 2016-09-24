@@ -127,6 +127,7 @@ alias githome='cd "$(git rev-parse --show-toplevel)"'
 alias pl='pwd;ls'
 alias lf='ls -d -- */'
 alias infovi='info --vi-keys'
+alias lynxvi='lynx --vikeys'
 
 # add tlmgr to the PATH
 # unclear if this is still necessary

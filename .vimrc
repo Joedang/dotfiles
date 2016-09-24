@@ -22,6 +22,8 @@ set runtimepath+=$HOME/.vim/manual/*
 " Notes:
 " Conque-Term comes from https://code.google.com/archive/p/conque/downloads
 
+" Only enable mouse mode when in normal mode
+" This allows pasting in chromeos (at least when not in tmux)
 set mouse=n
 
 " This would be a nice way to have RStudio-like functionality, if Vim would

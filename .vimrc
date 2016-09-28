@@ -41,14 +41,14 @@ call vundle#begin()
 
 " let Vundle manage Vundle, required
 Plugin 'VundleVim/Vundle.vim'
-Plugin 'togglecursor'
-Plugin 'godlygeek/tabular'
-Plugin 'plasticboy/vim-markdown'
+Plugin 'togglecursor' "hasn't really been useful yet
+Plugin 'godlygeek/tabular' "rare to use, but nice
+Plugin 'plasticboy/vim-markdown' "frequently used
 " Plugin 'vim-ipython'
 " Plugin 'Conque-Shell'
-Plugin 'tarruda/vim-conque-repl'
-Plugin 'ctrlpvim/ctrlp.vim'
-Plugin 'tpope/vim-surround'
+Plugin 'tarruda/vim-conque-repl' "nice, but usually outdone by tmux
+Plugin 'ctrlpvim/ctrlp.vim' "nice, but I usually know where my files are
+Plugin 'tpope/vim-surround' "not used to bindings yet; often just do it manually
 " The following are examples of different formats supported.
 " Keep Plugin commands between vundle#begin/end.
 " plugin on GitHub repo

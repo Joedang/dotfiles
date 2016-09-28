@@ -57,7 +57,7 @@ if [ -n "$force_color_prompt" ]; then
 fi
 
 if [ "$color_prompt" = yes ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\n\$ '
 else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
@@ -71,6 +71,14 @@ xterm*|rxvt*)
 *)
     ;;
 esac
+
+# If it's downloaded, use the bash-git-prompt when in a git repo
+# Not usable until I find out how to keep it from slowing down the prompt so much
+# if [ -f ".bash-git-prompt/gitprompt.sh" ]; then
+# 	source ~/.bash-git-prompt/gitprompt.sh
+# 	GIT_PROMPT_ONLY_IN_REPO=1
+# 	GIT_PROMPT_SHOW_UNTRACKED_FILES=no
+# fi
 
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then

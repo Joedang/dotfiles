@@ -139,4 +139,7 @@ alias lynxvi='lynx --vikeys'
 
 # add tlmgr to the PATH
 # unclear if this is still necessary
-PATH=/usr/local/texlive/2016/bin/x86_64-linux:$PATH; export PATH
+# also add ~/bin
+PATH=/usr/local/texlive/2016/bin/x86_64-linux:~/bin:$PATH
+export PATH
+

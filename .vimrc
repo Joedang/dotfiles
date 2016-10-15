@@ -22,7 +22,9 @@ set runtimepath+=$HOME/.vim/manual/*
 " Notes:
 " Conque-Term comes from https://code.google.com/archive/p/conque/downloads
 
-set mouse=a
+" Only enable mouse mode when in normal mode
+" This allows pasting in chromeos (at least when not in tmux)
+set mouse=n
 
 " This would be a nice way to have RStudio-like functionality, if Vim would
 " not freeze the pane as soon as it is left.
@@ -41,15 +43,15 @@ call vundle#begin()
 
 " let Vundle manage Vundle, required
 Plugin 'VundleVim/Vundle.vim'
-Plugin 'togglecursor'
-Plugin 'godlygeek/tabular'
-Plugin 'plasticboy/vim-markdown'
+Plugin 'togglecursor' "hasn't really been useful yet
+Plugin 'godlygeek/tabular' "rare to use, but nice
+Plugin 'plasticboy/vim-markdown' "frequently used
 " Plugin 'vim-ipython'
 " Plugin 'Conque-Shell'
-Plugin 'tarruda/vim-conque-repl'
-Plugin 'ctrlpvim/ctrlp.vim'
-Plugin 'tpope/vim-surround'
 Plugin 'scrooloose/nerdTree'
+Plugin 'tarruda/vim-conque-repl' "nice, but usually outdone by tmux
+Plugin 'ctrlpvim/ctrlp.vim' "nice, but I usually know where my files are
+Plugin 'tpope/vim-surround' "not used to bindings yet; often just do it manually
 " The following are examples of different formats supported.
 " Keep Plugin commands between vundle#begin/end.
 " plugin on GitHub repo

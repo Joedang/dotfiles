@@ -1,0 +1,6 @@
+#!/bin/bash
+BN=`basename $1`
+BN="${BN%.*}"
+# | sed 's/\.\w*$//'
+pandoc -f markdown_github $1 > /tmp/$BN.html
+midori /tmp/$BN.html

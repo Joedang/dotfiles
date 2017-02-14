@@ -136,6 +136,7 @@ alias pl='pwd;ls'
 alias lf='ls -d -- */'
 alias infovi='info --vi-keys'
 alias lynxvi='lynx --vikeys'
+alias viewmd='function _viewmd(){ pandoc -i "$1" -o /tmp/$(basename ${1%.*}.html); chromium-browser /tmp/$(basename ${1%.*}.html); };_viewmd'
 
 # add tlmgr to the PATH
 # unclear if this is still necessary

@@ -1,0 +1,53 @@
+#!/usr/bin/python3
+# stlStats
+# Takes names of STL files and prints their volume in mm^3.
+# 2017-2-20
+# Joe Shields
+"""Prints volume and extent info on one or more STL files."""
+
+import numpy as np
+import stl
+import sys
+
+volumes= [] # keep track of the volume of each file, for later statistics.
+maxdim= 0 # keep track of the largest extent of the files given
+maxdim_f= '' # keep track of the file with the largest extent
+
+if sys.argv[1] in ('-h', 'h', '--help', 'help'):
+    print('Prints volume and extent info on one or more STL files.')
+    print('example:\n\tstlStats model1.stl model2.stl')
+
+def extents(mesh= stl.mesh.Mesh):
+    """Takes an stl.mesh.Mesh and returns the XYZ extents as a tuple."""
+    deltaX= max(mesh.points[stl.Dimension.X])-min(mesh.points[stl.Dimension.X])
+    deltaY= max(mesh.points[stl.Dimension.Y])-min(mesh.points[stl.Dimension.Y])
+    deltaZ= max(mesh.points[stl.Dimension.Z])-min(mesh.points[stl.Dimension.Z])
+    return (deltaX, deltaY, deltaZ)
+
+for f in sys.argv[1:]: # step through the files given
+    try:
+        mesh = stl.Mesh.from_file(f)
+        volumes= volumes +[mesh.get_mass_properties()[0]]
+        ext= extents(mesh)
+        if max(ext) > maxdim:  # check if this is a new max extent
+            maxdim= max(ext)
+            maxdim_f= f
+        # report filename, volume, and extents
+        print('{:<42} vol={:>6}\textents={:>4},{:>4},{:>4}'.format(
+                    f,\
+                    "%8d" % mesh.get_mass_properties()[0],\
+                    "%4d" % ext[0], "%4d" % ext[1], "%4d" % ext[2] 
+                    ))
+    except:
+        print(f, 'could not be opened. Are you sure it\'s an STL?')
+
+if len(volumes) > 1: # summarize stats, if more than one file
+    print()
+    print("N=", len(volumes))
+    print("extent max=", "%4d" % maxdim, "in", maxdim_f)
+    print("vol mean=", "%4d" % np.mean(volumes))
+    print("vol std=", "%4d" % np.std(volumes))
+    print("vol min=", "%4d" % min(volumes))
+    print("vol max=", "%4d" % max(volumes))
+    print('vol total=', "%4d" % sum(volumes))
+sys.exit(0)

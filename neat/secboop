@@ -1,0 +1,6 @@
+#!/bin/bash
+while :
+do
+	echo boop
+	sleep 1
+done

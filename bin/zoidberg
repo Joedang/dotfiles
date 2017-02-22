@@ -1,0 +1,2 @@
+#!/bin/bash
+cat ~/dotfiles/neat/zoidberg.txt

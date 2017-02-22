@@ -1,0 +1,55 @@
+#!/usr/bin/python3
+# backronym
+# creates phrases that match the given acronym
+# 
+# usage:    backronym ACRONYM [n]
+# ACRONYM is a word
+# n is a number
+# 
+# This was created to generate passwords whose acronyms match the acronym of the use case. 
+# For example, Facebook might have a password like FloppyBradbury.
+# To search for such passwords, you'd do    backronym FB    .
+# 
+# exit codes:
+# 0     success
+# 1     too few arguments
+# 2     too many arguments
+# 
+# Author: Joe Shields
+# Date: 2016-12-20
+
+import sys
+import random
+
+# handle arguments
+if len(sys.argv) <= 1:
+    print('Please supply an acronym (mandatory) and a number of phrases (optional).')
+    sys.exit(1)
+elif len(sys.argv) == 2:
+    n=5
+elif len(sys.argv) == 3:
+    n=int(sys.argv[2])
+else:
+    print('Too many arguments! Please supply an acronym (mandatory) and a number of phrases (optional).')
+    sys.exit(2)
+acronym = sys.argv[1]
+
+# create a list to hold the lists of words matching each letter
+acro_dict= [[] for _ in range(len(acronym))]
+
+# search through the dictionary, collecting the matching words
+for l in range(0,len(acronym)):
+    for w in open('/usr/share/dict/words', mode='r'):
+        if (acronym[l].capitalize()==w[0].capitalize()):
+            acro_dict[l].append(w.strip())
+
+# sample the word lists to create the phrases
+phrase_sets = [random.sample(acro_dict[l], n) for l in range(len(acronym))]
+phrases = [ list(p) for p in zip(*phrase_sets)]
+
+# combine the phrases into strings and print
+for p in phrases:
+    print(' '.join(p))
+
+# success!
+sys.exit(0)

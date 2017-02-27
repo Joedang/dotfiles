@@ -21,3 +21,13 @@ To do this without a GUI, you'd do
 `gsettings set org.gnome.desktop.media-handling automount false`.
 
 Both of these are frontents for `dconf`.
+
+## get Arduino working
+
+    $ sudo apt-get install arduino arduino-core
+
+* Plug in the arduino
+* In the IDE, go to `Tools` -> `Port` select the arduino. (Either figure it out by plugging it in/out or by having it be the only thing plugged in.)
+
+        $ sudo usermod -a -G dialout joedang
+

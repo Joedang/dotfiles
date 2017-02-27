@@ -1,4 +1,9 @@
-# This is a little gallery of neat one-liners I've done.
+# A little gallery of neat one-liners and helpful reminders
+
+## Get information about CLI tools
+* man -- brief manual pages
+* info -- long-winded and explanations 
+* apropos -- man pages with matchning keywords
 
 ## Get the number of pages in all the PDFs in the CWD:
 
@@ -21,3 +26,4 @@ To do this without a GUI, you'd do
 `gsettings set org.gnome.desktop.media-handling automount false`.
 
 Both of these are frontents for `dconf`.
+

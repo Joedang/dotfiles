@@ -1,2 +1,2 @@
 #!/bin/bash
-. /opt/openfoam30/etc/bashrc
+source /opt/openfoam30/etc/bashrc

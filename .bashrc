@@ -143,5 +143,10 @@ alias cls='clear; ls'
 # unclear if this is still necessary
 # also add ~/bin
 PATH=/usr/local/texlive/2016/bin/x86_64-linux:~/bin:$PATH
+if [[ "hostname"=='localhost' ]]; then
+	# If on the chromebook, add the Ruby install that's in
+	# my home dir to my path.
+	PATH=/home/joedang/src/Ruby/bin/:$PATH;
+fi
 export PATH
 

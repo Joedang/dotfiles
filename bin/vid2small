@@ -7,51 +7,75 @@
 	# import moviepy.editor as mpy
 import argparse
 import sys
+exit_status= 0
 
 
 ##### Parse Arguments #####
-parser= argparse.ArgumentParser(description= 'Converts a video to a smaller version, suitable for GIF-like use.')
+parser= argparse.ArgumentParser(description= \
+    'Converts a video to a smaller version, suitable for GIF-like use.'\
+    )
 # optional argument for the number of horizontal scan lines in the compressed video, defaults to 240:
 parser.add_argument(\
-		'-l', '--lines', metavar='lines', type=int, nargs='?', required=False, default=240,\
+		'-l', '--lines', metavar='lines', type=int, nargs='?', \
+        required=False, default=240,\
 		help='number of horizontal lines in the frame'\
 		)
 parser.add_argument(\
-		'-a', '--audio', metavar='audio', action='store_const', const=True, default=False,\
-		help='include audio in the compressed video'
-		)
+    '-a', '--audio', metavar='audio', action='store_const', \
+    const=True, default=False,\
+    help='include audio in the compressed video'
+    )
+parser.add_argument(\
+    '-t', '--traceback', metavar='traceback', action='store_const', \
+    const=True, default=False,\
+    help='show traceback for any exceptions in the encoding process. \
+        (currently fails to hide traceback)'
+    )
 # parser.add_argument(\
 # 		'-q', '--quiet', metavar='quiet', dest='stdout_old', action='store_const', const=True, default=False,\
 # 		help='suppress stdout'
 # 		)
 # required argument for the file names of videos to be compressed:
 parser.add_argument(\
-		dest='videos', nargs='*', type=str,\
-		help='filenames of videos to be compressed'\
-		)
+    dest='videos', nargs='*', type=str,\
+    help='filenames of videos to be compressed'\
+    )
 args= parser.parse_args()
 print('args=', args)
 
 
 ##### Compress Videos #####
 if len(args.videos)>0 and args.lines is not None:
-	try:
-		import moviepy.editor as mpy
-	except:
-		print('This requires moviepy to be installed in python3.')
-		sys.exit(-1)
-	for f in args.videos:
-		# make the new file name
-		f_split= f.split(sep='.')
-		f_core= '.'.join(f_split[0:len(f_split)-1])
-		f_ext= f_split[len(f_split)-1]
-		f_new= f_core + '_GIF-like.' + f_ext
-		clip = mpy.VideoFileClip(f_new) # read in the video
-		clip = clip.resize(height=args.lines) # resize
-		print('Compressing', f, 'to', f_new, 'at', args.lines, 'p')
-		clip.write_videofile(f_new, audio=args.audio, preset='slow') # compress
-		sys.exit(0)
+    try:
+        import moviepy.editor as mpy
+    except:
+        print('This requires moviepy to be installed in python3.')
+        sys.exit(-1)
+    for f in args.videos:
+        # make the new file name
+        f_split= f.split(sep='.')
+        f_core= '.'.join(f_split[0:len(f_split)-1])
+        f_ext= f_split[len(f_split)-1]
+        f_new= f_core + '_GIF-like.' + f_ext
+        clip = mpy.VideoFileClip(f) # read in the video
+        clip = clip.resize(height=args.lines) # resize
+        print('Compressing', f, 'to', f_new, 'at', args.lines, 'p')
+        if args.traceback is True:
+            clip.write_videofile(f_new, audio=args.audio, preset='slow') # compress
+            print('traceback is true!')
+        else:
+            try:
+                clip.write_videofile(f_new, audio=args.audio, preset='slow') # compress
+                print('traceback is false!')
+            except:
+                print(\
+                    'Exceptions were raised while encoding', f_new, \
+                    '. Use the -t flag to show the traceback.', \
+                    file= sys.stderr\
+                    )
+                exit_status= 2
 else:
-	print()
-	parser.print_help()
-	sys.exit(1)
+    print('videos and lines cannot be empty.', file= sys.stderr)
+    parser.print_help()
+    sys.exit(1)
+sys.exit(exit_status)

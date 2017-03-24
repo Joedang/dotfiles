@@ -36,9 +36,9 @@ Both of these are frontents for `dconf`.
 
         $ sudo usermod -a -G dialout joedang
 
-## Checking MD5 Checksums
-Use `md5sum myPackage.tar.gz` to show the MD5 hash for a file.  
-Use `md5sum -c fileList.txt` to check if multiple files are 'OK', with `fileList.txt` being something like 
+## Checking Checksums
+Use `$ md5sum myPackage.tar.gz` to show the MD5 hash for a file.  
+Use `$ md5sum -c fileList.txt` to check if multiple files are 'OK', with `fileList.txt` being something like 
 
 ```
 283158c7da8c0ada74502794fa8745eb  ubuntu-6.10-alternate-amd64.iso
@@ -52,4 +52,68 @@ cd6c09ff8f9c72a19d0c3dced4b31b3a  ubuntu-6.10-server-i386.iso
 6f165f915c356264ecf56232c2abb7b5  ubuntu-6.10-server-powerpc.iso
 4971edddbfc667e0effbc0f6b4f7e7e0  ubuntu-6.10-server-sparc.iso
 ```
-which the distributor will usually provide in that format.
+which the distributor will usually provide in that format.  
+You can do `$ find -type f -exec sha512sum '{}' + > check.txt` to create such a list.
+
+When you download the source for stuff, this helps you verify that it's not corrupted (or, you know, tampered with). You can also use it to verify that large copy jobs haven't been corrupted.  
+
+If you hash the concatenation of a password and a website name, you can use that as a crude way of adding security to a reused password.
+(When you need to log in, rehash the password + site name and copy the result into the password field.)
+
+## Timestamp Manipulation
+Set all the mp3 files to have the timestamp of `../flac/Tiger.flac`:  
+`$ touch -d "$(date -R -r ../flac/Tiger.flac)" *.mp3`
+
+## Mass Renaming
+Strip the track number from a bunch of songs:  
+`$ rename 's/^[0-9][0-9] - *//' *`  
+
+```
+01 - The Starting Line.flac  
+02 - Floor Corn.flac         
+03 - ACVC.flac               
+04 - 300MB.flac              
+05 - Revolution #5.flac      
+06 - Dear Dinosaur.flac      
+07 - Annoyed Grunt.flac   
+08 - Bustin.flac          
+09 - Blockbuster.flac     
+10 - Busta.flac           
+11 - Tiger.flac           
+12 - The End.flac         
+13 - Shady Interlude.flac 
+14 - T.I.M.E..flac        
+15 - Smooth.flac
+16 - Stand By Meme.flac 
+17 - Wallspin.flac
+18 - Wow Wow.flac
+19 - Mouth Pressure.flac
+20 - Shit.flac
+```
+becomes
+```
+300MB.mp3
+ACVC.mp3
+Annoyed Grunt.mp3
+Blockbuster.mp3
+Busta.mp3
+Bustin.mp3
+Dear Dinosaur.mp3
+Floor Corn.mp3
+Mouth Pressure.mp3
+Revolution #5.mp3
+Shady Interlude.mp3
+Shit.mp3
+Smooth.mp3
+Stand By Meme.mp3
+The End.mp3
+The Starting Line.mp3
+Tiger.mp3
+T.I.M.E..mp3
+Wallspin.mp3
+Wow Wow.mp3
+```
+
+## Media Conversion
+`avconv` and `flac2mp3` are pretty good. The default settings for `flac2mp3` are basically perfect. You'll probably have to compile flac2mp3 from source.  
+`youtube-dl` is also good for acquiring stuff, but don't count on your package manager's repos being up to date _\*cough\*Ubuntu\*cough\*_. You pretty much have to compile both `youtube-dl` and `avconv` from source. (`libav` is the parent package/project for the `avconv` command.)

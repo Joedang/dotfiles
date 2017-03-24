@@ -1,0 +1,41 @@
+#!/bin/bash
+# $ convolve [-h|-dbg] [-md5|-md4|-md2|-sha1|-sha|-mdc2|-ripemd160|-dss1]
+# Convolve two strings together with a hashing scheme supported by `openssl dgst'.
+# The target use for this is to allow reuse of passwords on different websites.
+# You simply convolve your password with the name of the site and use the hash as the 
+# password for that account.
+# ... I'm not going to do complicated argument parsing or help text. Just look at the script.
+# 2017-3-24
+# Joe Shields
+
+stty_orig=`stty -g` # save terminal print setting
+stty -echo # turn of terminal echoing
+echo first word:
+read word1
+echo second word:
+read word2
+stty $stty_orig # restore terminal print setting
+if [[ $1 == '-dbg' ]]
+then
+	# debug/echo mode
+	echo word1= \'$word1\'
+	echo word2= \'$word2\'
+	echo arg1= \'$1\'
+	echo arg2= \'$2\'
+	echo $(openssl dgst $2 <(echo $word1; echo $word2))
+elif [[ $1 == '-h' ]]
+then
+	# help
+	echo "... I'm not going to do complicated argument parsing or help text. Just look at the script."
+else
+	# normal mode
+	echo $(openssl dgst $1 <(echo $word1; echo $word2))
+fi
+#echo $(md5sum <(echo $word1; echo $word2))
+# overwrite the secret words with random ints:
+word1=$RANDOM
+word2=$RANDOM
+# delete the variables:
+unset word1
+unset word2
+unset stty_orig

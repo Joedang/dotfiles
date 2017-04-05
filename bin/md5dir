@@ -1,0 +1,15 @@
+#!/bin/bash
+# generate checksums for everything in $1 and put it in checksum.txt.
+find "$1" -type f -exec md5sum {} \; | tee -a checksum.txt
+
+# Some prototyping:
+# find Shows/Live\ Action/Game\ of\ Thrones/ * | xargs -d "\n" md5sum >> /media/joedang/CA36-64A8/vid/H/checksum.txt
+# for f in $(find $1)
+# do
+# #	echo "Copying from	$f"
+# #	echo "        to	$2/$f"
+# #	cp $f $2/$f
+# #	echo Copying done, generating checksum.
+# 	md5sum $f | tee -a checksum.txt
+# done
+#find $1 | xargs -d "\n" md5sum | tee -a checksum.txt

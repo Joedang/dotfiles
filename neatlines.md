@@ -117,3 +117,12 @@ Wow Wow.mp3
 ## Media Conversion
 `avconv` and `flac2mp3` are pretty good. The default settings for `flac2mp3` are basically perfect. You'll probably have to compile flac2mp3 from source.  
 `youtube-dl` is also good for acquiring stuff, but don't count on your package manager's repos being up to date _\*cough\*Ubuntu\*cough\*_. You pretty much have to compile both `youtube-dl` and `avconv` from source. (`libav` is the parent package/project for the `avconv` command.)
+
+## Installing Fonts
+GIMP checks for typefaces on its own, so running `$ sudo fc-cache -fv` may be unnecessary.
+
+### For Everyone:
+Copy the font to `/usr/share/fonts/truetype/` (or the appropriate directory if it's not TTF) and run `$ sudo fc-cache -fv`.
+
+### For Only You:
+Copy to `~/.fonts/` and run `$ sudo fc-cache -fv`.

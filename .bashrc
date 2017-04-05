@@ -138,6 +138,7 @@ alias infovi='info --vi-keys'
 alias lynxvi='lynx --vikeys'
 #alias viewmd='function _viewmd(){ pandoc -i "$1" -o /tmp/$(basename ${1%.*}.html); chromium-browser /tmp/$(basename ${1%.*}.html); };_viewmd'
 alias cls='clear; ls'
+alias gcalc='gcalccmd'
 
 # add tlmgr to the PATH
 # unclear if this is still necessary

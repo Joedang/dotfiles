@@ -134,3 +134,26 @@ The `-exec` option in `find` is useful for this. For example, you can create che
 find . -name '*.mp3' -exec md5sum '{}' \; | tee -a mp3checksum.mp3
 ```
 
+## Steganography (hiding messages in files)
+`steghide` works well, but is limited to a few file formats.
+
+### embed files:
+```bash
+steghide embed -ef secret.txt -cf fluffybunny.jpg -sf fluffybunny_steg.jpg -p "12345password"
+```
+
+### extract from stego' files:
+```bash
+steghide extract -sf fluffybunny_steg.jpg -xf extracted_secret.txt "12345password"
+```
+
+## Sync files between *nix machines
+Pull from a remote directory:
+```bash
+rsync -r user@host:~/yourdir/ ~/mydir/
+```
+Push to a remote directory:
+```bash
+rsync -r mydir/ user@host:~/yourdir/
+```
+`user` is your login name on that machine. (You will need to know the password for `~/.ssh/id_rsa` to get in.) `host` can be an IP address or a domain (`192.168.1.1`, `pdx.edu`, et cetera).

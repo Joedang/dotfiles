@@ -126,3 +126,11 @@ Copy the font to `/usr/share/fonts/truetype/` (or the appropriate directory if i
 
 ### For Only You:
 Copy to `~/.fonts/` and run `$ sudo fc-cache -fv`.
+
+## Operations within subfolders
+The `-exec` option in `find` is useful for this. For example, you can create checksums for all the `mp3` files in the CWD by doing
+
+```bash
+find . -name '*.mp3' -exec md5sum '{}' \; | tee -a mp3checksum.mp3
+```
+

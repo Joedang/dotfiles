@@ -115,7 +115,10 @@ Wow Wow.mp3
 ```
 
 ## Media Conversion
-`avconv` and `flac2mp3` are pretty good. The default settings for `flac2mp3` are basically perfect. You'll probably have to compile flac2mp3 from source.  
+`avconv`\* and `flac2mp3` are pretty good. The default settings for `flac2mp3` are basically perfect. You'll probably have to compile flac2mp3 from source.  
+\* Lately, `avconv` has not been so great. It couldn't find the codecs required for writing to `mp3`, despite attempts to help it find them.
+`lame` is a stand-alone library/command that *only* writes to `mp3`.  
+`easytag` is a GUI-only program that handles `mp3` tags (called `ID3`).  
 `youtube-dl` is also good for acquiring stuff, but don't count on your package manager's repos being up to date _\*cough\*Ubuntu\*cough\*_. You pretty much have to compile both `youtube-dl` and `avconv` from source. (`libav` is the parent package/project for the `avconv` command.)
 
 ## Installing Fonts

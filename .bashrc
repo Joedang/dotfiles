@@ -130,6 +130,9 @@ fi
 CALCRC='~/.calcrc'
 export CALCRC
 
+if [[ -f ~/TODO.md ]]; then
+	pandoc ~/TODO.md -t html | lynx -stdin -dump
+fi
 
 #User defined aliases
 #alias R='. /usr/local/bin/R'
@@ -159,6 +162,4 @@ if [[ "hostname"=='localhost' ]]; then
 	PATH=/home/joedang/src/Ruby/bin/:$PATH;
 fi
 export PATH
-
-# add BRL-CAD man pages
 

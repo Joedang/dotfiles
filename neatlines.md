@@ -160,3 +160,48 @@ Push to a remote directory:
 rsync -r mydir/ user@host:~/yourdir/
 ```
 `user` is your login name on that machine. (You will need to know the password for `~/.ssh/id_rsa` to get in.) `host` can be an IP address or a domain (`192.168.1.1`, `pdx.edu`, et cetera).
+
+## Installing things from source
+My general strategy is to download an unzip the source into `/tmp/`. **Remember to do a checksum on the downloaded archive!** 
+
+```bash
+$ pwd
+/tmp
+$ cat checksum.txt
+6503368c6b069bcbb00461e00a40db9d  MYLIB_1.2.3.tar.gz
+$ md5sum -c checksum.txt
+MYLIB_1.2.3.tar.gz: OK
+$ tar -zxvf MYLIB_1.2.3.tar.gz
+```
+
+Of course, you should read anything named `README` or `INSTALL` for more detailed instructions. 
+Generally, it should work fine to go into `MYLIB_1.2.3` just run:
+
+```bash
+$ ./configure
+$ make 
+$ sudo make install
+```
+
+For tidyness purposes, you may want to create `/tmp/MYLIB_build` and run those commands from there. (You would need to do `make ../MYLIB_1.2.3` et cetera.)
+
+If you're installing into your home directory, you don't need to use `sudo`. I stronly prefer installing free/open software to `/usr/local/` and commercial software to `/opt/`.
+
+Sometimes the software won't put its executables into `/usr/local/bin/`, and so they won't be in your path. To add them, add a line of this form to your `~/.bashrc`:
+
+```bash
+PATH=/usr/local/MYLIB/bin:$PATH
+export PATH
+```
+
+I prefer to put all my path fiddling together, near the end of `.bashrc`, and have just one `export` statement.
+
+**Note**: if the software puts its man and info pages in a sane location, like `/usr/local/MYLIB/man`, then the `man` command will automatically pick them up. 
+Otherwise, you'll need to do some similar path concatenations with `MANPATH` and `INFOPATH`. e.g.:
+
+```bash
+MANPATH=/usr/local/MYLIB/foobar/man:$MANPATH
+export MANPATH
+INFOPATH=/usr/local/MYLIB/foobar/man:$INFOPATH
+export INFOPATH
+```

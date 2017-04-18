@@ -127,6 +127,12 @@ fi
 # alias R='/usr/bin/R'
 # alias foamR='/opt/openfoam30/platforms/linux64GccDPInt32Opt/bin/R'
 
+CALCRC='~/.calcrc'
+export CALCRC
+
+if [[ -f ~/TODO.md ]]; then
+	pandoc ~/TODO.md -t html | lynx -stdin -dump
+fi
 
 #User defined aliases
 #alias R='. /usr/local/bin/R'
@@ -146,7 +152,10 @@ alias xop='xdg-open'
 # add tlmgr to the PATH
 # unclear if this is still necessary
 # also add ~/bin
-PATH=/usr/local/texlive/2016/bin/x86_64-linux:~/bin:$PATH
+PATH=/usr/local/texlive/2016/bin/x86_64-linux:$PATH
+PATH=~/bin:$PATH
+PATH=/opt/android-studio/bin:$PATH
+PATH=/usr/local/brlcad/bin:$PATH
 if [[ "hostname"=='localhost' ]]; then
 	# If on the chromebook, add the Ruby install that's in
 	# my home dir to my path.

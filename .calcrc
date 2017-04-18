@@ -1,0 +1,2 @@
+#!/usr/bin/calc -f
+pi=4*atan(1)

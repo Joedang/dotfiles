@@ -127,6 +127,9 @@ fi
 # alias R='/usr/bin/R'
 # alias foamR='/opt/openfoam30/platforms/linux64GccDPInt32Opt/bin/R'
 
+CALCRC='~/.calcrc'
+export CALCRC
+
 
 #User defined aliases
 #alias R='. /usr/local/bin/R'

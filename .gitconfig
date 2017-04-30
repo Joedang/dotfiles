@@ -1,6 +1,7 @@
 [user]
 	name = Joedang
 	email = shields6@pdx.edu
+	signingkey = 5892B7FC2FBFB981
 [credential]
 	helper = cache --timeout=3600
 [push]

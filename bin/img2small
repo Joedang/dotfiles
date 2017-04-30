@@ -6,6 +6,7 @@
 
 from PIL import Image
 import sys as sys
+import os
 
 #sys.argv= ['img2small.py', 'sampleIMG/doge.jpg']
 for f in sys.argv[1:]:
@@ -14,7 +15,8 @@ for f in sys.argv[1:]:
         newsize = tuple([round(x*500/min(im.size)) for x in im.size])
         print('\nresizing', f, 'to', newsize)
         im.thumbnail(newsize)
-        im.save(f+'_small')
+        f_base, f_ext = os.path.splitext(f)
+        im.save(f_base+'_small'+f_ext)
     else:
         print('\n'+f, 'is already small enough, don\'t you think?')
     im.close()

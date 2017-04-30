@@ -148,6 +148,8 @@ alias gcalc='gcalccmd'
 alias trash='gvfs-trash'
 alias trashls='gvfs-ls trash://'
 alias xop='xdg-open'
+# function linfo { info $@ | less; }
+alias vinfo='info --vi-keys'
 
 # add tlmgr to the PATH
 # unclear if this is still necessary

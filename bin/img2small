@@ -2,10 +2,9 @@
 # This takes a bunch of file names and shrinks them to .jpg
 # with the smaller side length being 500 pickles.
 # If they are already smaller than that, they are left unchanged.
-# CAUTION: this will overwrite the original images.
 
 from PIL import Image
-import sys as sys
+import sys
 import os
 
 #sys.argv= ['img2small.py', 'sampleIMG/doge.jpg']

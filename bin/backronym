@@ -1,53 +1,97 @@
 #!/usr/bin/python3
 # backronym
 # creates phrases that match the given acronym
-# 
+#
 # usage:    backronym ACRONYM [n]
 # ACRONYM is a word
 # n is a number
-# 
-# This was created to generate passwords whose acronyms match the acronym of the use case. 
+#
+# This was created to generate passwords whose acronyms match the acronym of the use case.
 # For example, Facebook might have a password like FloppyBradbury.
 # To search for such passwords, you'd do    backronym FB    .
-# 
+#
 # exit codes:
 # 0     success
-# 1     too few arguments
-# 2     too many arguments
-# 
+# 1     too few arguments (deprecated)
+# 2     too many arguments (deprecated)
+# 3     not enough words in the dictionary to sample one of the letters
+#
 # Author: Joe Shields
-# Date: 2016-12-20
+# Date: 2016-12-20, 2017-5-1
 
 import sys
 import random
+import argparse
+
 
 # handle arguments
-if len(sys.argv) <= 1:
-    print('Please supply an acronym (mandatory) and a number of phrases (optional).')
-    sys.exit(1)
-elif len(sys.argv) == 2:
-    n=5
-elif len(sys.argv) == 3:
-    n=int(sys.argv[2])
-else:
-    print('Too many arguments! Please supply an acronym (mandatory) and a number of phrases (optional).')
-    sys.exit(2)
-acronym = sys.argv[1]
+parser = argparse.ArgumentParser(
+    prog='backronym',
+    description='''
+Create phrases that match the given acronym.
+
+This was created to generate passwords whose acronyms match the
+acronym of the use case.
+For example, Facebook might have a password like FloppyBradbury.
+To search for such passwords, you\'d do `backronym FB`.
+    '''
+    )
+parser.add_argument(\
+    'acronym',\
+    type=str,\
+    help='an acronym for which you want some example phrases'\
+    )
+parser.add_argument(\
+    '-n', '--samples', dest='n',\
+    type=int, default=5,\
+    help='number of example phrases you wish to generate'\
+    )
+args= parser.parse_args()
+print(args)
+
+# acro_dict -- which isn't a dictionary per se -- looks something
+# like this for the acronym ABC:
+# [
+#   [Apple, Acrid, Aerodactyl, ...],
+#   [Ball, Bamboozle, Bidoof, ...],
+#   [Carrot, Cycle, Cubone, ...]
+# ]
+# and an example output would be `Acrid Bamboozle Cubone`.
 
 # create a list to hold the lists of words matching each letter
-acro_dict= [[] for _ in range(len(acronym))]
+acro_dict= [[] for _ in range(len(args.acronym))]
 
-# search through the dictionary, collecting the matching words
-for l in range(0,len(acronym)):
+### search through the dictionary, collecting the matching words
+# scan letters:
+for l in range(0,len(args.acronym)):
+    # scan words:
     for w in open('/usr/share/dict/words', mode='r'):
-        if (acronym[l].capitalize()==w[0].capitalize()):
+        # check match:
+        if ( args.acronym[l].capitalize()==w[0].capitalize()):
+            # record matches:
             acro_dict[l].append(w.strip())
 
-# sample the word lists to create the phrases
-phrase_sets = [random.sample(acro_dict[l], n) for l in range(len(acronym))]
+### sample the word lists to create the phrases
+# Pick a non-ragged sample of acro_dict:
+try:
+    phrase_sets = [\
+                random.sample(acro_dict[l], args.n) \
+                for l in range(len(args.acronym))\
+                ]
+except ValueError as err:
+    print('''
+There probably aren\'t enough matching words in the
+dictionary to make that many samples!
+          ''')
+    raise
+    sys.exit(3)
+# transpose the sample:
+# (* operator opens up the list into positional args for zip())
+# (zip() dots its arguments into a list of tuples)
+# (comprehension makes it a list of lists)
 phrases = [ list(p) for p in zip(*phrase_sets)]
 
-# combine the phrases into strings and print
+# combine the phrases into strings and print:
 for p in phrases:
     print(' '.join(p))
 

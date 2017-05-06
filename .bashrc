@@ -130,10 +130,11 @@ fi
 CALCRC='~/.calcrc'
 export CALCRC
 
-# if [[ -f ~/TODO.md ]]; then
+if [[ -f ~/TODO.md ]]; then
 # 	pandoc ~/TODO.md -t html | lynx -stdin -dump
-# fi
-w2do -l
+	echo "There are $(wc -l ~/TODO.md) lines remaining in ~/TODO.md!"
+fi
+# w2do -l
 
 #User defined aliases
 #alias R='. /usr/local/bin/R'

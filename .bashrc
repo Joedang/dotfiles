@@ -130,9 +130,10 @@ fi
 CALCRC='~/.calcrc'
 export CALCRC
 
-if [[ -f ~/TODO.md ]]; then
-	pandoc ~/TODO.md -t html | lynx -stdin -dump
-fi
+# if [[ -f ~/TODO.md ]]; then
+# 	pandoc ~/TODO.md -t html | lynx -stdin -dump
+# fi
+w2do -l
 
 #User defined aliases
 #alias R='. /usr/local/bin/R'
@@ -150,6 +151,7 @@ alias trashls='gvfs-ls trash://'
 alias xop='xdg-open'
 # function linfo { info $@ | less; }
 alias vinfo='info --vi-keys'
+alias todo='w2do'
 
 # add tlmgr to the PATH
 # unclear if this is still necessary

@@ -1,0 +1,4 @@
+#!/usr/bin/Rscript
+
+# Set the default library install location to my source directory
+R_LIBS=~/src/R/lib

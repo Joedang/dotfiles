@@ -132,7 +132,7 @@ export CALCRC
 
 if [[ -f ~/TODO.md ]]; then
 # 	pandoc ~/TODO.md -t html | lynx -stdin -dump
-	echo "There are $(wc -l ~/TODO.md) lines remaining in ~/TODO.md!"
+	echo "There are $(wc -l ~/TODO.md | grep -o '[0-9]*\ ')lines remaining in ~/TODO.md!"
 fi
 # w2do -l
 

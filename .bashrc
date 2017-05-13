@@ -153,6 +153,7 @@ alias xop='xdg-open'
 # function linfo { info $@ | less; }
 alias vinfo='info --vi-keys'
 alias todo='w2do'
+alias iR='jupyter console --kernel ir'
 
 # add tlmgr to the PATH
 # unclear if this is still necessary

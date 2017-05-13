@@ -1,0 +1,12 @@
+{
+  "load_extensions": {
+    "varInspector/main": true,
+    "collapsible_headings/main": true,
+    "dragdrop/main": true,
+    "spellchecker/main": true,
+    "vim_binding/vim_binding": true,
+    "ruler/main": true,
+    "zenmode/main": false,
+    "code_prettify/2to3": true
+  }
+}

@@ -1,0 +1,15 @@
+#!/bin/bash
+declare -i t h m s
+t=$(
+	cat time.log\
+		| tr -d [:alpha:][:blank:] \
+		| paste -s -d' \n' - \
+		| awk '{start+=$1; stop+=$2} END {print stop-start}'
+)
+h=(t/3600)
+m=(t%3600/60)
+s=(t%60)
+echo t= $t
+echo h= $h
+echo m= $m
+echo s= $s

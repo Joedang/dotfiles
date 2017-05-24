@@ -1,0 +1,8 @@
+#!/bin/bash
+{
+printf 'start '
+date +%s
+cat
+printf 'stop '
+date +%s
+} >> time.log

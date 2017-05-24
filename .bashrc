@@ -162,6 +162,7 @@ PATH=/usr/local/texlive/2016/bin/x86_64-linux:$PATH
 PATH=~/bin:$PATH
 PATH=/opt/android-studio/bin:$PATH
 PATH=/usr/local/brlcad/bin:$PATH
+PATH=/usr/local/julia/bin:$PATH
 if [[ "hostname"=='localhost' ]]; then
 	# If on the chromebook, add the Ruby install that's in
 	# my home dir to my path.

@@ -205,3 +205,8 @@ export MANPATH
 INFOPATH=/usr/local/MYLIB/foobar/man:$INFOPATH
 export INFOPATH
 ```
+## Create animated GIFs
+`convert -delay 20 -loop 0 *.png myanimation.gif`  
+Compiles all the `PNG`s in the WD to a `GIF`.
+
+A nice way to preview this kind of stuff is with the `animate` command.

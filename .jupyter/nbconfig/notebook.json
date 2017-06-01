@@ -1,12 +1,14 @@
 {
   "load_extensions": {
+    "nbextensions_configurator/config_menu/main": true,
     "varInspector/main": true,
-    "collapsible_headings/main": true,
-    "dragdrop/main": true,
-    "spellchecker/main": true,
-    "vim_binding/vim_binding": true,
     "ruler/main": true,
+    "dragdrop/main": true,
+    "contrib_nbextensions_help_item/main": true,
+    "spellchecker/main": true,
+    "code_prettify/2to3": true,
+    "vim_binding/vim_binding": true,
     "zenmode/main": false,
-    "code_prettify/2to3": true
+    "collapsible_headings/main": true
   }
 }

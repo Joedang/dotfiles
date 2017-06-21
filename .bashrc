@@ -163,6 +163,7 @@ PATH=~/bin:$PATH
 PATH=/opt/android-studio/bin:$PATH
 PATH=/usr/local/brlcad/bin:$PATH
 PATH=/usr/local/julia/bin:$PATH
+PATH=/usr/local/datcom_plus/bin:$PATH
 if [[ "hostname"=='localhost' ]]; then
 	# If on the chromebook, add the Ruby install that's in
 	# my home dir to my path.

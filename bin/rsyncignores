@@ -1,0 +1,2 @@
+#!/bin/bash
+find . -regex '.*\.?rsyncignore' | awk '{printf "--ignore-from='\''" $1 "'\''"}' | tr '\n' ' '

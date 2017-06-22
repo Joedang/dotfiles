@@ -210,3 +210,20 @@ export INFOPATH
 Compiles all the `PNG`s in the WD to a `GIF`.
 
 A nice way to preview this kind of stuff is with the `animate` command.
+
+## Rip content from a webpage for local viewing
+This is hecka useful if you know you're going to be away from da innanetz and want to study. 
+
+`httrack` is the tool to use. 
+
+```bash
+$ httrack http://www.seas.upenn.edu/~cis194/spring15/
+```
+
+If you want, you can make Python pretend to be a server.
+
+```
+$ python3 -m http.server
+```
+
+If you don't have Python 3, it would be `python -m SimpleHTTPServer`.

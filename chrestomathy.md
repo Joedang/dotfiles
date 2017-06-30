@@ -1,8 +1,9 @@
 # A little gallery of neat one-liners and helpful reminders
+This is like Stack Exchange, but past-Joe answers the questions of present-Joe.
 
 ## Get information about CLI tools
 * man -- brief manual pages
-* info -- long-winded and explanations 
+* info -- long-winded and explanations, but often just the man page
 * apropos -- man pages with matchning keywords
 
 ## Get the number of pages in all the PDFs in the CWD:
@@ -69,26 +70,26 @@ Strip the track number from a bunch of songs:
 `$ rename 's/^[0-9][0-9] - *//' *`  
 
 ```
-01 - The Starting Line.flac  
-02 - Floor Corn.flac         
-03 - ACVC.flac               
-04 - 300MB.flac              
-05 - Revolution #5.flac      
-06 - Dear Dinosaur.flac      
-07 - Annoyed Grunt.flac   
-08 - Bustin.flac          
-09 - Blockbuster.flac     
-10 - Busta.flac           
-11 - Tiger.flac           
-12 - The End.flac         
-13 - Shady Interlude.flac 
-14 - T.I.M.E..flac        
-15 - Smooth.flac
-16 - Stand By Meme.flac 
-17 - Wallspin.flac
-18 - Wow Wow.flac
-19 - Mouth Pressure.flac
-20 - Shit.flac
+01 - The Starting Line.mp3  
+02 - Floor Corn.mp3         
+03 - ACVC.mp3               
+04 - 300MB.mp3              
+05 - Revolution #5.mp3      
+06 - Dear Dinosaur.mp3      
+07 - Annoyed Grunt.mp3   
+08 - Bustin.mp3          
+09 - Blockbuster.mp3     
+10 - Busta.mp3           
+11 - Tiger.mp3           
+12 - The End.mp3         
+13 - Shady Interlude.mp3 
+14 - T.I.M.E..mp3        
+15 - Smooth.mp3
+16 - Stand By Meme.mp3 
+17 - Wallspin.mp3
+18 - Wow Wow.mp3
+19 - Mouth Pressure.mp3
+20 - Shit.mp3
 ```
 becomes
 ```
@@ -227,3 +228,10 @@ $ python3 -m http.server
 ```
 
 If you don't have Python 3, it would be `python -m SimpleHTTPServer`.
+
+## Strip file extensions
+```bash
+filename=$(basename "$fullfile")
+extension="${filename##*.}"
+filename="${filename%.*}"
+```

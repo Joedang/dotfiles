@@ -6,6 +6,12 @@ This is like Stack Exchange, but past-Joe answers the questions of present-Joe.
 * info -- long-winded and explanations, but often just the man page
 * apropos -- man pages with matchning keywords
 
+## R
+### Figure out what you're looking at
+`str()` gets the structure of something (e.g., if you have a list of lists.)  
+`typeof()` tells you the storage type of something.  
+`class()` tells you... the class of something.  
+
 ## Get the number of pages in all the PDFs in the CWD:
 
     ls *.pdf | awk -e '{print "pdfgrep -n [:alphanum:] "$1"| tail -1"}' | sh

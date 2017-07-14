@@ -122,11 +122,21 @@ Wow Wow.mp3
 ```
 
 ## Media Conversion
+
+### Audio and Video
 `avconv`\* and `flac2mp3` are pretty good. The default settings for `flac2mp3` are basically perfect. You'll probably have to compile flac2mp3 from source.  
 \* Lately, `avconv` has not been so great. It couldn't find the codecs required for writing to `mp3`, despite attempts to help it find them.
 `lame` is a stand-alone library/command that *only* writes to `mp3`.  
 `easytag` is a GUI-only program that handles `mp3` tags (called `ID3`).  
 `youtube-dl` is also good for acquiring stuff, but don't count on your package manager's repos being up to date _\*cough\*Ubuntu\*cough\*_. You pretty much have to compile both `youtube-dl` and `avconv` from source. (`libav` is the parent package/project for the `avconv` command.)
+
+### Create animated GIFs
+`convert -delay 20 -loop 0 *.png myanimation.gif`  
+Compiles all the `PNG`s in the WD to a `GIF`.
+
+A nice way to preview this kind of stuff is with the `animate` command.
+
+I also made a `vid2small` utility in Python3 that can convert stuff to `GIF`.
 
 ## Installing Fonts
 GIMP checks for typefaces on its own, so running `$ sudo fc-cache -fv` may be unnecessary.
@@ -212,12 +222,6 @@ export MANPATH
 INFOPATH=/usr/local/MYLIB/foobar/man:$INFOPATH
 export INFOPATH
 ```
-## Create animated GIFs
-`convert -delay 20 -loop 0 *.png myanimation.gif`  
-Compiles all the `PNG`s in the WD to a `GIF`.
-
-A nice way to preview this kind of stuff is with the `animate` command.
-
 ## Rip content from a webpage for local viewing
 This is hecka useful if you know you're going to be away from da innanetz and want to study. 
 
@@ -241,3 +245,13 @@ filename=$(basename "$fullfile")
 extension="${filename##*.}"
 filename="${filename%.*}"
 ```
+
+## Sorting Numbered Files
+I had a bunch of book chapters as `PDF`s that I wanted to merge together, but they were named "Chapter-10-..." and the like. So, I couldn't simply rely on the default sorting of `ls`. 
+So, I used 
+
+```bash
+pdfunite `ls Front*; ls Copy*; ls Pre*; ls Chap* | sort -t - -k 2 -n; ls Ind*` arfken.pdf
+```
+
+`-t -` specifies that fields are delimited by dashes. `-k 2` specifies that the second field should be used for sorting. `-n` specifies that sorting should be done by numeric value (as opposed to sorting alphabetically like ...17,18,19,1,20,21... or something). 

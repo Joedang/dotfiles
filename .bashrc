@@ -166,6 +166,7 @@ PATH=/usr/local/brlcad/bin:$PATH
 PATH=/usr/local/julia/bin:$PATH
 PATH=~/.local/bin:$PATH
 PATH=/usr/local/datcom_plus/bin:$PATH
+PATH=/usr/sbin:$PATH
 if [[ "hostname"=='localhost' ]]; then
 	# If on the chromebook, add the Ruby install that's in
 	# my home dir to my path.

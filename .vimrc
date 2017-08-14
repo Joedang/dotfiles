@@ -53,6 +53,7 @@ Plugin 'scrooloose/nerdTree'
 Plugin 'tarruda/vim-conque-repl' "nice, but usually outdone by tmux
 Plugin 'ctrlpvim/ctrlp.vim' "nice, but I usually know where my files are
 Plugin 'tpope/vim-surround' "not used to bindings yet; often just do it manually
+" Plugin 'csv.vim'
 " The following are examples of different formats supported.
 " Keep Plugin commands between vundle#begin/end.
 " plugin on GitHub repo

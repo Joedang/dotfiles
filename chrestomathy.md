@@ -255,3 +255,11 @@ pdfunite `ls Front*; ls Copy*; ls Pre*; ls Chap* | sort -t - -k 2 -n; ls Ind*` a
 ```
 
 `-t -` specifies that fields are delimited by dashes. `-k 2` specifies that the second field should be used for sorting. `-n` specifies that sorting should be done by numeric value (as opposed to sorting alphabetically like ...17,18,19,1,20,21... or something). 
+
+## Make clean LaTeX files using Pandoc
+
+Normally, pandoc adds a bunch of coloring information and header crap to files that have code blocks (verbatim environment) that makes the end LaTeX non-human-readable. You can *fix* this by simply adding the `--listings` flag, which tells pandoc that you want to use the `listings` package, rather than put custom coloring on every keyword (seriously). *It's really worth noting, however,* that this flag also makes pandoc give you *only the body of the text.* There's no preable, `\begin{docuemnt}`, or `\end{document}`. 
+
+```bash
+pandoc mydoc.md --listings -o mydoc_body.tex
+```

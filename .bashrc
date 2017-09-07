@@ -161,7 +161,7 @@ alias iR='jupyter console --kernel ir'
 # also add ~/bin
 PATH=/usr/local/texlive/2016/bin/x86_64-linux:$PATH
 PATH=~/bin:$PATH
-PATH=/opt/android-studio/bin:$PATH
+# PATH=/opt/android-studio/bin:$PATH
 PATH=/usr/local/brlcad/bin:$PATH
 PATH=/usr/local/julia/bin:$PATH
 PATH=~/.local/bin:$PATH

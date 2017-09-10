@@ -46,7 +46,7 @@ Plugin 'VundleVim/Vundle.vim'
 Plugin 'togglecursor' "hasn't really been useful yet
 Plugin 'godlygeek/tabular' "rare to use, but nice
 Plugin 'plasticboy/vim-markdown' "frequently used
-Plugin 'python-mode/python-mode'
+" Plugin 'python-mode/python-mode'
 " Plugin 'vim-ipython'
 " Plugin 'Conque-Shell'
 Plugin 'scrooloose/nerdTree'

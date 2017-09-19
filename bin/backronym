@@ -46,6 +46,11 @@ parser.add_argument(\
     type=int, default=5,\
     help='number of example phrases you wish to generate'\
     )
+parser.add_argument(\
+        '-d', '--dict', dest='dictPath',\
+        type=str, default='/usr/share/dict/words',\
+        help='absolute path to the dictionary used to generate the backronym. Each word must be on its own line. Defaults to /usr/share/dict/words'
+        )
 args= parser.parse_args()
 print(args)
 
@@ -65,7 +70,7 @@ acro_dict= [[] for _ in range(len(args.acronym))]
 # scan letters:
 for l in range(0,len(args.acronym)):
     # scan words:
-    for w in open('/usr/share/dict/words', mode='r'):
+    for w in open(args.dictPath, mode='r', encoding='UTF-8'):
         # check match:
         if ( args.acronym[l].capitalize()==w[0].capitalize()):
             # record matches:

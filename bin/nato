@@ -1,0 +1,139 @@
+#!/bin/bash
+# step through each input
+for w in $@
+do
+	# break each word into characters and make them upper-case
+	for c in `echo $w | grep -o . | tr '[:lower:]' '[:upper:]'`
+	do
+		# giant case statement defining pronunciation
+		case $c in
+		A)
+			echo Alpha
+			;;
+		B)
+			echo Bravo
+			;;
+		C)
+			echo Charlie
+			;;
+		D)
+			echo Delta
+			;;
+		E)
+			echo Echo
+			;;
+		F)
+			echo Foxtrot
+			;;
+		G)
+			echo Golf
+			;;
+		H)
+			echo Hotel
+			;;
+		I)
+			echo India
+			;;
+		J)
+			echo Juliett
+			;;
+		K)
+			echo Kilo
+			;;
+		L)
+			echo Lima
+			;;
+		M)
+			echo Mike
+			;;
+		N)
+			echo November
+			;;
+		O)
+			echo Oscar
+			;;
+		P)
+			echo Papa
+			;;
+		Q)
+			echo Quebec
+			;;
+		R)
+			echo Romeo
+			;;
+		S)
+			echo Sierra
+			;;
+		T)
+			echo Tango
+			;;
+		U)
+			echo Uniform
+			;;
+		V)
+			echo Victor
+			;;
+		W)
+			echo Whiskey
+			;;
+		X)
+			echo X-ray
+			;;
+		Y)
+			echo Yankee
+			;;
+		Z)
+			echo Zulu
+			;;
+		1)
+			echo one
+			;;
+		2)
+			echo two
+			;;
+		3)
+			echo three
+			;;
+		4)
+			echo four
+			;;
+		5)
+			echo five
+			;;
+		6)
+			echo six
+			;;
+		7)
+			echo seven
+			;;
+		8)
+			echo eight
+			;;
+		9)
+			echo niner
+			;;
+		0)
+			echo zero
+			;;
+		\.)
+			echo dot
+			;;
+		/)
+			echo stroke
+			;;
+		\\)
+			echo backslash
+			;;
+		-)
+			echo dash
+			;;
+		\ )
+			echo space
+			;;
+		*)
+			# all other characters are returned as-is
+			echo $c
+			;;
+		esac
+	done
+done

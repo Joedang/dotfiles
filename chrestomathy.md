@@ -138,6 +138,21 @@ A nice way to preview this kind of stuff is with the `animate` command.
 
 I also made a `vid2small` utility in Python3 that can convert stuff to `GIF`.
 
+### Concatenate large videos
+Some cameras will output video in chunks, to avoid excessively large files. This can potentially be a pain for editing, if there are many files over which a single shot is broken.
+
+Some file types, such as mp4 can actually be concatenated directly using `cat`. However, this does not recalculate the time stamps, so viewers like `vlc` will not see anything but the first video. 
+
+You can use the `concat` demuxer in ffmpeg to concatenate such files and recalculate the time stamps (without deencoding and reencoding the videos) like so:
+
+```bash
+$ cat shellsList.txt
+file 44.mp4
+file 45.mp4
+file 46.mp4
+$ ffmpeg -f concat -i shellsList.txt -c copy shells.mp4
+```
+
 ## Installing Fonts
 GIMP checks for typefaces on its own, so running `$ sudo fc-cache -fv` may be unnecessary.
 
@@ -258,8 +273,23 @@ pdfunite `ls Front*; ls Copy*; ls Pre*; ls Chap* | sort -t - -k 2 -n; ls Ind*` a
 
 ## Make clean LaTeX files using Pandoc
 
-Normally, pandoc adds a bunch of coloring information and header crap to files that have code blocks (verbatim environment) that makes the end LaTeX non-human-readable. You can *fix* this by simply adding the `--listings` flag, which tells pandoc that you want to use the `listings` package, rather than put custom coloring on every keyword (seriously). *It's really worth noting, however,* that this flag also makes pandoc give you *only the body of the text.* There's no preable, `\begin{docuemnt}`, or `\end{document}`. 
+Normally, pandoc adds a bunch of coloring information and header crap to files that have code blocks (verbatim environment) that makes the end LaTeX non-human-readable. You can *fix* this by simply adding the `--listings` flag, which tells pandoc that you want to use the `listings` package, rather than put custom coloring on every keyword (seriously). 
+
+*It's really worth noting, however,* that pandoc gives you *only the body of the text.* There's no preable, `\begin{docuemnt}`, or `\end{document}`. 
+You can get a standalone document by using the `--standalone` flag. 
+
 
 ```bash
 pandoc mydoc.md --listings -o mydoc_body.tex
 ```
+
+## Monitoring files
+It's often useful to be able to monitor the contents of a file. For example, to watch for when lines are added to a log file. 
+There are a few ways to accomplish this: `watch`, `tail -F`, and pressing `F` in `less`. 
+
+`watch` can be used to monitor many things, not just files. 
+For example, `watch tail myfile.log` will rerun `tail myfile.log` every 2 seconds, while `watch -n 1 echo` will act as a crude clock, and `watch ls /tmp` will monitor the contents of `/tmp`. 
+
+`tail -F` simply displays new lines as they are added.
+
+Pressing `F` in `less` is the same idea as `tail -F`. This is probably the most powerful way to monitor a log file, since you get all the tools normally included in `less`. The only downside is that you can't use them while monitoring. You have to press `F` to start monitoring, and `ctrl+c` to stop monitoring and return to normal viewing. 

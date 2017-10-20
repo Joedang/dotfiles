@@ -293,3 +293,59 @@ For example, `watch tail myfile.log` will rerun `tail myfile.log` every 2 second
 `tail -F` simply displays new lines as they are added.
 
 Pressing `F` in `less` is the same idea as `tail -F`. This is probably the most powerful way to monitor a log file, since you get all the tools normally included in `less`. The only downside is that you can't use them while monitoring. You have to press `F` to start monitoring, and `ctrl+c` to stop monitoring and return to normal viewing. 
+
+## Encryption
+
+### PGP via GPG
+
+### full disk encryption with LUKS
+encrypt a device (or partition):  
+```
+cryptsetup -y -v -h sha256 luksFormat /dev/sdb
+```
+
+Get header information about an encrypted device:  
+```
+cryptsetup luksDump /dev/sdb
+```
+
+Decrypt a LUKS device and map it as a bulk storage device:  
+```
+cryptsetup luksOpen /dev/sdb cry
+```
+
+Get the status of a mapped LUKS device:  
+```
+cryptsetup -v status cry
+```
+
+Write zeroes to the device (optional, hides locations of future data):  
+```
+dd if=/dev/zero of=/dev/mapper/cry
+```
+
+Set up a file system on the mapped LUKS device:  
+```
+mkfs.ext4 /dev/mapper/cry
+```
+
+Mount the mapped LUKS device:  
+```
+mkdir ~/cry
+mount /dev/mapper/cry ~/cry
+```
+
+Change permissions so it can be used without root/sudo (after decrypting and mounting):  
+```
+chown -R joedang ~/cry
+```
+
+Unmount:  
+```
+umount ~/cry
+```
+
+Stop on-the-fly decryption of a LUKS device:  
+```
+cryptsetup luksClose cry
+```

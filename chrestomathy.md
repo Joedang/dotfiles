@@ -11,6 +11,30 @@ This is like Stack Exchange, but past-Joe answers the questions of present-Joe.
 `str()` gets the structure of something (e.g., if you have a list of lists.)  
 `typeof()` tells you the storage type of something.  
 `class()` tells you... the class of something.  
+`help()` and `??` give you the help pages for functions.  
+
+## Python
+### Figure out what you're looking at
+`help()` will sometimes give you useful information, if the package authors have bothered to tell you how their objects work.   
+`dir()` will tell you the attributes of a thing, though there are usually too many for this to be helpful.  
+`print()` can be helpful, but many similar types print in identical ways.  
+`type()` tells you the type of an object (specifically, what modules/objects it comes from). This can be surprisingly useless...  
+
+### matplotlib
+The usual calls you want are `import matplotlib.pyplot as plt` and `plt.plot(x,y)`.  
+If you're going topless (without a display server), you'll need to do 
+```python
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+```
+Otherwise, `matplotlib` will try to access your non-existant cursor and trip all over itself. 
+
+### sequences
+Typically, the pythonic way to do things is to use generators instead of sequences. So, stuff like `range()` which only gets instantiated inside things like `for` and `with`.
+(__Pay attention to off-by-one errors here!!!__ The convention for this built-in is inconsistent. `range(1,10)` generates the integers from 1 to 9, the last of which is accessed by index 8. Seriously.)
+
+For lists of floats, `numpy.linspace(start, stop, num)` is the best option. Apallingly, there is no mainstream equivalent (AFAIK) to R's `seq()`, so you'll have to manage the step size between elements on your own (and deal with the corresponding fence post rounding BS).
 
 ## Get the number of pages in all the PDFs in the CWD:
 

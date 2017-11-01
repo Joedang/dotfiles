@@ -11,12 +11,12 @@
 # Examples:
 ## untracked changes to butts:
 ## ?? butts
-## modified files:
+## modified README and untracked butts:
 ##  M README.md
 ## ?? butts
-## 
-## 
-## 
+## added changes:
+## A  neat/gitprompt.sh
+## committed changes: (no output)
 ## 
 
 # unimplemented:

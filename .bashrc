@@ -40,9 +40,7 @@ case "$TERM" in
     xterm-color) color_prompt=yes;;
 esac
 
-# uncomment for a colored prompt, if the terminal has the capability; turned
-# off by default to not distract the user: the focus in a terminal window
-# should be on the output of commands, not on the prompt
+# turn on colored prompt
 force_color_prompt=yes
 
 if [ -n "$force_color_prompt" ]; then
@@ -72,42 +70,15 @@ xterm*|rxvt*)
     ;;
 esac
 
-# If it's downloaded, use the bash-git-prompt when in a git repo
-# Not usable until I find out how to keep it from slowing down the prompt so much
-# if [ -f ".bash-git-prompt/gitprompt.sh" ]; then
-# 	source ~/.bash-git-prompt/gitprompt.sh
-# 	GIT_PROMPT_ONLY_IN_REPO=1
-# 	GIT_PROMPT_SHOW_UNTRACKED_FILES=no
-# fi
-
-# enable color support of ls and also add handy aliases
-if [ -x /usr/bin/dircolors ]; then
-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-    alias ls='ls --color=auto'
-    #alias dir='dir --color=auto'
-    #alias vdir='vdir --color=auto'
-
-    alias grep='grep --color=auto'
-    alias fgrep='fgrep --color=auto'
-    alias egrep='egrep --color=auto'
-fi
-
-# some more ls aliases
-alias ll='ls -alFh'
-alias la='ls -A'
-alias l='ls -CF'
-
-# Add an "alert" alias for long running commands.  Use like so:
-#   sleep 10; alert
-alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
-
-# Alias definitions.
-# You may want to put all your additions into a separate file like
-# ~/.bash_aliases, instead of adding them here directly.
+# Aliases and path munging
+# These things are kept in separate files, to keep everything clean.
 # See /usr/share/doc/bash-doc/examples in the bash-doc package.
 
-if [ -f ~/.bash_aliases ]; then
-    . ~/.bash_aliases
+if [ -f ~/dotfiles/.bash_aliases ]; then
+    . ~/dotfiles/.bash_aliases
+fi
+if [ -f ~/dotfiles/.bash_path ]; then
+    . ~/dotfiles/.bash_path
 fi
 
 # enable programmable completion features (you don't need to enable
@@ -121,57 +92,8 @@ if ! shopt -oq posix; then
   fi
 fi
 
-## add OpenFoam tools to the path
-#. /opt/openfoam30/etc/bashrc
-## correcting doubled-up commands
-# alias R='/usr/bin/R'
-# alias foamR='/opt/openfoam30/platforms/linux64GccDPInt32Opt/bin/R'
-
-CALCRC='~/.calcrc'
-export CALCRC
-
 if [[ -f ~/TODO.md ]]; then
 # 	pandoc ~/TODO.md -t html | lynx -stdin -dump
 	echo "There are $(wc -l ~/TODO.md | grep -o '[0-9]*\ ')lines remaining in ~/TODO.md!"
 fi
 # w2do -l
-
-#User defined aliases
-#alias R='. /usr/local/bin/R'
-alias sta='git status'
-alias githome='cd "$(git rev-parse --show-toplevel)"'
-alias pl='pwd;ls'
-alias lsd='ls -d -- */'
-alias infovi='info --vi-keys'
-alias lynxvi='lynx --vikeys'
-#alias viewmd='function _viewmd(){ pandoc -i "$1" -o /tmp/$(basename ${1%.*}.html); chromium-browser /tmp/$(basename ${1%.*}.html); };_viewmd'
-alias cls='clear; ls'
-alias clsd='clear; lsd'
-alias gcalc='gcalccmd'
-alias trash='gvfs-trash'
-alias trashls='gvfs-ls trash://'
-alias xop='xdg-open'
-# function linfo { info $@ | less; }
-alias vinfo='info --vi-keys'
-alias todo='w2do'
-alias iR='jupyter console --kernel ir'
-
-# add tlmgr to the PATH
-# unclear if this is still necessary
-# also add ~/bin
-PATH=/usr/local/texlive/2016/bin/x86_64-linux:$PATH
-PATH=~/bin:$PATH
-# PATH=/opt/android-studio/bin:$PATH
-PATH=/usr/local/brlcad/bin:$PATH
-PATH=/usr/local/julia/bin:$PATH
-PATH=~/.local/bin:$PATH
-PATH=/usr/local/datcom_plus/bin:$PATH
-PATH=/usr/sbin:$PATH
-PATH=/sbin:$PATH
-if [[ "hostname"=='localhost' ]]; then
-	# If on the chromebook, add the Ruby install that's in
-	# my home dir to my path.
-	PATH=/home/joedang/src/Ruby/bin/:$PATH;
-fi
-export PATH
-

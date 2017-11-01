@@ -1,2 +1,4 @@
 #!/bin/bash
 source /opt/openfoam30/etc/bashrc
+alias R='/usr/bin/R'
+alias foamR='/opt/openfoam30/platforms/linux64GccDPInt32Opt/bin/R'

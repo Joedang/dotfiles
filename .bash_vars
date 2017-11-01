@@ -1,0 +1,5 @@
+#!/bin/bash
+# enable the config file for calc
+CALCRC='~/.calcrc'
+export CALCRC
+

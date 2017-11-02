@@ -1,5 +1,6 @@
 " turn on line numbers
 set relativenumber
+set number
 
 " To get around Chrome grabbing <C-w>
 " Mostly useful for ChromeOS terminal

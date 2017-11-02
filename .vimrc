@@ -20,6 +20,26 @@ set omnifunc=syntaxcomplete#Complete
 " set the color scheme for gvim
 :colo slate
 
+" Limelight and Goyo stuff
+" maps
+" toggle Limelight
+nmap <Leader>ll :Limelight!!
+" toggle Goyo
+nmap <Leader>gy :Goyo
+" Color name (:help cterm-colors) or ANSI code
+let g:limelight_conceal_ctermfg = 'gray'
+" Color name (:help gui-colors) or RGB color
+let g:limelight_conceal_guifg = 'DarkGray'
+" Highlighting priority (default: 10)
+"   Set it to -1 not to overrule hlsearch
+let g:limelight_priority = -1
+" highlight lines instead of paragraphs
+let g:limelight_bop = '^'
+let g:limelight_eop = '$'
+" tie it into goyo
+autocmd! User GoyoEnter Limelight
+autocmd! User GoyoLeave Limelight!
+
 " add manually downloaded plugins
 set runtimepath+=$HOME/.vim/manual/*
 " Notes:
@@ -57,6 +77,8 @@ Plugin 'tarruda/vim-conque-repl' "nice, but usually outdone by tmux
 Plugin 'ctrlpvim/ctrlp.vim' "nice, but I usually know where my files are
 Plugin 'tpope/vim-surround' "not used to bindings yet; often just do it manually
 Plugin 'wesQ3/vim-windowswap' "<leader>ww select another pane <leader>ww panes are swapped
+Plugin 'junegunn/goyo.vim' "minimal single-column editing
+Plugin 'junegunn/limelight.vim' "darken non-current line. special colors req.
 " Plugin 'csv.vim'
 " The following are examples of different formats supported.
 " Keep Plugin commands between vundle#begin/end.

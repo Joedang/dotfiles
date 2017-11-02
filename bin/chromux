@@ -3,7 +3,10 @@
 # based off of https://github.com/aaronhalford/tmux-scripts
 
 sn='chromux' # session name
-defDir='~' # default directory
+defDir=$HOME # default directory
+prevDir=`pwd`
+echo changing to $defDir
+cd $defDir
 
 echo Checking for existing $sn session.
 tmux has-session -t $sn
@@ -22,6 +25,7 @@ then
 	tmux split-window -h
 	echo starting a new pane for htop
 	tmux send-keys -t $sn:1.3 'htop --sort-key PERCENT_MEM' C-m # watch resources
+	# This renaming stuff has no effect, AFAICT:
 	tmux set-window-option -g automatic-rename off
 	tmux rename-window -t $sn:1 sys
 
@@ -39,3 +43,5 @@ else
 fi
 echo Attaching.
 tmux attach -t $sn
+echo Changing back to $prevDir 
+cd $prevDir

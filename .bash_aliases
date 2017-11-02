@@ -40,3 +40,4 @@ alias xop='xdg-open'
 # function linfo { info $@ | less; }
 alias todo='w2do'
 alias iR='jupyter console --kernel ir'
+alias hist='history'

@@ -1,4 +1,6 @@
 #!/bin/bash
+
+##### path for commands #####
 # add tlmgr to the PATH
 # unclear if this is still necessary
 # also add ~/bin
@@ -13,9 +15,15 @@ PATH=~/.local/bin:$PATH
 PATH=/usr/local/datcom_plus/bin:$PATH
 PATH=/usr/sbin:$PATH
 PATH=/sbin:$PATH
-if [[ "hostname"=='localhost' ]]; then
+if [ "hostname"=='localhost' ]
+then
 	# If on the chromebook, add the Ruby install that's in
 	# my home dir to my path.
 	PATH=/home/joedang/src/Ruby/bin/:$PATH;
 fi
+
+##### man path #####
+MANPATH=/usr/man:/usr/share/doc/:/usr/share/man:/usr/local/share/man/:/usr/local/man/:/var/cache/man/:$MANPATH
+
+##### exports #####
 export PATH

@@ -17,6 +17,9 @@ syntax on
 filetype plugin on
 set omnifunc=syntaxcomplete#Complete
 
+" show hidden files in the NERD tree
+let NERDTreeShowHidden=1
+
 " set the color scheme for gvim
 :colo slate
 
@@ -79,6 +82,7 @@ Plugin 'tpope/vim-surround' "not used to bindings yet; often just do it manually
 Plugin 'wesQ3/vim-windowswap' "<leader>ww select another pane <leader>ww panes are swapped
 Plugin 'junegunn/goyo.vim' "minimal single-column editing
 Plugin 'junegunn/limelight.vim' "darken non-current line. special colors req.
+Plugin 'alx741/vinfo' "tool for reading info pages with vim
 " Plugin 'csv.vim'
 " The following are examples of different formats supported.
 " Keep Plugin commands between vundle#begin/end.

@@ -10,7 +10,7 @@ alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
 
-# some more ls aliases
+# some navigation ls aliases
 alias ll='ls -alFh'
 alias la='ls -A'
 alias l='ls -CF'
@@ -18,6 +18,7 @@ alias cls='clear; ls'
 alias clsd='clear; lsd'
 alias lsd='ls -d -- */'
 alias pl='pwd;ls'
+alias home='cd $HOME'
 
 # git aliases that are hard to build into .gitconfig
 alias sta='git status'

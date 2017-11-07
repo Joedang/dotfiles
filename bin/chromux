@@ -15,19 +15,32 @@ then
 	echo No $sn session found. Starting a new one.
 
 	# system monitoring and graphical server
+	#/----------------------------------------------\
+	#|		(1) disk usage			|
+	#|----------------------------------------------|
+	#|		(2) tor client			|
+	#|----------------------------------------------|
+	#|	(3) unity	|	(4) htop	|
+	#|			|			|
+	#\----------------------------------------------/
 	echo starting a window 
 	tmux new-session -s $sn -n sys -d $@
 	tmux send-keys -t $sn:1 "cd $defDir" C-m # get into HOME by default
-	tmux send-keys -t $sn:1 'watch -n 10 df -h' C-m # watch disk usage
+	tmux send-keys -t $sn:1 'watch -n 10 df -h / ~/SD' C-m # watch disk usage
 	echo starting a new pane for unity
 	tmux split-window
 	tmux send-keys -t $sn 'startunity' # enter command but don't run it yet
 	tmux split-window -h
 	echo starting a new pane for htop
-	tmux send-keys -t $sn:1.3 'htop --sort-key PERCENT_MEM' C-m # watch resources
+	tmux send-keys -t $sn 'htop --sort-key PERCENT_MEM' C-m # watch resources
+	echo starting a pane for tor
+	tmux split-window -t $sn:1.1
+	tmux send-keys -t $sn:1.2 'tor' C-m # start a tor client
+	# Note: this is not a transparent proxy. You must attach to it as a
+	# SOCKS proxy later. (It's easiest to just use a browser extension.)
 	# This renaming stuff has no effect, AFAICT:
-	tmux set-window-option -g automatic-rename off
-	tmux rename-window -t $sn:1 sys
+	# tmux set-window-option -g automatic-rename off
+	# tmux rename-window -t $sn:1 sys
 
 	# jupyter server
 	echo starting a window for jupyter

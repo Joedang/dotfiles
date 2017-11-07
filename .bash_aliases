@@ -18,7 +18,7 @@ alias cls='clear; ls'
 alias clsd='clear; lsd'
 alias lsd='ls -d -- */'
 alias pl='pwd;ls'
-alias home='cd $HOME'
+alias home='clear; cd $HOME; jobs; ls'
 
 # git aliases that are hard to build into .gitconfig
 alias sta='git status'
@@ -42,3 +42,4 @@ alias xop='xdg-open'
 alias todo='w2do'
 alias iR='jupyter console --kernel ir'
 alias hist='history'
+alias xonotic='sh ~/Xonotic/xonotic-linux-glx.sh'

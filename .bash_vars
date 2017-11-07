@@ -3,3 +3,9 @@
 CALCRC='~/.calcrc'
 export CALCRC
 
+# add ~/texmf to LaTeX's path:
+if [ -d ~/texmf ]
+then
+	TEXMFHOME="$HOME/texmf"
+	export TEXMFHOME
+fi

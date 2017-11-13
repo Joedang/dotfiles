@@ -2,7 +2,7 @@
 # Take the mount point of a device or a link to its mount point, 
 # and check if it allows execution. If not, remount it as an
 # executable device.
-# Requires sudo/root privileges. 
+# Requires sudoer privileges. 
 # Joe Shields
 # 2017-11-12
 
@@ -18,7 +18,7 @@ fi
 if mount | grep $target | grep noexec > /dev/null
 then
 	# echo $target device does not allow execution
-	mount -o remount,exec $target
+	sudo mount -o remount,exec $target
 	exit 0
 else
 	echo $target device already allows execution 1>&2

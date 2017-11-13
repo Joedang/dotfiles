@@ -15,6 +15,7 @@
 # 1     too few arguments (deprecated)
 # 2     too many arguments (deprecated)
 # 3     not enough words in the dictionary to sample one of the letters
+# 4     problem joining the words into a phrase
 #
 # Author: Joe Shields
 # Date: 2016-12-20, 2017-5-1
@@ -97,8 +98,15 @@ dictionary to make that many samples!
 phrases = [ list(p) for p in zip(*phrase_sets)]
 
 # combine the phrases into strings and print:
+# I get the error 
+# UnicodeEncodeError: 'ascii' codec can't encode character '\xe1' in position 13: ordinal not in range(128)
+# when running the line with the print statement. 
+# I'm not sure why that happens, but it's not really worth investigating, TBH.
 for p in phrases:
-    print(' '.join(p))
+    try:
+        print(' '.join(p))
+    except:
+        print('Something went wrong joining the phrase. (Probably found wierd characters.) Skipping...')
 
 # success!
 sys.exit(0)

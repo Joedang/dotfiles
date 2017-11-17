@@ -1,5 +1,27 @@
 #!/bin/bash
 pmi='apt install'
+oldwd=`pwd`
+thisShell=`ps -p $$ -ocmd=`
+
+if [ "$thisShell" != '/bin/bash ./bootStrap.sh' ]
+then
+	echo shell is $thisShell
+	echo must be bash, as in:
+	echo 'bash ~/dotfiles/bootStrap/bootStrap.sh'
+	exit 1
+fi
+
+if [ -d ~/dotfiles/bootStrap ]
+then
+	echo ~~~~~~ automatically changing to ~/dotfiles/bootStrap/ ~~~~~~
+	cd ~/dotfiles/bootStrap
+fi
+
+if ! ls bootStrap.sh > /dev/null
+then
+	echo Couldn\'t find bootStrap.sh
+	echo This script must be run from the same directory as bootStrap.sh
+fi
 
 echo ~~~~~~ UPDATING APT REPOS ~~~~~~
 sudo apt update
@@ -29,6 +51,7 @@ fi
 
 if [ ! -d ~/dotfiles ]
 then
+	echo ~~~~~~ cloning dotfiles ~~~~~~
 	git clone git@github.com:joedang/dotfiles.git ~/dotfiles
 else
 	echo ~/dotfiles already exists!
@@ -36,14 +59,29 @@ fi
 
 if [ ! -d ~/.oh-my-zsh ]
 then
+	echo ~~~~~~ cloning oh-my-zsh  ~~~~~~
 	git clone git@github.com:robbyrussell/oh-my-zsh.git ~/.oh-my-zsh
 else
 	echo ~/.oh-my-zsh already exists!
 fi
 
-echo Changing default shell to zsh \(requires sudo\)...
-sudo chsh -s zsh
-ln -st ~ ~/dotfiles/.zshrc_oh-my ~/.zshrc
+if [ ! -d ~/.vim/bundle/Vundle.vim ]
+then
+	echo ~~~~~~ cloning Vundle ~~~~~~
+	git clone git@github.com:VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+else
+	echo ~/.oh-my-zsh already exists!
+fi
+
+echo ~~~~~~ installing Vundle packages ~~~~~~
+vim -c PluginInstall -c quit returnMsg
+
+
+echo ~~~~~~ Changing default shell to zsh \(requires password\) ~~~~~~
+chsh -s `which zsh`
+
+echo ~~~~~~ unpacking dotfiles ~~~~~~
+ln -s    ~/dotfiles/.zshrc_oh-my ~/.zshrc
 ln -st ~ ~/dotfiles/.bashrc
 ln -st ~ ~/dotfiles/.vimrc
 ln -st ~ ~/dotfiles/.tmux.conf
@@ -55,3 +93,6 @@ ln -st ~ ~/dotfiles/.gitconfig
 ln -st ~ ~/dotfiles/.emacs
 ln -st ~ ~/dotfiles/.calcrc
 ln -st ~ ~/dotfiles/bin
+
+echo ~~~~~~ returning to original directory ~~~~~~
+cd $oldwd

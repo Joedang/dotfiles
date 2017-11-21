@@ -1,5 +1,7 @@
+coreutils
 git
 vim
+tree
 colordiff
 python-pip
 python3-pip
@@ -17,4 +19,11 @@ cryptsetup
 ffmpeg
 youtube-dl
 iceweasel
-
+gimp
+inkscape
+ffmpeg
+vlc
+leafpad
+openrocket
+redshift
+screenfetch

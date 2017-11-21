@@ -128,7 +128,13 @@ echo You should restart your shell to get the customizations.
 echo ~~~~~~ returning to original directory ~~~~~~
 cd $oldwd
 
-echo ~~~~~~ running Python configurator ~~~~~~
+echo ~~~~~~ creating location for R libs ~~~~~~
+mkdir ~/src
+mkdir ~/src/R
+mkdir ~/src/R/lib
+echo ~~~~~~ running Python3 configurator ~~~~~~
 bash python3_config.sh
+echo ~~~~~~ running Python2 configurator ~~~~~~
 bash python2_config.sh
+echo ~~~~~~ running Jupyter configurator ~~~~~~
 bash jupyter_config.sh

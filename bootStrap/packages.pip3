@@ -2,7 +2,7 @@ jupyter
 numpy
 matplotlib
 magnitude
-udunits2
+udunitspy
 pandas
 sympy
 scipy

@@ -3,16 +3,18 @@
     "number_sections": false
   },
   "load_extensions": {
-    "spellchecker/main": true,
+    "zenmode/main": false,
+    "vim_binding/vim_binding": true,
+    "codefolding": true,
+    "varInspector/main": true,
+    "ruler/main": true,
     "code_prettify/2to3": true,
     "collapsible_headings/main": true,
-    "vim_binding/vim_binding": true,
-    "ruler/main": true,
-    "contrib_nbextensions_help_item/main": true,
-    "zenmode/main": false,
-    "varInspector/main": true,
-    "nbextensions_configurator/config_menu/main": true,
     "toc2/main": true,
-    "dragdrop/main": true
+    "vim_binding": true,
+    "contrib_nbextensions_help_item/main": true,
+    "dragdrop/main": true,
+    "spellchecker/main": true,
+    "nbextensions_configurator/config_menu/main": true
   }
 }

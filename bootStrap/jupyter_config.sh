@@ -8,7 +8,7 @@ pip3 install jupyter_contrib_nbextensions
 jupyter contrib nbextension install --user
 echo ----- adding the dark theme -----
 pip3 install jupyterthemes
-jt -t onedork -T
+jt -t onedork -T -vim
 OLDDIR=`pwd`
 echo ----- adding vim bindings -----
 cd $(jupyter --data-dir)
@@ -23,10 +23,10 @@ echo ----- enabling folding -----
 jupyter nbextension enable codefolding
 
 echo ----- installing R kernel for Jupyter -----
-R -e 'install.packages(\'devtools\');devtools::install_github(\'IRkernel/IRkernel\');IRkernel::installspec()'
+R -e 'install.packages("devtools", repos="https://ftp.osuosl.org/pub/cran");devtools::install_github("IRkernel/IRkernel");IRkernel::installspec()'
 
 echo ----- installing Python2 kernel for Jupyter -----
-sudo pip install -U ipykernel
+sudo -H pip install -U ipykernel
 python2 -m ipykernel install
 
 echo ----- jupyter configurator done -----

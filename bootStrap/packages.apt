@@ -27,3 +27,7 @@ leafpad
 openrocket
 redshift
 screenfetch
+libssl-dev
+curl
+libssh2-1-dev
+libcurl4-openssl-dev

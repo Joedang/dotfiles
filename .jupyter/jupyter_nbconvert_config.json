@@ -1,13 +1,14 @@
 {
+  "version": 1,
   "Exporter": {
+    "template_path": [
+      ".",
+      "/usr/local/lib/python3.4/dist-packages/jupyter_contrib_nbextensions/templates",
+      "/home/joedang/.local/lib/python3.5/site-packages/jupyter_contrib_nbextensions/templates"
+    ],
     "preprocessors": [
       "jupyter_contrib_nbextensions.nbconvert_support.CodeFoldingPreprocessor",
       "jupyter_contrib_nbextensions.nbconvert_support.PyMarkdownPreprocessor"
-    ],
-    "template_path": [
-      ".",
-      "/usr/local/lib/python3.4/dist-packages/jupyter_contrib_nbextensions/templates"
     ]
-  },
-  "version": 1
+  }
 }

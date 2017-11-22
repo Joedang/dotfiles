@@ -42,7 +42,7 @@ cat packages.apt
 sudo apt install `cat packages.apt`
 
 echo
-read -n 1 -p 'Copy ssh keys from Joe-ThinkPad? (must be on local network) (y/n)' answer
+read -n 1 -p 'Copy ssh keys from Joe-ThinkPad? (must be on local network) [y/N]' answer
 if [ $answer == 'y' ]
 then
 	echo ~~~~~~ copying SSH keys from Thinkpad ~~~~~~
@@ -129,9 +129,7 @@ echo ~~~~~~ returning to original directory ~~~~~~
 cd $oldwd
 
 echo ~~~~~~ creating location for R libs ~~~~~~
-mkdir ~/src
-mkdir ~/src/R
-mkdir ~/src/R/lib
+mkdir -p ~/src/R/lib
 echo ~~~~~~ running Python3 configurator ~~~~~~
 bash python3_config.sh
 echo ~~~~~~ running Python2 configurator ~~~~~~

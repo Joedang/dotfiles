@@ -20,6 +20,9 @@ set omnifunc=syntaxcomplete#Complete
 " show hidden files in the NERD tree
 let NERDTreeShowHidden=1
 
+" always show the tab line
+set showtabline=2
+
 " set the color scheme for gvim
 :colo slate
 

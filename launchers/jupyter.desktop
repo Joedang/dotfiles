@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Jupyter
+Comment=a common REPL/prototyping environment
+Exec=bash -c 'pgrep -U `whoami` jupyter && notify-send "Jupyter appears to already be running. \n pid(s):"`pgrep -l jupyter`"\n Try localhost:8888"  || $(tmux new-window -n jupyter && tmux send-keys -t jupyter "jupyter notebook" C-m)'
+Icon=scratch
+Path=~
+Terminal=false
+StartupNotify=true

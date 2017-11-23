@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=redshift
+Comment=color the display based on the time of day
+Exec=redshift-gtk &
+Icon=redshift
+Path=~
+Terminal=false
+StartupNotify=false

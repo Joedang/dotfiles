@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=TeX Live Manager
+Comment=Manage TeX Live packages
+GenericName=Package Manager
+Exec=gksu -d -S -D "TeX Live Manager" 'tlmgr --gui'
+Terminal=false
+Type=Application
+Icon=system-software-update

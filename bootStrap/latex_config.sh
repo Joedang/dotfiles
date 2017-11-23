@@ -54,7 +54,8 @@ tar -xzf $tmpdir/$tlzip --checkpoint=100 -C $tmpdir
 cd "$tmpdir"/install-tl-*
 
 echo ------ running installer ------
-sudo ./install-tl
+sudo mkdir -p /usr/local/bin /usr/local/man /usr/local/info
+sudo ./install-tl -profile $oldwd/texlive.profile
 
 echo ------ installer finished------
 echo Please check that you have the correct things in your path.

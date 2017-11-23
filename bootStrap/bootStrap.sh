@@ -136,3 +136,5 @@ echo ~~~~~~ running Python2 configurator ~~~~~~
 bash python2_config.sh
 echo ~~~~~~ running Jupyter configurator ~~~~~~
 bash jupyter_config.sh
+echo ~~~~~~ running LaTeX configurator ~~~~~~
+bash latex_config.sh

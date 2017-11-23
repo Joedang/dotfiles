@@ -64,14 +64,10 @@ echo ------ installing equivs ------
 sudo apt-get install equivs --no-install-recommends
 mkdir -p $tmpdir/tl-equivs 
 cd $tmpdir/tl-equivs
-equivs-control texlive-local
-
-echo ------ creating equivalent package ------
-echo '(This makes a pretend package, so that dpkg knows you have tlmgr and friends installed.)'
-cd $tmpdir
-wget $equivsPackage
+cp $oldwd/texlive-local .
 
 echo ------ building equivs package -------
+echo '(This makes a pretend package, so that dpkg knows you have tlmgr and friends installed.)'
 equivs-build texlive-local
 
 echo ------ installing equivs package ------
@@ -82,8 +78,7 @@ sudo apt-get install -f
 
 echo ------ making launcher shortcut ------
 mkdir -p ~/.local/share/applications
-cd $oldwd
-cp tlmgr.desktop ~/.local/share/applications/
+cp $oldwd/tlmgr.desktop ~/.local/share/applications/
 
 echo ------ returning to old directory ------
 cd $oldwd

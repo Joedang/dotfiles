@@ -2,3 +2,4 @@ wget
 gksu
 perl-tk
 xzdec
+freeglut3

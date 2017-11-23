@@ -24,30 +24,33 @@ echo
 echo !----- Using the $tlYear equivalent package -----!
 echo If a newer version of tlmgr is available, you should update the 
 echo URL and year in this script.
-read -n 1 -p "Continue with" $tlYear"? [y/N]" answer
+read -n 1 -p "Continue with $tlYear? [y/N]" answer
 if [ ! $answer == 'y' ]
 then
 	echo Okay, exiting...
 	exit 2
 fi
 
+echo
 echo ------ cleaning out temp directory ------
 rm -rf $tmpdir
 mkdir $tmpdir
 
 echo ------ installing dependencies for LaTeX ------
-if [ ! cat latex_depend.apt ]
+if [ ! -f latex_depend.apt ]
 then
 	echo !----- It looks like you\'re in the wrong directory... -----!
 	exit 1
 fi
+cat latex_depend.apt
 sudo apt-get install `cat latex_depend.apt`
 
 echo ------ downloading TeXLive installer ------
-wget $tldownload$tlzip -P $tmpdir/ --progress
+wget $tldownload$tlzip -P $tmpdir/ --progress=bar
 
 echo ------ extracting installer ------
-tar -xzf $tmpdir$tlzip --checkpoint
+tar -xzf  --checkpoint 100
+tar -xzf $tmpdir/$tlzip --checkpoint=100 -C $tmpdir
 cd "$tmpdir"/install-tl-*
 
 echo ------ running installer ------
@@ -64,7 +67,7 @@ cd $tmpdir/tl-equivs
 equivs-control texlive-local
 
 echo ------ creating equivalent package ------
-echo (This makes a pretend package, so that dpkg knows you have tlmgr and friends installed.)
+echo '(This makes a pretend package, so that dpkg knows you have tlmgr and friends installed.)'
 cd $tmpdir
 wget $equivsPackage
 

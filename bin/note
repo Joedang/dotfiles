@@ -1,0 +1,139 @@
+#!/bin/bash
+# read arguments as a series of commands
+# check for validity of the named directory for notes
+# 	optionally initiate the directory
+# check for the existence of a note
+# 	optionally touch a note
+# check if the notes have been rolled over to this week
+# 	optionally roll over the last notes
+# execute the subcommands in order
+
+# abort if you get errors
+set -e
+
+# direct parameters:
+weeklyDir=~/notes/weekly
+rolloverDay=friday
+noteEditor=$EDITOR
+
+# inferred parameters:
+lastRollover=`date --date "last $rolloverDay" +"%Y-%m-%d.md"`
+
+# other initializations
+mostRecent='' # name of the most recent note
+answer=''
+
+
+function note-help() {
+	echo usage: \t note '<command> [FILE]'
+	echo
+	echo manage markdown notes with awareness of checklists
+	echo FILE defaults to the latest notes, as determined by '`sort -nr`'
+	echo
+	echo COMMANDS:
+	echo -e list \t count completed/uncompleted tasks '(checkboxes)'
+	echo -e update \t open the notes in your text editor
+	echo -e rollover \t copy the notes into a new page for this week, removing completed tasks
+	echo -e init \t setup the 
+	exit 1
+}
+
+
+function note-list() {
+	# see if there're notes from the last rollover day or sooner
+	if [ $mostRecent != $lastRollover ] && [ ! check ]
+	then
+		echo It looks like your notes are more than a week old.
+		echo You may want to run this with the -r \(rollover\) flag.
+	fi
+	unfinished=`cat $1 | grep '\[\ \]' | wc -l`
+	finished=`cat $1 | grep '\[X\]' | wc -l`
+	echo For the notes in $1:
+	echo $finished down, $unfinished to go
+}
+function note-update() {
+	if [ -f $1 ]
+	then
+		$noteEditor $1
+	else
+		echo Couldn\'t find $1.
+	fi
+}
+
+function note-rollover() {
+	targ=$weeklyDir/$lastRollover
+	if [ ! -f $targ ]
+	then
+		echo Copying unresolved lines from $1 into $targ...
+		echo automatically rolled over on `date` >> $targ
+		grep -v '\[X\]' $1 >> $targ
+	else
+		echo $targ already exists.
+		echo Rolling over into $targ would probably delete info.
+		echo I won\'t do it!
+	fi
+}
+
+
+function getLatestNote() {
+	mostRecent=`ls $weeklyDir | sort -nr | head -n 1`
+	echo $mostRecent
+}
+
+#### check for directory ####
+echo checking for the existence of the weekly directoy
+answer=''
+if [ ! -d $weeklyDir ]
+then
+	read -n 1 -p "Couldn't find $weeklyDir. Create it? [y/N]" answer
+	if [ $answer = y ]
+	then
+		echo Creating $weeklyDir...
+		mkdir -p $weeklyDir
+	else
+		echo -e Well, I can\'t do much with no directory to work in.
+		exit 1
+	fi
+fi
+
+#### check for notes ####
+echo checking for the existence of notes
+answer=''
+if [ -z "`ls $weeklyDir`" ]
+then
+	# catch if getLatestNote fails
+	read -n 1 -p "Couldn't find a note. Create one? [y/N]" answer
+	if [ $answer = y ]
+	then
+		touch $weeklyDir/$lastRollover
+	else
+		echo -e Well, I can\'t do much without any notes.
+		exit 1
+	fi
+fi
+
+echo about to assign mostRecent
+echo assigning a value of `getLatestNote`
+mostRecent=`getLatestNote`
+
+
+if [ $# -lt 2 ]
+then
+	targetNote=$mostRecent
+fi
+
+#### parse subcommands ####
+# read through each sbcommand given
+targ=$weeklyDir/$targetNote
+case $1 in
+	list) note-list $targ ;;
+	update) note-update $targ ;;
+	rollover) note-rollover $targ ;;
+	init)	echo init command placeholder ;;
+	help)	note-help ;;
+	*)		
+		echo note: \'$1\' is not a command
+		note-help
+		exit 1
+		;;
+esac

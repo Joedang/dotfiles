@@ -2,7 +2,8 @@
 set relativenumber
 set number
 
-let mapleader = ","
+" somehow makes the real leader backslash
+" let mapleader = "."
 
 " To get around Chrome grabbing <C-w>
 " Mostly useful for ChromeOS terminal
@@ -86,6 +87,7 @@ Plugin 'wesQ3/vim-windowswap' "<leader>ww select another pane <leader>ww panes a
 Plugin 'junegunn/goyo.vim' "minimal single-column editing
 Plugin 'junegunn/limelight.vim' "darken non-current line. special colors req.
 Plugin 'alx741/vinfo' "tool for reading info pages with vim
+Plugin 'mrk21/yaml-vim'
 " Plugin 'csv.vim'
 " The following are examples of different formats supported.
 " Keep Plugin commands between vundle#begin/end.

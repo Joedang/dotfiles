@@ -1,16 +1,19 @@
 #!/bin/bash
-# read arguments as a series of commands
-# check for validity of the named directory for notes
-# 	optionally initiate the directory
-# check for the existence of a note
-# 	optionally touch a note
-# check if the notes have been rolled over to this week
-# 	optionally roll over the last notes
-# execute the subcommands in order
+# A tool for managing notes and personal TODOs written in markdown
+# Joe Shields
+# 2017-12-17
+
+# exit codes:
+# -1:	command not found
+# 0:	normal operation
+# 1:	
+# 2:	couldn't find weekly directory
+# 3:	no notes in weekly directory
 
 # abort if you get errors
 set -e
 
+# TODO: read a config file instead of hard-coding these parameters
 # direct parameters:
 weeklyDir=~/notes/weekly
 rolloverDay=friday
@@ -25,21 +28,24 @@ answer=''
 
 
 function note-help() {
+# Short explanations of the command and its subcommands
 	echo usage: \t note '<command> [FILE]'
 	echo
 	echo manage markdown notes with awareness of checklists
 	echo FILE defaults to the latest notes, as determined by '`sort -nr`'
 	echo
 	echo COMMANDS:
-	echo -e list \t count completed/uncompleted tasks '(checkboxes)'
-	echo -e update \t open the notes in your text editor
-	echo -e rollover \t copy the notes into a new page for this week, removing completed tasks
-	echo -e init \t setup the 
-	exit 1
+	echo -e 'list \t\t count completed/uncompleted tasks (checkboxes)'
+	echo -e 'update \t\t open the notes in your text editor'
+	echo -e 'rollover \t copy the notes into a new page for this week, removing completed tasks'
+	echo -e 'verb \t\t list the section headings and first words of unchecked items'
+	echo -e 'init \t\t setup the '
+	echo -e 'help \t\t display this help message'
 }
 
 
 function note-list() {
+# list the done/todo action items for the latest week
 	# see if there're notes from the last rollover day or sooner
 	if [ $mostRecent != $lastRollover ] && [ ! check ]
 	then
@@ -61,6 +67,9 @@ function note-update() {
 }
 
 function note-rollover() {
+# copy over everything except for the checked-off action items
+# copy from $1 to the weekly rollover 
+# avoid clobbering
 	targ=$weeklyDir/$lastRollover
 	if [ ! -f $targ ]
 	then
@@ -80,8 +89,22 @@ function getLatestNote() {
 	echo $mostRecent
 }
 
+function note-verb() {
+# show the section headings and the first word of every unchecked action item
+	echo For the notes in $1:
+	# match {unchecked items} or {(non-primary) headings}
+		# replace {check boxes} wih {tabs}
+		# select only {the first words of action items} or {headings}
+	grep -e '^-\ \[\ \]\|##*' $1 \
+		| sed -e 's/-\ \[\ \]\ /\t/' \
+		| grep -oe '^\s*\w*\|##*.*'
+}
+
+# TODO: make this pre-check section not break the tool when used on things not
+# using the weekly directory
+
 #### check for directory ####
-echo checking for the existence of the weekly directoy
+# echo checking for the existence of the weekly directoy
 answer=''
 if [ ! -d $weeklyDir ]
 then
@@ -92,12 +115,12 @@ then
 		mkdir -p $weeklyDir
 	else
 		echo -e Well, I can\'t do much with no directory to work in.
-		exit 1
+		exit 2
 	fi
 fi
 
 #### check for notes ####
-echo checking for the existence of notes
+# echo checking for the existence of notes
 answer=''
 if [ -z "`ls $weeklyDir`" ]
 then
@@ -108,32 +131,35 @@ then
 		touch $weeklyDir/$lastRollover
 	else
 		echo -e Well, I can\'t do much without any notes.
-		exit 1
+		exit 3
 	fi
 fi
 
-echo about to assign mostRecent
-echo assigning a value of `getLatestNote`
+# echo about to assign mostRecent
+# echo assigning a value of `getLatestNote`
 mostRecent=`getLatestNote`
 
 
 if [ $# -lt 2 ]
 then
 	targetNote=$mostRecent
+	targ=$weeklyDir/$targetNote
+else
+	targ=$1
 fi
 
 #### parse subcommands ####
 # read through each sbcommand given
-targ=$weeklyDir/$targetNote
 case $1 in
 	list) note-list $targ ;;
 	update) note-update $targ ;;
 	rollover) note-rollover $targ ;;
 	init)	echo init command placeholder ;;
+	verb)	note-verb $targ ;;
 	help)	note-help ;;
 	*)		
 		echo note: \'$1\' is not a command
 		note-help
-		exit 1
+		exit -l
 		;;
 esac

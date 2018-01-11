@@ -26,16 +26,27 @@ ZSH_THEME_GIT_PROMPT_CLEAN=""
 # This is precmd().
 # ~
 # $
-ignoreTime=10
-notifyTime=60
+ignoreTime=10 # seconds, only echo elapsed time if commands are longer than this
+notifyTime=60 # seconds, only send notifications if commands are longer than this
+omzsh_noSayPattern='^vim\|^less\|^man\|^info\|^hist\|^fg' # commands (patterns) to never time
+omzsh_sayTime_global='y' # do you want to report execution times? (y/n)
+
 unset omzsh_startTime
+
 function preexec() {
     # echo 'This is preexec().'
     # typeset -gi CALCTIME=1
     # typeset -gi startTime=SECONDS
     omzsh_startTime=`date +%s.%N`
-    export omzsh_startTime
+    omzsh_thisCmd=`tail -n 1 ~/.zsh_history`
+    omzsh_sayTime=$omzsh_sayTime_global
+    omzsh_sayTimeSearch=`echo ${omzsh_thisCmd##*;} | grep $omzsh_noSayPattern`
+    if [ "$omzsh_sayTimeSearch" != '' ] 
+    then # it's a command that I don't want to time
+	    omzsh_sayTime='n'
+    fi
 }
+
 function precmd() {
     # echo 'This is precmd().'
     # check to see if a start time was set.
@@ -45,7 +56,7 @@ function precmd() {
 	omzsh_diffTime=`echo $omzsh_stopTime - $omzsh_startTime | bc`
 	omzsh_diffTime=`printf '%0.1f\n' $omzsh_diffTime`
 	omzsh_timeMsg=`echo $fg[red]$omzsh_diffTime s`
-	if [ `echo $omzsh_diffTime '>' $ignoreTime | bc` -eq 1 ]
+	if [ $omzsh_sayTime = 'y' ] && [ `echo $omzsh_diffTime '>' $ignoreTime | bc` -eq 1 ]
 	then
 	    echo $omzsh_timeMsg
 	    if [ `echo $omzsh_diffTime '>' $notifyTime | bc` -eq 1 ]

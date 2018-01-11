@@ -35,17 +35,17 @@ function note-help() {
 	echo FILE defaults to the latest notes, as determined by '`sort -nr`'
 	echo
 	echo COMMANDS:
-	echo -e 'list \t\t count completed/uncompleted tasks (checkboxes)'
+	echo -e 'count \t\t count completed/uncompleted tasks (checkboxes)'
 	echo -e 'update \t\t open the notes in your text editor'
 	echo -e 'rollover \t copy the notes into a new page for this week, removing completed tasks'
-	echo -e 'verb \t\t list the section headings and first words of unchecked items'
+	echo -e 'list \t\t list the section headings and first words of unchecked items'
 	echo -e 'init \t\t setup the '
 	echo -e 'help \t\t display this help message'
 }
 
 
-function note-list() {
-# list the done/todo action items for the latest week
+function note-count() {
+# count the done/todo action items for the latest week
 	# see if there're notes from the last rollover day or sooner
 	if [ $mostRecent != $lastRollover ] && [ ! check ]
 	then
@@ -89,7 +89,7 @@ function getLatestNote() {
 	echo $mostRecent
 }
 
-function note-verb() {
+function note-list() {
 # show the section headings and the first word of every unchecked action item
 	echo For the notes in $1:
 	# match {unchecked items} or {(non-primary) headings}
@@ -151,11 +151,11 @@ fi
 #### parse subcommands ####
 # read through each sbcommand given
 case $1 in
-	list) note-list $targ ;;
+	count) note-count $targ ;;
 	update) note-update $targ ;;
 	rollover) note-rollover $targ ;;
 	init)	echo init command placeholder ;;
-	verb)	note-verb $targ ;;
+	list)	note-list $targ ;;
 	help)	note-help ;;
 	*)		
 		echo note: \'$1\' is not a command

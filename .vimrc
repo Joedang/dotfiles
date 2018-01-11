@@ -24,6 +24,11 @@ let NERDTreeShowHidden=1
 " always show the tab line
 set showtabline=2
 
+" use these chars to indicate whitespace
+" when `:set list` is used
+" end-of-line shows as '$', trailing spaces show as '~', etc.
+set listchars=eol:$,tab:>-,trail:~,extends:>,precedes:<,nbsp:%
+
 " set the color scheme for gvim
 :colo slate
 
@@ -55,6 +60,10 @@ set runtimepath+=$HOME/.vim/manual/*
 " Only enable mouse mode when in normal mode
 " This allows pasting in chromeos (at least when not in tmux)
 set mouse=n
+
+" Use extended mousey stuff; enables drag-resize within tmux
+" might break things with old terminals or terminal emulators
+set ttymouse=xterm2
 
 " This would be a nice way to have RStudio-like functionality, if Vim would
 " not freeze the pane as soon as it is left.

@@ -1,4 +1,6 @@
 #!/bin/bash
+# Actually, you can just do this with the `showfigfonts` command...
+# ACTUALLY, it only seems to show the default figlet fonts. This script will show everything in the figlet font folder.
 for fonts in $(ls /usr/share/figlet)
 do
 	echo $fonts

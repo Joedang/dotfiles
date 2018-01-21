@@ -1,0 +1,6 @@
+#!/bin/bash
+rainbowWidth=105
+outStr=`date | toilet -f pagga --gay -k -w $rainbowWidth`
+# echo -e '\033[1A\033['$rainbowWidth'C' ISO: `date -I`
+outStr=$outStr'\tISO: '`date -I`
+echo -e "$outStr"

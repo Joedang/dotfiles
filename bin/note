@@ -95,9 +95,10 @@ function note-list() {
 	# match {unchecked items} or {(non-primary) headings}
 		# replace {check boxes} wih {tabs}
 		# select only {the first words of action items} or {headings}
+		# punctuation is allowed at the head of the word to allow for annotation
 	grep -e '^-\ \[\ \]\|##*' $1 \
 		| sed -e 's/-\ \[\ \]\ /\t/' \
-		| grep -oe '^\s*\w*\|##*.*'
+		| grep -oe '^\s*[[:punct:]]*\s*\w*\|##*.*'
 }
 
 # TODO: make this pre-check section not break the tool when used on things not

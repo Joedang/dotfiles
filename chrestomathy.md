@@ -65,7 +65,10 @@ Both of these are frontents for `dconf`.
 * Plug in the arduino
 * In the IDE, go to `Tools` -> `Port` select the arduino. (Either figure it out by plugging it in/out or by having it be the only thing plugged in.)
 
+You'll probably need to add yourself to the usergroup that's allowed to talk to ports:
+
         $ sudo usermod -a -G dialout joedang
+On some machines, you may need to restart after adding yourself.
 
 ## Checking Checksums
 Use `$ md5sum myPackage.tar.gz` to show the MD5 hash for a file.  

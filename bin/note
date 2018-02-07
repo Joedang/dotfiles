@@ -146,7 +146,8 @@ then
 	targetNote=$mostRecent
 	targ=$weeklyDir/$targetNote
 else
-	targ=$1
+	echo taking the argument as the target
+	targ=$2
 fi
 
 #### parse subcommands ####

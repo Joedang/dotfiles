@@ -4,6 +4,8 @@ set number
 
 " somehow makes the real leader backslash
 " let mapleader = "."
+nmap <Leader>! /(!)
+vmap <Leader>! /(!)
 
 " To get around Chrome grabbing <C-w>
 " Mostly useful for ChromeOS terminal

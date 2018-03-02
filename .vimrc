@@ -4,8 +4,16 @@ set number
 
 " somehow makes the real leader backslash
 " let mapleader = "."
+
+" seek to the next instance of (!)
 nmap <Leader>! /(!)
 vmap <Leader>! /(!)
+
+" shortcut for :tabnew MYFILE
+nmap <Leader>tn :tabnew 
+
+" shortcut to turn on spelling
+nmap <Leader>sp :set spell!
 
 " To get around Chrome grabbing <C-w>
 " Mostly useful for ChromeOS terminal

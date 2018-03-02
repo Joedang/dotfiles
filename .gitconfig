@@ -13,6 +13,8 @@
 #	home = rev-parse --show-toplevel
 	home = !pwd
 [alias]
-	gr = log --graph --full-history --all --color
+#	gr = log --graph --full-history --all --color --abbrev-commit --decorate --date=short
+#	gr = log --graph --full-history --all --color --format='%Cred%h%Creset %an (%G?) %Cblue%ai%Creset%d%n%s%n' 
+	gr = log --graph --full-history --all --color --format='%C(auto)%h %an (%G?) %C(green)%ci%C(auto)%d%n%s%n' 
 [alias]
 	sta = status

@@ -1,0 +1,14 @@
+#!/bin/bash
+# Convert a list of files to .OGG format using ffmpeg
+# 2018-02-09
+# Joe Shields
+
+# for f in $@
+# do
+	f_new=${@%.*}.ogg # replace the old file extension 
+	f_new=`echo $f_new | tr '\ ' '_'` # replace spaces with underscores
+# 	echo
+	echo Creating $f_new from $@
+	ffmpeg -i "$@" -c:a libvorbis -aq 7 "$f_new" # do the conversion
+# done
+# echo any2ogg is done!

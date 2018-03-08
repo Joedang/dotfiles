@@ -15,6 +15,10 @@ nmap <Leader>tn :tabnew
 " shortcut to turn on spelling
 nmap <Leader>sp :set spell!
 
+" add TODO list item (should only be for .md files,
+" but I don't want to figure that out right now...)
+nmap <Leader>td o- [ ] 
+
 " To get around Chrome grabbing <C-w>
 " Mostly useful for ChromeOS terminal
 nmap <C-H> <C-W><C-H>

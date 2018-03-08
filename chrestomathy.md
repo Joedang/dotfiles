@@ -36,6 +36,16 @@ Typically, the pythonic way to do things is to use generators instead of sequenc
 
 For lists of floats, `numpy.linspace(start, stop, num)` is the best option. Apallingly, there is no mainstream equivalent (AFAIK) to R's `seq()`, so you'll have to manage the step size between elements on your own (and deal with the corresponding fence post rounding BS).
 
+## RegEx
+### look-ahead and look-behind
+Example: look for anything occurring between `filename="` and `"`. Note that this is using the Perl syntax, `-P`.
+
+```
+cat dumpHeader.out | grep -P -e '(?<=filename=").*(?=")'
+```
+
+
+
 ## Get the number of pages in all the PDFs in the CWD:
 
     ls *.pdf | awk -e '{print "pdfgrep -n [:alphanum:] "$1"| tail -1"}' | sh
@@ -383,3 +393,12 @@ Stop on-the-fly decryption of a LUKS device:
 ```
 cryptsetup luksClose cry
 ```
+
+## Logout another user
+
+`pkill -u joedang` will kill all processes belonging to the user `joedang`, effectively logging them out.
+If you're logged into another session as `joedang`, you'll be logged out too.
+
+You can check what's going to get killed by `pkill` by running `pgrep -u joedang -l`. 
+The `-l` option prints the name of the process in addition to the process ID.
+The default is to print the process ID alone.

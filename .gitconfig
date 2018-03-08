@@ -8,6 +8,7 @@
 	default = simple
 [core]
 	editor = vim
+	excludesfile = ~/.gitignore
 [alias]
 #	home = !cd "$(git rev-parse --show-toplevel)"
 #	home = rev-parse --show-toplevel

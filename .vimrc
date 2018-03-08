@@ -1,30 +1,16 @@
+"~~~~~~~~~~ GLOBAL SETTINGS ~~~~~~~~~~ 
+
 " turn on line numbers
 set relativenumber
 set number
 
-" somehow makes the real leader backslash
-" let mapleader = "."
+" Only enable mouse mode when in normal mode
+" This allows pasting in chromeos (at least when not in tmux)
+set mouse=n
 
-" seek to the next instance of (!)
-nmap <Leader>! /(!)
-vmap <Leader>! /(!)
-
-" shortcut for :tabnew MYFILE
-nmap <Leader>tn :tabnew 
-
-" shortcut to turn on spelling
-nmap <Leader>sp :set spell!
-
-" add TODO list item (should only be for .md files,
-" but I don't want to figure that out right now...)
-nmap <Leader>td o- [ ] 
-
-" To get around Chrome grabbing <C-w>
-" Mostly useful for ChromeOS terminal
-nmap <C-H> <C-W><C-H>
-nmap <C-J> <C-W><C-J>
-nmap <C-K> <C-W><C-K>
-nmap <C-L> <C-W><C-L>
+" Use extended mousey stuff; enables drag-resize within tmux
+" might break things with old terminals or terminal emulators
+set ttymouse=xterm2
 
 syntax on
 
@@ -46,7 +32,49 @@ set listchars=eol:$,tab:>-,trail:~,extends:>,precedes:<,nbsp:%
 " set the color scheme for gvim
 :colo slate
 
-" Limelight and Goyo stuff
+" add manually downloaded plugins
+set runtimepath+=$HOME/.vim/manual/*
+" Notes:
+" Conque-Term comes from https://code.google.com/archive/p/conque/downloads
+
+"~~~~~~~~~~  GLOBAL MAPPINGS ~~~~~~~~~~ 
+
+" To get around Chrome grabbing <C-w>
+" Mostly useful for ChromeOS terminal
+" Also just nice to do half as many key presses, lol.
+nmap <C-H> <C-W><C-H>
+nmap <C-J> <C-W><C-J>
+nmap <C-K> <C-W><C-K>
+nmap <C-L> <C-W><C-L>
+
+" somehow makes the real leader backslash
+" let mapleader = "."
+
+" seek to the next instance of (!)
+nmap <Leader>! /(!)
+vmap <Leader>! /(!)
+
+" shortcut for :tabnew MYFILE
+nmap <Leader>tn :tabnew 
+
+" shortcut to turn on spelling
+nmap <Leader>sp :set spell!
+
+" dates and times:
+" Note that the dates will be in local time, not UTC!
+" ISO
+imap <c-l>id <c-r>=strftime('%Y-%m-%d')<cr>
+" ANSI
+imap <c-l>ad <c-r>=strftime('%d/%m/%Y')<cr>
+" local time
+imap <c-l>lt <c-r>=strftime('%H:%M:%S %z')<cr>
+" UTC time
+imap <c-l>utc <c-r>=system('date -u "+%Y-%m-%d:%H:%M:%S %Z"')<cr>
+
+command NT NERDTreeToggle
+nmap <Leader>nt :NERDTreeToggle
+
+"~~~~~~~~~~  LIMELIGHT AND GOYO STUFF ~~~~~~~~~~ 
 " maps
 " toggle Limelight
 nmap <Leader>ll :Limelight!!
@@ -66,26 +94,12 @@ let g:limelight_eop = '$'
 autocmd! User GoyoEnter Limelight
 autocmd! User GoyoLeave Limelight!
 
-" add manually downloaded plugins
-set runtimepath+=$HOME/.vim/manual/*
-" Notes:
-" Conque-Term comes from https://code.google.com/archive/p/conque/downloads
+"~~~~~~~~~~ FILETYPE SPECIFIC STUFF ~~~~~~~~~~
 
-" Only enable mouse mode when in normal mode
-" This allows pasting in chromeos (at least when not in tmux)
-set mouse=n
+" add TODO list item 
+autocmd FileType markdown nmap <Leader>td o- [ ] 
 
-" Use extended mousey stuff; enables drag-resize within tmux
-" might break things with old terminals or terminal emulators
-set ttymouse=xterm2
-
-" This would be a nice way to have RStudio-like functionality, if Vim would
-" not freeze the pane as soon as it is left.
-" map <c-k> <F9><Enter><Esc><C-W>k
-
-command NT NERDTreeToggle
-
-"~~~~~~~~~~ Vundle stuff ~~~~~~~~~~
+"~~~~~~~~~~ VUNDLE STUFF ~~~~~~~~~~
 set nocompatible              " be iMproved, required
 filetype off                  " required
 " set the runtime path to include Vundle and initialize

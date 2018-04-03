@@ -33,6 +33,7 @@ then
 	tmux send-keys -t $sn 'htop --sort-key PERCENT_MEM' C-m # watch resources
 	echo starting a utility pane
 	tmux split-window -h -t $sn:1.1
+	tmux send-keys -t $sn 'cmatrix' C-m # pretty
 	echo starting a pane for the xkb steward
 	tmux split-window -t $sn:1.1
 	tmux send-keys -t $sn:1.4 './.xkb/xkbSteward.sh' C-m

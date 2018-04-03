@@ -21,7 +21,7 @@ alias cj='clear; jobs'
 alias clj='clear; jobs; ls'
 alias pl='pwd;ls'
 alias home='clear; cd $HOME; jobs; ls'
-alias hoe="echo 'What did you just call me?!'"
+alias hoe="home; echo 'What did you just call me?!'"
 
 # git aliases that are hard to build into .gitconfig
 alias sta='git status'
@@ -56,3 +56,7 @@ alias peppyCaps='~/.xkb/recomp.sh'
 alias rainbowClock='watch -t -n1 --color _rainbowHelper'
 alias bgshuffle='xfdesktop --next'
 alias soundCheck='find ~/audio/samples -maxdepth 1 -type f | sort -R | head -n 1 | xargs play'
+alias gf='echo TFW no gf; fg'
+alias chrestomathy='vim ~/dotfiles/chrestomathy.md'
+alias vl='/usr/share/vim/vim74/macros/less.sh'
+alias drop='ogg123 ~/audio/samples/dropIt.ogg 2> /dev/null & cat ~/dotfiles/neat/dropTheBass.txt'

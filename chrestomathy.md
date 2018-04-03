@@ -44,7 +44,10 @@ Example: look for anything occurring between `filename="` and `"`. Note that thi
 cat dumpHeader.out | grep -P -e '(?<=filename=").*(?=")'
 ```
 
+Vim, for example, does not use the Perl syntax. See the `pattern-multi-items` help for more info.  
 
+### Negation
+An example of a negation in Vim would be `^#\@!`, which matches any line that doesn't start with an octothorpe. 
 
 ## Get the number of pages in all the PDFs in the CWD:
 
@@ -315,6 +318,8 @@ pdfunite `ls Front*; ls Copy*; ls Pre*; ls Chap* | sort -t - -k 2 -n; ls Ind*` a
 `tlmgr search --global --file myDependency.sty`  
 `tlmgr search --global myPackage`
 
+## Pandoc
+
 ### Make clean LaTeX files using Pandoc
 
 Normally, pandoc adds a bunch of coloring information and header crap to files that have code blocks (verbatim environment) that makes the end LaTeX non-human-readable. You can *fix* this by simply adding the `--listings` flag, which tells pandoc that you want to use the `listings` package, rather than put custom coloring on every keyword (seriously). 
@@ -325,6 +330,27 @@ You can get a standalone document by using the `--standalone` flag.
 
 ```bash
 pandoc mydoc.md --listings -o mydoc_body.tex
+```
+
+### Specify LaTeX options from within Markdown
+
+Put them in the YAML header like this:  
+```
+---
+title: 3D Printing Checklist
+date: \today
+fontsize: 12pt
+documentclass: article
+classoption: twocolumn
+geometry: margin=0.75in
+numbersections: true
+#toc: true
+pagestyle: plain
+output:
+  pdfdocument:
+      latex_engine: xelatex
+
+---
 ```
 
 ## Monitoring files
@@ -402,3 +428,32 @@ If you're logged into another session as `joedang`, you'll be logged out too.
 You can check what's going to get killed by `pkill` by running `pgrep -u joedang -l`. 
 The `-l` option prints the name of the process in addition to the process ID.
 The default is to print the process ID alone.
+
+## Fun
+
+### ASCII Art
+`screenfetch` gives ASCII art of your distro's logo along with statistics.
+
+`aview` and `asciiview` (both provided by the `aview` package) are nice interactive tools for creating ASCII art from images.
+
+`figlet` and `toilet` are tools for converting plain text into ASCII banners of different fonts and colors.
+
+`cowsay` makes speech bubbles with text said by a cow.
+
+`cmatrix` is basically a screensaver like the stuff from The Matrix.
+
+### Text-to-Speech
+`espeak`
+
+### Text Generation
+`misfortune` chooses random fortunes.
+
+`rig` generates random identities with valid state/city/zip fields.
+
+`backronym` (my own Python script) generates random backronyms, given an acronym.
+
+### Text Adventures
+`advent` is, of course, a classic.
+
+`frotz` plays a common format of text adventures. 
+You can get them [here](http://if.illuminion.de/infocom.html) and [here](http://ifwiki.org/index.php/Main_Page).

@@ -74,6 +74,16 @@ imap <c-l>utc <c-r>=system('date -u "+%Y-%m-%d:%H:%M:%S %Z"')<cr>
 command NT NERDTreeToggle
 nmap <Leader>nt :NERDTreeToggle
 
+vmap <Leader>tab :Tabularize 
+
+nmap <Leader>toc :Toc<cr>:vertical res 20<cr>:set nonu<cr>:set nornu<cr>:set nowrap<cr>
+
+" convenient typo mappings:
+command W w
+command Q q
+command Wq wq
+command WQ wq
+
 "~~~~~~~~~~  LIMELIGHT AND GOYO STUFF ~~~~~~~~~~ 
 " maps
 " toggle Limelight

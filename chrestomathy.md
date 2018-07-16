@@ -1,10 +1,34 @@
 # A little gallery of neat one-liners and helpful reminders
 This is like Stack Exchange, but past-Joe answers the questions of present-Joe.
 
-## Get information about CLI tools
+## Shell
+### How to tell what shell you're in
+All of these work:  
+```bash
+echo $0
+echo $SHELL
+ps | grep $$
+```
+
+### Get information about CLI tools
 * man -- brief manual pages
 * info -- long-winded and explanations, but often just the man page
 * apropos -- man pages with matchning keywords
+
+### How to change your default shell
+```bash
+chsh -s /usr/bin/zsh
+```
+
+### Built-ins
+Many commands, such as `read`, `source`, `fg`, `bg`, and `cd`, are built into Bash and don't have their own man pages. 
+The Bash manual (`man bash`) talks about these under the heading __SHELL BUILTIN COMMANDS__ on line 2580.
+
+#### read
+IMO, this is mostly useful for processing files found by `find` or `ls`. 
+For this purpose, the `-r` flag is almost always preferred, so files with spaces in their names won't get broken into multiple words. 
+(This obvioulsy requires that you feed `read` file names with the spaces escaped.) 
+If you want to mess with how the words are broken up, you need to \[temporarily!\] modify the variable `IFS`, which controlls how words are broken. (This is similar to how you might hack `for f in *` to cycle through file names.)
 
 ## R
 ### Figure out what you're looking at
@@ -186,12 +210,23 @@ Some file types, such as mp4 can actually be concatenated directly using `cat`. 
 You can use the `concat` demuxer in ffmpeg to concatenate such files and recalculate the time stamps (without deencoding and reencoding the videos) like so:
 
 ```bash
-$ cat shellsList.txt
+$ cat vidList.txt
 file 44.mp4
 file 45.mp4
 file 46.mp4
-$ ffmpeg -f concat -i shellsList.txt -c copy shells.mp4
+$ ffmpeg -f concat -i vidList.txt -c copy bigVid.mp4
 ```
+
+### Extract Frames From a Video
+You can just specify the output file in ffmpeg to be an image with a printf-style number.
+In this example, the `drawtext` video filter also adds a timestamp.
+```
+ffmpeg -i sourceVid.mp4 -ss $(startTime) -to $(stopTime) \
+-vf "drawtext=text=time\= %{pts} s: \
+fontcolor=green: x=5: y=5: fontsize=35" \
+frames%03d.png
+```
+
 
 ## Installing Fonts
 GIMP checks for typefaces on its own, so running `$ sudo fc-cache -fv` may be unnecessary.
@@ -347,7 +382,7 @@ numbersections: true
 #toc: true
 pagestyle: plain
 output:
-  pdfdocument:
+  pdf_document:
       latex_engine: xelatex
 
 ---

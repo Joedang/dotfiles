@@ -60,3 +60,7 @@ alias gf='echo TFW no gf; fg'
 alias chrestomathy='vim ~/dotfiles/chrestomathy.md'
 alias vl='/usr/share/vim/vim74/macros/less.sh'
 alias drop='ogg123 ~/audio/samples/dropIt.ogg 2> /dev/null & cat ~/dotfiles/neat/dropTheBass.txt'
+alias allsta=' find . -type d -name "\.git" \
+				-execdir pwd \; \
+				-execdir git status -sb \; \
+				-execdir echo -e \\n \;'

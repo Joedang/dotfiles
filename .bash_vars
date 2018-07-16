@@ -9,3 +9,8 @@ then
 	TEXMFHOME="$HOME/texmf"
 	export TEXMFHOME
 fi
+
+# set the variable that points the gnupg.vim plugin to the current terminal
+# Only relevant once that plugin is fixed and I start using it.
+# GPG_TTY=`tty`
+# export GPG_TTY

@@ -29,6 +29,10 @@ set showtabline=2
 " end-of-line shows as '$', trailing spaces show as '~', etc.
 set listchars=eol:$,tab:>-,trail:~,extends:>,precedes:<,nbsp:%
 
+" Set the default method of encryption for encrypted files
+" This is the strongest available by default, according to the help.
+set cryptmethod=blowfish2
+
 " set the color scheme for gvim
 :colo slate
 
@@ -134,7 +138,8 @@ Plugin 'wesQ3/vim-windowswap' "<leader>ww select another pane <leader>ww panes a
 Plugin 'junegunn/goyo.vim' "minimal single-column editing
 Plugin 'junegunn/limelight.vim' "darken non-current line. special colors req.
 Plugin 'alx741/vinfo' "tool for reading info pages with vim
-Plugin 'mrk21/yaml-vim'
+Plugin 'mrk21/yaml-vim' "indentation and highlighting for YAML
+Plugin 'jamessan/vim-gnupg' "integration with GPG; still buggy, use when fixed
 " Plugin 'csv.vim'
 " The following are examples of different formats supported.
 " Keep Plugin commands between vundle#begin/end.
@@ -170,4 +175,6 @@ filetype plugin indent on    " required
 "~~~~~~~~~~ end of Vundle stuff ~~~~~~~~~~
 
 let g:vim_markdown_folding_style_pythonic = 1
+" This does nothing with pythonic folding is enabled:
+let g:vim_markdown_folding_level = 0
 let g:vim_markdown_new_list_item_indent = 0

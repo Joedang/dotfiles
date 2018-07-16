@@ -5,6 +5,7 @@
 ops='' # initialize
 findDepthArg='-maxdepth 1' # default
 scriptName=extCount
+startPoint=.
 
 # more human-readable color controls
 textReset='\033]00m\]'
@@ -17,10 +18,11 @@ typeDescEnd=$textDefault
 
 helpFun() {
 	echo
-	echo -e usage: $scriptName '[-d DEPTH | -r]'
-	echo -e '\tcount the directories and file types in the current directory'
+	echo -e usage: $scriptName '[-L LEVEL | -r] [-d DIR]'
+	echo -e '\tcount the directories and file types in the specified directory'
 	echo -e arguments:
-	echo -e '\t-d DEPTH : descend through directories by DEPTH levels \(default is 1\)'
+	echo -e '\t-d DIR   : directory in which to count contents \(default is current working directory\)'
+	echo -e '\t-L LEVEL : descend through directories by LEVEL levels \(default is 1\)'
 	echo -e '\t-r       : recursively descend through directories'
 	echo -e '\t-h       : display this help message'
 	exit 0
@@ -29,27 +31,38 @@ helpFun() {
 # count the files
 fileCount() {
 	# get the list of files and remove the leading directories
-	fileList=`find . $findDepthArg -type f | sed 's/^.*\///'`
+	fileList=`find "$startPoint" $findDepthArg -not -path $startPoint -type f | sed 's/^.*\///'`
 
 	# get a list of files with no extension
 	# enquoting the variable is important to preserve the newlines
 	bareFiles=`echo "$fileList" | grep '^[^.]*$'`
-	printf  "% 7d ${typeDescStart}NO EXTENSION${typeDescEnd}\n" `echo "$bareFiles" | wc -l`
+	if [[ $bareFiles != '' ]]
+	then
+		printf  "% 7d ${typeDescStart}NO EXTENSION${typeDescEnd}\n" `echo "$bareFiles" | wc -l`
+	fi
 
 	# get a list of files with extensions
-	extFiles=`echo "$fileList" | grep -o '\..*' | sed 's/.*\.//' | uniq -c`
-	echo -e "$extFiles"
+	extFiles=`echo "$fileList" | grep -o '\..*' | sed 's/.*\.//' | sort | uniq -c`
+	if [[ $extFiles != '' ]]
+	then
+		echo -e "$extFiles"
+	fi
 
 }
 
 # count the directories
 dirCount() {
-	echo -e "`printf "% 7d" $((\`find . $findDepthArg -type d | wc -l\`-1))`"$typeDescStart' DIRECTORY'$typeDescEnd
+	dirList=`find "$startPoint" $findDepthArg -not -path $startPoint -type d`
+	if [[ $dirList != '' ]]
+	then
+		count=`printf "% 7d" $((\`echo "$dirList" | wc -l\`))`
+		echo -e "$count$typeDescStart DIRECTORY$typeDescEnd"
+	fi
 }
 
 
 ##### HANDLE ARGUMENTS #####
-while getopts "r d: h" op
+while getopts "r L: d: h" op
 do
 	# compile the used options into a space-separated list
 	ops="$ops"$op' '
@@ -61,9 +74,13 @@ do
 			# echo Hey we got the -r flag.
 			findDepthArg=''
 			;;
-		d)
-			# echo Hey we got the -d flag.
+		L)
+			# echo Hey we got the -L flag.
 			findDepthArg='-maxdepth '$OPTARG
+			;;
+		d)
+			startPoint=$OPTARG
+			# echo got -d flag and changed startPoint to $startPoint
 			;;
 		h)
 			helpFun
@@ -74,9 +91,9 @@ do
 done
 
 # validate that we don't have conflicting arguments
-if [[ "$ops" == *d* ]] && [[ "$ops" == *r* ]]
+if [[ "$ops" == *L* ]] && [[ "$ops" == *r* ]]
 then
-	echo -d and -r options cannot be used together.
+	echo -L and -r options cannot be used together.
 	exit -1
 fi
 

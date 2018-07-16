@@ -3,12 +3,26 @@
 # 2018-02-09
 # Joe Shields
 
-# for f in $@
+# echo Input: "$@"
+# echo
+# find "$@" -not -path . | while read -r f
 # do
-	f_new=${@%.*}.ogg # replace the old file extension 
+	# f_new=${@%.*}.ogg # replace the old file extension 
+	f=$@
+	f_new=${f%.*}.ogg # replace the old file extension 
 	f_new=`echo $f_new | tr '\ ' '_'` # replace spaces with underscores
 # 	echo
-	echo Creating $f_new from $@
-	ffmpeg -i "$@" -c:a libvorbis -aq 7 "$f_new" # do the conversion
+	echo Old file name: $f
+	echo New file name: $f_new
+	echo
+	# echo Creating $f_new from $@
+	ffmpeg -i "$f" -c:a libvorbis -aq 7 "$f_new"
+	# convCmd="ffmpeg -i '$f' -c:a libvorbis -aq 7 '$f_new'"
+	# echo Command to be run:
+	# echo "$convCmd"
+	# echo
+	# echo $convCmd
+	# exec "$convCmd" # do the conversion
+	# sleep 5
 # done
 # echo any2ogg is done!

@@ -1,6 +1,6 @@
 #!/bin/bash
-# generate checksums for everything in $1 and put it in checksum.txt.
-find "$1" -type f -exec md5sum {} \; | tee -a checksum.txt
+# generate checksums for everything in $1 and put it in checksum.md5.
+find $1 -type f -exec md5sum {} + | tee -a checksum.md5
 
 # Some prototyping:
 # find Shows/Live\ Action/Game\ of\ Thrones/ * | xargs -d "\n" md5sum >> /media/joedang/CA36-64A8/vid/H/checksum.txt

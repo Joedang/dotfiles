@@ -5,7 +5,8 @@
 ops='' # initialize
 findDepthArg='-maxdepth 1' # default
 scriptName=extCount
-startPoint=.
+startPointDefault=. # default starting point, set later
+startPoint=''
 
 # more human-readable color controls
 textReset='\033]00m\]'
@@ -18,8 +19,9 @@ typeDescEnd=$textDefault
 
 helpFun() {
 	echo
-	echo -e usage: $scriptName '[-L LEVEL | -r] [-d DIR]'
-	echo -e '\tcount the directories and file types in the specified directory'
+	echo -e usage: $scriptName '[-L LEVEL | -r] [-d DIR]|[DIR]'
+	echo -e "\t$scriptName counts the directories and file types in the specified directory."
+	echo -e "\tDIR may be given as a trailing argument, but the -d flag takes precedence."
 	echo -e arguments:
 	echo -e '\t-d DIR   : directory in which to count contents \(default is current working directory\)'
 	echo -e '\t-L LEVEL : descend through directories by LEVEL levels \(default is 1\)'
@@ -85,10 +87,29 @@ do
 		h)
 			helpFun
 			;;
+		?)
+			# echo Hey, I found a question mark in op.
+			;;
+		:)
+			# echo Hey, I found a colon in op.
+			# echo OPTARG contains $OPTARG
+			;;
 		*)
 			helpFun
 	esac
 done
+# echo the value of OPTIND is $OPTIND
+# echo the contents of that argument are ${!OPTIND}
+# echo line 102 startPoint is $startPoint
+if [[ $startPoint == '' ]]
+then
+	startPoint=${!OPTIND}
+fi
+if [[ $startPoint == '' ]]
+then
+	startPoint=$startPointDefault
+fi
+# echo line 111 startPoint is $startPoint
 
 # validate that we don't have conflicting arguments
 if [[ "$ops" == *L* ]] && [[ "$ops" == *r* ]]
@@ -96,6 +117,14 @@ then
 	echo -L and -r options cannot be used together.
 	exit -1
 fi
+
+# echo arguments are
+# echo 1: $1
+# echo 2: $2
+# echo 3: $3
+# echo 4: $4
+# echo 5: $5
+# echo all arguments are $*
 
 ##### EXECUTE THE LOGIC #####
 # sort the outputs of the file and directory counters, then exit

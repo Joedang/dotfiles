@@ -1,0 +1,104 @@
+#!/bin/bash
+# Count directories and files according to their extension
+# Joe Shields, 2018-07-15
+
+ops='' # initialize
+findDepthArg='-maxdepth 1' # default
+scriptName=extCount
+
+# more human-readable color controls
+textReset='\033]00m\]'
+fgBlue='\e[34m'
+fgDefault='\e[39m'
+textDefault='\e[0m'
+textBold='\e[1m'
+typeDescStart=$fgBlue$textBold
+typeDescEnd=$textDefault
+
+helpFun() {
+	echo
+	echo -e usage: $scriptName '[-d DEPTH | -r]'
+	echo -e '\tcount the directories and file types in the current directory'
+	echo -e arguments:
+	echo -e '\t-d DEPTH : descend through directories by DEPTH levels \(default is 1\)'
+	echo -e '\t-r       : recursively descend through directories'
+	echo -e '\t-h       : display this help message'
+	exit 0
+}
+
+# count the files
+fileCount() {
+	# get the list of files and remove the leading directories
+	fileList=`find . $findDepthArg -type f | sed 's/^.*\///'`
+
+	# get a list of files with no extension
+	# enquoting the variable is important to preserve the newlines
+	bareFiles=`echo "$fileList" | grep '^[^.]*$'`
+	printf  "% 7d ${typeDescStart}NO EXTENSION${typeDescEnd}\n" `echo "$bareFiles" | wc -l`
+
+	# get a list of files with extensions
+	extFiles=`echo "$fileList" | grep -o '\..*' | sed 's/.*\.//' | uniq -c`
+	echo -e "$extFiles"
+
+}
+
+# count the directories
+dirCount() {
+	echo -e "`printf "% 7d" $((\`find . $findDepthArg -type d | wc -l\`-1))`"$typeDescStart' DIRECTORY'$typeDescEnd
+}
+
+
+##### HANDLE ARGUMENTS #####
+while getopts "r d: h" op
+do
+	# compile the used options into a space-separated list
+	ops="$ops"$op' '
+	# echo op contains $op
+	# echo OPTARG contains $OPTARG
+	# echo OPTIND contains $OPTIND
+	case "$op" in
+		r)
+			# echo Hey we got the -r flag.
+			findDepthArg=''
+			;;
+		d)
+			# echo Hey we got the -d flag.
+			findDepthArg='-maxdepth '$OPTARG
+			;;
+		h)
+			helpFun
+			;;
+		*)
+			helpFun
+	esac
+done
+
+# validate that we don't have conflicting arguments
+if [[ "$ops" == *d* ]] && [[ "$ops" == *r* ]]
+then
+	echo -d and -r options cannot be used together.
+	exit -1
+fi
+
+##### EXECUTE THE LOGIC #####
+# sort the outputs of the file and directory counters, then exit
+sort -rn <(dirCount; fileCount)
+exit 0
+
+##### PROTOTYPE CODE #####
+	# find files in this directory
+		# remove leading paths
+		# replace base names with "NO EXTENSION"
+		# remove everything until the last period
+		# sort alphabetically
+		# count unique entries
+#	find . $findDepthArg -type f \
+#		| sed 's/^.*\///' \
+#		| sed 's/[^.]*/.'$typeDescStart'NO EXTENSION'$typeDescEnd'/' \
+#		| sed 's/.*\.//' \
+#		| sort \
+#		| uniq -c #\
+# echo fileCount does this:
+# fileCount
+# echo dirCount does this:
+# dirCount

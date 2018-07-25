@@ -96,7 +96,7 @@ function note-list() {
 		# replace {check boxes} wih {tabs}
 		# select only {the first words of action items} or {headings}
 		# punctuation is allowed at the head of the word to allow for annotation
-	grep -e '^-\ \[\ \]\|##*' $1 \
+	grep -e '^\s*-\ \[\ \]\|##*' $1 \
 		| sed -e 's/-\ \[\ \]\ /\t/' \
 		| grep -oe '^\s*[[:punct:]]*\s*\w*\|##*.*'
 }

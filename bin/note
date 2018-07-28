@@ -39,6 +39,7 @@ function note-help() {
 	echo -e 'update \t\t open the notes in your text editor'
 	echo -e 'rollover \t copy the notes into a new page for this week, removing completed tasks'
 	echo -e 'list \t\t list the section headings and first words of unchecked items'
+	echo -e 'critical \t\t list section headings and unchecked items starting with `(!)`'
 	echo -e 'init \t\t setup the '
 	echo -e 'help \t\t display this help message'
 }
@@ -96,9 +97,18 @@ function note-list() {
 		# replace {check boxes} wih {tabs}
 		# select only {the first words of action items} or {headings}
 		# punctuation is allowed at the head of the word to allow for annotation
-	grep -e '^\s*-\ \[\ \]\|##*' $1 \
+	grep -e '^\s*-\ \[\ \]\|^#\+' $1 \
 		| sed -e 's/-\ \[\ \]\ /\t/' \
 		| grep -oe '^\s*[[:punct:]]*\s*\w*\|##*.*'
+}
+
+function note-critical() {
+	echo Open critical notes in $1:
+	# match open items starting with (!) or a pound sign
+	grep -e '^\s*-\ \[\ \]\ (!)\|^#\+' $1 \
+		| sed -e 's/-\ \[\ \]\ /\t/' \
+		| grep -e '(!)\|^#\+' \
+		| grep -P '\(!\).*|^' --color=always
 }
 
 # TODO: make this pre-check section not break the tool when used on things not
@@ -158,6 +168,7 @@ case $1 in
 	rollover) note-rollover $targ ;;
 	init)	echo init command placeholder ;;
 	list)	note-list $targ ;;
+	critical)	note-critical $targ ;;
 	help)	note-help ;;
 	*)		
 		echo note: \'$1\' is not a command

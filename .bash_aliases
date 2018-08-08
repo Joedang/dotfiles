@@ -54,7 +54,7 @@ alias mouseWiggler='watch -n 240 "xdotool mousemove 50 50 mousemove restore"'
 alias ssay='spd-say'
 alias peppyCaps='~/.xkb/recomp.sh'
 alias rainbowClock='watch -t -n1 --color _rainbowHelper'
-alias bgshuffle='xfdesktop --next'
+# alias bgshuffle='xfdesktop --next'
 alias soundCheck='find ~/audio/samples -maxdepth 1 -type f | sort -R | head -n 1 | xargs play'
 alias gf='echo TFW no gf; fg'
 alias chrestomathy='vim ~/dotfiles/chrestomathy.md'
@@ -66,3 +66,5 @@ alias allsta=' find . -type d -name "\.git" \
 				-execdir echo -e \\n \;'
 # Count the empty lines in faces.txt. Pick a random one. Print everything after that, until the next empty line.
 alias face='awk -v r=$(( $RANDOM % ($(egrep -c '\''^$'\'' ~/dotfiles/neat/faces.txt) +1) )) '\''BEGIN{n=0}/^$/{n++;next}{if(n==r)print}'\'' ~/dotfiles/neat/faces.txt'
+infind() {find -iname "*$1*"}
+alias jsync='rsync -a --partial --inplace --info=progress2'

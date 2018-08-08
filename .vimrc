@@ -68,12 +68,16 @@ nmap <Leader>sp :set spell!
 " Note that the dates will be in local time, not UTC!
 " ISO
 imap <c-l>id <c-r>=strftime('%Y-%m-%d')<cr>
+nmap <leader>id i<c-r>=strftime('%Y-%m-%d')<cr><Esc>
 " ANSI
 imap <c-l>ad <c-r>=strftime('%d/%m/%Y')<cr>
+nmap <leader>ad i<c-r>=strftime('%d/%m/%Y')<cr><Esc>
 " local time
 imap <c-l>lt <c-r>=strftime('%H:%M:%S %z')<cr>
+nmap <leader>lt i<c-r>=strftime('%H:%M:%S %z')<cr><Esc>
 " UTC time
 imap <c-l>utc <c-r>=system('date -u "+%Y-%m-%d:%H:%M:%S %Z"')<cr>
+nmap <leader>utc i<c-r>=system('date -u "+%Y-%m-%d:%H:%M:%S %Z"')<cr><Esc>
 
 command NT NERDTreeToggle
 nmap <Leader>nt :NERDTreeToggle
@@ -112,6 +116,7 @@ autocmd! User GoyoLeave Limelight!
 
 " add TODO list item 
 autocmd FileType markdown nmap <Leader>td o- [ ] 
+autocmd FileType markdown nmap <Leader>ck 0f[lrX<Esc>
 
 "~~~~~~~~~~ VUNDLE STUFF ~~~~~~~~~~
 set nocompatible              " be iMproved, required
@@ -175,6 +180,7 @@ filetype plugin indent on    " required
 "~~~~~~~~~~ end of Vundle stuff ~~~~~~~~~~
 
 let g:vim_markdown_folding_style_pythonic = 1
+let g:vim_markdown_frontmatter = 1
 " This does nothing with pythonic folding is enabled:
-let g:vim_markdown_folding_level = 0
+let g:vim_markdown_folding_level = 3
 let g:vim_markdown_new_list_item_indent = 0

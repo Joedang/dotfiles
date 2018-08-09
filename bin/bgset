@@ -28,14 +28,15 @@ showNames() {
 	fi
 }
 
-# apply the first filter
-# (still works if none are given)
-echo filtering for \"$1\"...
+# load the list of available files
 imgResults=$(find  $bgDir -not -type d -iname \*"$1"\*)
-showNames
+if [ -z "$1" ]
+then
+	echo No filters given. Selecting random background.
+fi
 
 # apply remaining filters successively
-shift
+# (still works if none are given)
 ## while we have a remaining argument and more than one remaining result
 while [ ! -z "$1" -a $(countResults) -gt 1 ]
 do

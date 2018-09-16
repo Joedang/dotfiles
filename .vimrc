@@ -118,6 +118,9 @@ autocmd! User GoyoLeave Limelight!
 autocmd FileType markdown nmap <Leader>td o- [ ] 
 autocmd FileType markdown nmap <Leader>ck 0f[lrX<Esc>
 
+autocmd FileType tex nmap <Leader>it o\item 
+autocmd FileType tex imap <c-l>it \item 
+
 "~~~~~~~~~~ VUNDLE STUFF ~~~~~~~~~~
 set nocompatible              " be iMproved, required
 filetype off                  " required

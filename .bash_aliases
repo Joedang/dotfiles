@@ -28,6 +28,7 @@ alias sta='git status'
 alias githome='cd "$(git rev-parse --show-toplevel)"'
 
 # Add an "alert" alias for long running commands.  Use like so: `sleep 10; alert`
+# This is obsolete when my oh-my-zsh profile is in effect.
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
 # default to vi-like key bindings for given programs
@@ -42,11 +43,11 @@ alias trash='gvfs-trash'
 alias trashls='gvfs-ls trash://'
 alias xop='xdg-open'
 # function linfo { info $@ | less; }
-alias todo='w2do'
+# alias todo='w2do'
 alias iR='jupyter console --kernel ir'
-alias hist='history'
+# alias hist='history'
 alias histless='history | less'
-alias xonotic='sh ~/Xonotic/xonotic-linux-glx.sh'
+# alias xonotic='sh ~/Xonotic/xonotic-linux-glx.sh'
 alias pyserve2='python2 -m SimpleHTTPServer'
 alias pyserve3='python3 -m http.server'
 alias psudo='sudo env PATH="$PATH"'
@@ -68,3 +69,7 @@ alias allsta=' find . -type d -name "\.git" \
 alias face='awk -v r=$(( $RANDOM % ($(egrep -c '\''^$'\'' ~/dotfiles/neat/faces.txt) +1) )) '\''BEGIN{n=0}/^$/{n++;next}{if(n==r)print}'\'' ~/dotfiles/neat/faces.txt'
 infind() {find -iname "*$1*"}
 alias jsync='rsync -a --partial --inplace --info=progress2'
+alias pingg='ping google.com'
+alias audio-dl='youtube-dl -f '\''bestaudio'\'
+alias batteryPercent='upower -i /org/freedesktop/UPower/devices/battery_BAT0 | grep -P '\''(?<=\s)[0-9]*%'\'
+alias cath='highlight --out-format ansi'

@@ -268,6 +268,14 @@ rsync -r mydir/ user@host:~/yourdir/
 ```
 `user` is your login name on that machine. (You will need to know the password for `~/.ssh/id_rsa` to get in.) `host` can be an IP address or a domain (`192.168.1.1`, `pdx.edu`, et cetera).
 
+## SSH
+`ssh-keygen` creates keys. 
+Checkout `ssh-copy-id` for a convenient way to copy public keys around.
+These pages are great:
+https://www.digitalocean.com/community/tutorials/how-to-configure-ssh-key-based-authentication-on-a-linux-server
+https://www.cyberciti.biz/faq/create-ssh-config-file-on-linux-unix/
+
+
 ## Installing things from source
 My general strategy is to download an unzip the source into `/tmp/`. **Remember to do a checksum on the downloaded archive!** 
 

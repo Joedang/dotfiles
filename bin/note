@@ -29,7 +29,7 @@ answer=''
 
 function note-help() {
 # Short explanations of the command and its subcommands
-	echo usage: \t note '<command> [FILE]'
+	echo -e usage: \\t note '<command> [FILE]'
 	echo
 	echo manage markdown notes with awareness of checklists
 	echo FILE defaults to the latest notes, as determined by '`sort -nr`'
@@ -39,8 +39,8 @@ function note-help() {
 	echo -e 'update \t\t open the notes in your text editor'
 	echo -e 'rollover \t copy the notes into a new page for this week, removing completed tasks'
 	echo -e 'list \t\t list the section headings and first words of unchecked items'
-	echo -e 'critical \t\t list section headings and unchecked items starting with `(!)`'
-	echo -e 'init \t\t setup the '
+	echo -e 'critical \t list section headings and unchecked items starting with `(!)`'
+	echo -e 'init \t\t setup the notes directory'
 	echo -e 'help \t\t display this help message'
 }
 

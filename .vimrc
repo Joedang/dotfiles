@@ -116,7 +116,9 @@ autocmd! User GoyoLeave Limelight!
 
 " add TODO list item 
 autocmd FileType markdown nmap <Leader>td o- [ ] 
+autocmd FileType markdown imap <c-l>td <Esc>o- [ ] 
 autocmd FileType markdown nmap <Leader>ck 0f[lrX<Esc>
+autocmd FileType markdown imap <c-l>ck <Esc>0f[lrX<Esc>
 
 autocmd FileType tex nmap <Leader>it o\item 
 autocmd FileType tex imap <c-l>it \item 

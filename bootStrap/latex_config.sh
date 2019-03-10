@@ -18,7 +18,7 @@ tmpdir='/tmp/latex_config'
 tldownload='http://mirror.ctan.org/systems/texlive/tlnet/'
 tlzip='install-tl-unx.tar.gz'
 equivsPackage='https://www.tug.org/texlive/files/debian-equivs-2017-ex.txt'
-tlYear=2017
+tlYear=2018
 
 echo
 echo !----- Using the $tlYear equivalent package -----!

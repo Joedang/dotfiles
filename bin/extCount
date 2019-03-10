@@ -1,0 +1,150 @@
+#!/bin/bash
+# Count directories and files according to their extension
+# Joe Shields, 2018-07-15
+
+ops='' # initialize
+findDepthArg='-maxdepth 1' # default
+scriptName=extCount
+startPointDefault=. # default starting point, set later
+startPoint=''
+
+# more human-readable color controls
+textReset='\033]00m\]'
+fgBlue='\e[34m'
+fgDefault='\e[39m'
+textDefault='\e[0m'
+textBold='\e[1m'
+typeDescStart=$fgBlue$textBold
+typeDescEnd=$textDefault
+
+helpFun() {
+	echo
+	echo -e usage: $scriptName '[-L LEVEL | -r] [-d DIR]|[DIR]'
+	echo -e "\t$scriptName counts the directories and file types in the specified directory."
+	echo -e "\tDIR may be given as a trailing argument, but the -d flag takes precedence."
+	echo -e arguments:
+	echo -e '\t-d DIR   : directory in which to count contents \(default is current working directory\)'
+	echo -e '\t-L LEVEL : descend through directories by LEVEL levels \(default is 1\)'
+	echo -e '\t-r       : recursively descend through directories'
+	echo -e '\t-h       : display this help message'
+	exit 0
+}
+
+# count the files
+fileCount() {
+	# get the list of files and remove the leading directories
+	fileList=`find "$startPoint" $findDepthArg -not -path $startPoint -type f | sed 's/^.*\///'`
+
+	# get a list of files with no extension
+	# enquoting the variable is important to preserve the newlines
+	bareFiles=`echo "$fileList" | grep '^[^.]*$'`
+	if [[ $bareFiles != '' ]]
+	then
+		printf  "% 7d ${typeDescStart}NO EXTENSION${typeDescEnd}\n" `echo "$bareFiles" | wc -l`
+	fi
+
+	# get a list of files with extensions
+	extFiles=`echo "$fileList" | grep -o '\..*' | sed 's/.*\.//' | sort | uniq -c`
+	if [[ $extFiles != '' ]]
+	then
+		echo -e "$extFiles"
+	fi
+
+}
+
+# count the directories
+dirCount() {
+	dirList=`find "$startPoint" $findDepthArg -not -path $startPoint -type d`
+	if [[ $dirList != '' ]]
+	then
+		count=`printf "% 7d" $((\`echo "$dirList" | wc -l\`))`
+		echo -e "$count$typeDescStart DIRECTORY$typeDescEnd"
+	fi
+}
+
+
+##### HANDLE ARGUMENTS #####
+while getopts "r L: d: h" op
+do
+	# compile the used options into a space-separated list
+	ops="$ops"$op' '
+	# echo op contains $op
+	# echo OPTARG contains $OPTARG
+	# echo OPTIND contains $OPTIND
+	case "$op" in
+		r)
+			# echo Hey we got the -r flag.
+			findDepthArg=''
+			;;
+		L)
+			# echo Hey we got the -L flag.
+			findDepthArg='-maxdepth '$OPTARG
+			;;
+		d)
+			startPoint=$OPTARG
+			# echo got -d flag and changed startPoint to $startPoint
+			;;
+		h)
+			helpFun
+			;;
+		?)
+			# echo Hey, I found a question mark in op.
+			;;
+		:)
+			# echo Hey, I found a colon in op.
+			# echo OPTARG contains $OPTARG
+			;;
+		*)
+			helpFun
+	esac
+done
+# echo the value of OPTIND is $OPTIND
+# echo the contents of that argument are ${!OPTIND}
+# echo line 102 startPoint is $startPoint
+if [[ $startPoint == '' ]]
+then
+	startPoint=${!OPTIND}
+fi
+if [[ $startPoint == '' ]]
+then
+	startPoint=$startPointDefault
+fi
+# echo line 111 startPoint is $startPoint
+
+# validate that we don't have conflicting arguments
+if [[ "$ops" == *L* ]] && [[ "$ops" == *r* ]]
+then
+	echo -L and -r options cannot be used together.
+	exit -1
+fi
+
+# echo arguments are
+# echo 1: $1
+# echo 2: $2
+# echo 3: $3
+# echo 4: $4
+# echo 5: $5
+# echo all arguments are $*
+
+##### EXECUTE THE LOGIC #####
+# sort the outputs of the file and directory counters, then exit
+sort -rn <(dirCount; fileCount)
+exit 0
+
+##### PROTOTYPE CODE #####
+	# find files in this directory
+		# remove leading paths
+		# replace base names with "NO EXTENSION"
+		# remove everything until the last period
+		# sort alphabetically
+		# count unique entries
+#	find . $findDepthArg -type f \
+#		| sed 's/^.*\///' \
+#		| sed 's/[^.]*/.'$typeDescStart'NO EXTENSION'$typeDescEnd'/' \
+#		| sed 's/.*\.//' \
+#		| sort \
+#		| uniq -c #\
+# echo fileCount does this:
+# fileCount
+# echo dirCount does this:
+# dirCount

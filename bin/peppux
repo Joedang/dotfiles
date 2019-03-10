@@ -1,0 +1,65 @@
+#!/bin/bash
+# set up the default tmux session for Gallium on my PEPPY Chromebook
+
+
+sn='peppux' # session name
+defDir=$HOME # default directory
+prevDir=`pwd`
+echo changing to $defDir
+cd $defDir
+
+echo Checking for existing $sn session.
+tmux has-session -t $sn
+if [ $? != 0 ] 
+then
+	echo No $sn session found. Starting a new one.
+
+	# system monitoring
+	#/----------------------------------------------\
+	#|    (1) disk usage	|	        	|
+	#|----------------------|    (3) utility pane	|
+	#|    (4) xkbSteward	|			|
+	#|----------------------------------------------|
+	#|		    (2) htop			|
+	#|----------------------------------------------|
+	#|	       (5) rainbow clock		|
+	#\----------------------------------------------/
+	echo starting a window for disk monitoring 
+	tmux new-session -s $sn -n sys -d $@
+	tmux send-keys -t $sn:1 "cd $defDir" C-m # get into HOME by default
+	tmux send-keys -t $sn:1 'watch -n 10 df -h .' C-m # watch disk usage
+	echo starting a new pane for htop
+	tmux split-window
+	tmux send-keys -t $sn 'htop --sort-key PERCENT_MEM' C-m # watch resources
+	echo starting a utility pane
+	tmux split-window -h -t $sn:1.1
+	tmux send-keys -t $sn 'cmatrix' C-m # pretty
+	echo starting a pane for the xkb steward
+	tmux split-window -t $sn:1.1
+	tmux send-keys -t $sn:1.4 './.xkb/recomp.sh' C-m
+	tmux send-keys -t $sn:1.4 './.xkb/xkbSteward.sh' C-m
+	echo starting a pane for the rainbow clock
+	tmux split-window -t $sn:1.2
+	tmux send-keys -t $sn:1.5 'rainbowClock' C-m
+
+	#resize panes
+	tmux resize-pane -t $sn:1.3 -y 8 # top right utility pane
+	tmux resize-pane -t $sn:1.1 -y 4 # disk watching pane
+	tmux resize-pane -t $sn:1.5 -y 3 # rainbow clock
+
+	# cmus
+	echo starting a window for cmus
+	tmux new-window
+	tmux send-keys -t $sn:2 'cmus' C-m
+
+	# general shell
+	echo starting a window for a general shell
+	tmux new-window
+	tmux send-keys -t $sn:3 'cls' C-m
+else
+	echo $sn session found. 
+fi
+echo Attaching.
+tmux attach -t $sn
+echo Changing back to $prevDir 
+cd $prevDir

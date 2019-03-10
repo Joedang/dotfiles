@@ -1,16 +1,16 @@
+"~~~~~~~~~~ GLOBAL SETTINGS ~~~~~~~~~~ 
+
 " turn on line numbers
 set relativenumber
 set number
 
-" somehow makes the real leader backslash
-" let mapleader = "."
+" Only enable mouse mode when in normal mode
+" This allows pasting in chromeos (at least when not in tmux)
+set mouse=n
 
-" To get around Chrome grabbing <C-w>
-" Mostly useful for ChromeOS terminal
-nmap <C-H> <C-W><C-H>
-nmap <C-J> <C-W><C-J>
-nmap <C-K> <C-W><C-K>
-nmap <C-L> <C-W><C-L>
+" Use extended mousey stuff; enables drag-resize within tmux
+" might break things with old terminals or terminal emulators
+set ttymouse=xterm2
 
 syntax on
 
@@ -29,10 +29,70 @@ set showtabline=2
 " end-of-line shows as '$', trailing spaces show as '~', etc.
 set listchars=eol:$,tab:>-,trail:~,extends:>,precedes:<,nbsp:%
 
+" Set the default method of encryption for encrypted files
+" This is the strongest available by default, according to the help.
+set cryptmethod=blowfish2
+
 " set the color scheme for gvim
 :colo slate
 
-" Limelight and Goyo stuff
+" add manually downloaded plugins
+set runtimepath+=$HOME/.vim/manual/*
+" Notes:
+" Conque-Term comes from https://code.google.com/archive/p/conque/downloads
+
+"~~~~~~~~~~  GLOBAL MAPPINGS ~~~~~~~~~~ 
+
+" To get around Chrome grabbing <C-w>
+" Mostly useful for ChromeOS terminal
+" Also just nice to do half as many key presses, lol.
+nmap <C-H> <C-W><C-H>
+nmap <C-J> <C-W><C-J>
+nmap <C-K> <C-W><C-K>
+nmap <C-L> <C-W><C-L>
+
+" somehow makes the real leader backslash
+" let mapleader = "."
+
+" seek to the next instance of (!)
+nmap <Leader>! /(!)
+vmap <Leader>! /(!)
+
+" shortcut for :tabnew MYFILE
+nmap <Leader>tn :tabnew 
+
+" shortcut to turn on spelling
+nmap <Leader>sp :set spell!
+
+" dates and times:
+" Note that the dates will be in local time, not UTC!
+" ISO
+imap <c-l>id <c-r>=strftime('%Y-%m-%d')<cr>
+nmap <leader>id i<c-r>=strftime('%Y-%m-%d')<cr><Esc>
+" ANSI
+imap <c-l>ad <c-r>=strftime('%d/%m/%Y')<cr>
+nmap <leader>ad i<c-r>=strftime('%d/%m/%Y')<cr><Esc>
+" local time
+imap <c-l>lt <c-r>=strftime('%H:%M:%S %z')<cr>
+nmap <leader>lt i<c-r>=strftime('%H:%M:%S %z')<cr><Esc>
+" UTC time
+imap <c-l>utc <c-r>=system('date -u "+%Y-%m-%d:%H:%M:%S %Z"')<cr>
+nmap <leader>utc i<c-r>=system('date -u "+%Y-%m-%d:%H:%M:%S %Z"')<cr><Esc>
+
+command NT NERDTreeToggle
+nmap <Leader>nt :NERDTreeToggle
+
+vmap <Leader>tab :Tabularize 
+
+nmap <Leader>toc :Toc<cr>:vertical res 20<cr>:set nonu<cr>:set nornu<cr>:set nowrap<cr>
+
+" convenient typo mappings:
+command W w
+command Q q
+command Wq wq
+command WQ wq
+
+"~~~~~~~~~~  LIMELIGHT AND GOYO STUFF ~~~~~~~~~~ 
 " maps
 " toggle Limelight
 nmap <Leader>ll :Limelight!!
@@ -52,26 +112,18 @@ let g:limelight_eop = '$'
 autocmd! User GoyoEnter Limelight
 autocmd! User GoyoLeave Limelight!
 
-" add manually downloaded plugins
-set runtimepath+=$HOME/.vim/manual/*
-" Notes:
-" Conque-Term comes from https://code.google.com/archive/p/conque/downloads
+"~~~~~~~~~~ FILETYPE SPECIFIC STUFF ~~~~~~~~~~
 
-" Only enable mouse mode when in normal mode
-" This allows pasting in chromeos (at least when not in tmux)
-set mouse=n
+" add TODO list item 
+autocmd FileType markdown nmap <Leader>td o- [ ] 
+autocmd FileType markdown imap <c-l>td <Esc>o- [ ] 
+autocmd FileType markdown nmap <Leader>ck 0f[lrX<Esc>
+autocmd FileType markdown imap <c-l>ck <Esc>0f[lrX<Esc>
 
-" Use extended mousey stuff; enables drag-resize within tmux
-" might break things with old terminals or terminal emulators
-set ttymouse=xterm2
+autocmd FileType tex nmap <Leader>it o\item 
+autocmd FileType tex imap <c-l>it \item 
 
-" This would be a nice way to have RStudio-like functionality, if Vim would
-" not freeze the pane as soon as it is left.
-" map <c-k> <F9><Enter><Esc><C-W>k
-
-command NT NERDTreeToggle
-
-"~~~~~~~~~~ Vundle stuff ~~~~~~~~~~
+"~~~~~~~~~~ VUNDLE STUFF ~~~~~~~~~~
 set nocompatible              " be iMproved, required
 filetype off                  " required
 " set the runtime path to include Vundle and initialize
@@ -96,7 +148,8 @@ Plugin 'wesQ3/vim-windowswap' "<leader>ww select another pane <leader>ww panes a
 Plugin 'junegunn/goyo.vim' "minimal single-column editing
 Plugin 'junegunn/limelight.vim' "darken non-current line. special colors req.
 Plugin 'alx741/vinfo' "tool for reading info pages with vim
-Plugin 'mrk21/yaml-vim'
+Plugin 'mrk21/yaml-vim' "indentation and highlighting for YAML
+Plugin 'jamessan/vim-gnupg' "integration with GPG; still buggy, use when fixed
 " Plugin 'csv.vim'
 " The following are examples of different formats supported.
 " Keep Plugin commands between vundle#begin/end.
@@ -132,3 +185,7 @@ filetype plugin indent on    " required
 "~~~~~~~~~~ end of Vundle stuff ~~~~~~~~~~
 
 let g:vim_markdown_folding_style_pythonic = 1
+let g:vim_markdown_frontmatter = 1
+" This does nothing with pythonic folding is enabled:
+let g:vim_markdown_folding_level = 3
+let g:vim_markdown_new_list_item_indent = 0

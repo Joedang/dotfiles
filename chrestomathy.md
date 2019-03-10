@@ -1,10 +1,34 @@
 # A little gallery of neat one-liners and helpful reminders
 This is like Stack Exchange, but past-Joe answers the questions of present-Joe.
 
-## Get information about CLI tools
+## Shell
+### How to tell what shell you're in
+All of these work:  
+```bash
+echo $0
+echo $SHELL
+ps | grep $$
+```
+
+### Get information about CLI tools
 * man -- brief manual pages
 * info -- long-winded and explanations, but often just the man page
 * apropos -- man pages with matchning keywords
+
+### How to change your default shell
+```bash
+chsh -s /usr/bin/zsh
+```
+
+### Built-ins
+Many commands, such as `read`, `source`, `fg`, `bg`, and `cd`, are built into Bash and don't have their own man pages. 
+The Bash manual (`man bash`) talks about these under the heading __SHELL BUILTIN COMMANDS__ on line 2580.
+
+#### read
+IMO, this is mostly useful for processing files found by `find` or `ls`. 
+For this purpose, the `-r` flag is almost always preferred, so files with spaces in their names won't get broken into multiple words. 
+(This obvioulsy requires that you feed `read` file names with the spaces escaped.) 
+If you want to mess with how the words are broken up, you need to \[temporarily!\] modify the variable `IFS`, which controlls how words are broken. (This is similar to how you might hack `for f in *` to cycle through file names.)
 
 ## R
 ### Figure out what you're looking at
@@ -36,6 +60,19 @@ Typically, the pythonic way to do things is to use generators instead of sequenc
 
 For lists of floats, `numpy.linspace(start, stop, num)` is the best option. Apallingly, there is no mainstream equivalent (AFAIK) to R's `seq()`, so you'll have to manage the step size between elements on your own (and deal with the corresponding fence post rounding BS).
 
+## RegEx
+### look-ahead and look-behind
+Example: look for anything occurring between `filename="` and `"`. Note that this is using the Perl syntax, `-P`.
+
+```
+cat dumpHeader.out | grep -P -e '(?<=filename=").*(?=")'
+```
+
+Vim, for example, does not use the Perl syntax. See the `pattern-multi-items` help for more info.  
+
+### Negation
+An example of a negation in Vim would be `^#\@!`, which matches any line that doesn't start with an octothorpe. 
+
 ## Get the number of pages in all the PDFs in the CWD:
 
     ls *.pdf | awk -e '{print "pdfgrep -n [:alphanum:] "$1"| tail -1"}' | sh
@@ -65,7 +102,10 @@ Both of these are frontents for `dconf`.
 * Plug in the arduino
 * In the IDE, go to `Tools` -> `Port` select the arduino. (Either figure it out by plugging it in/out or by having it be the only thing plugged in.)
 
+You'll probably need to add yourself to the usergroup that's allowed to talk to ports:
+
         $ sudo usermod -a -G dialout joedang
+On some machines, you may need to restart after adding yourself.
 
 ## Checking Checksums
 Use `$ md5sum myPackage.tar.gz` to show the MD5 hash for a file.  
@@ -170,12 +210,23 @@ Some file types, such as mp4 can actually be concatenated directly using `cat`. 
 You can use the `concat` demuxer in ffmpeg to concatenate such files and recalculate the time stamps (without deencoding and reencoding the videos) like so:
 
 ```bash
-$ cat shellsList.txt
+$ cat vidList.txt
 file 44.mp4
 file 45.mp4
 file 46.mp4
-$ ffmpeg -f concat -i shellsList.txt -c copy shells.mp4
+$ ffmpeg -f concat -i vidList.txt -c copy bigVid.mp4
 ```
+
+### Extract Frames From a Video
+You can just specify the output file in ffmpeg to be an image with a printf-style number.
+In this example, the `drawtext` video filter also adds a timestamp.
+```
+ffmpeg -i sourceVid.mp4 -ss $(startTime) -to $(stopTime) \
+-vf "drawtext=text=time\= %{pts} s: \
+fontcolor=green: x=5: y=5: fontsize=35" \
+frames%03d.png
+```
+
 
 ## Installing Fonts
 GIMP checks for typefaces on its own, so running `$ sudo fc-cache -fv` may be unnecessary.
@@ -216,6 +267,14 @@ Push to a remote directory:
 rsync -r mydir/ user@host:~/yourdir/
 ```
 `user` is your login name on that machine. (You will need to know the password for `~/.ssh/id_rsa` to get in.) `host` can be an IP address or a domain (`192.168.1.1`, `pdx.edu`, et cetera).
+
+## SSH
+`ssh-keygen` creates keys. 
+Checkout `ssh-copy-id` for a convenient way to copy public keys around.
+These pages are great:
+https://www.digitalocean.com/community/tutorials/how-to-configure-ssh-key-based-authentication-on-a-linux-server
+https://www.cyberciti.biz/faq/create-ssh-config-file-on-linux-unix/
+
 
 ## Installing things from source
 My general strategy is to download an unzip the source into `/tmp/`. **Remember to do a checksum on the downloaded archive!** 
@@ -302,6 +361,8 @@ pdfunite `ls Front*; ls Copy*; ls Pre*; ls Chap* | sort -t - -k 2 -n; ls Ind*` a
 `tlmgr search --global --file myDependency.sty`  
 `tlmgr search --global myPackage`
 
+## Pandoc
+
 ### Make clean LaTeX files using Pandoc
 
 Normally, pandoc adds a bunch of coloring information and header crap to files that have code blocks (verbatim environment) that makes the end LaTeX non-human-readable. You can *fix* this by simply adding the `--listings` flag, which tells pandoc that you want to use the `listings` package, rather than put custom coloring on every keyword (seriously). 
@@ -312,6 +373,27 @@ You can get a standalone document by using the `--standalone` flag.
 
 ```bash
 pandoc mydoc.md --listings -o mydoc_body.tex
+```
+
+### Specify LaTeX options from within Markdown
+
+Put them in the YAML header like this:  
+```
+---
+title: 3D Printing Checklist
+date: \today
+fontsize: 12pt
+documentclass: article
+classoption: twocolumn
+geometry: margin=0.75in
+numbersections: true
+#toc: true
+pagestyle: plain
+output:
+  pdf_document:
+      latex_engine: xelatex
+
+---
 ```
 
 ## Monitoring files
@@ -380,3 +462,41 @@ Stop on-the-fly decryption of a LUKS device:
 ```
 cryptsetup luksClose cry
 ```
+
+## Logout another user
+
+`pkill -u joedang` will kill all processes belonging to the user `joedang`, effectively logging them out.
+If you're logged into another session as `joedang`, you'll be logged out too.
+
+You can check what's going to get killed by `pkill` by running `pgrep -u joedang -l`. 
+The `-l` option prints the name of the process in addition to the process ID.
+The default is to print the process ID alone.
+
+## Fun
+
+### ASCII Art
+`screenfetch` gives ASCII art of your distro's logo along with statistics.
+
+`aview` and `asciiview` (both provided by the `aview` package) are nice interactive tools for creating ASCII art from images.
+
+`figlet` and `toilet` are tools for converting plain text into ASCII banners of different fonts and colors.
+
+`cowsay` makes speech bubbles with text said by a cow.
+
+`cmatrix` is basically a screensaver like the stuff from The Matrix.
+
+### Text-to-Speech
+`espeak`
+
+### Text Generation
+`misfortune` chooses random fortunes.
+
+`rig` generates random identities with valid state/city/zip fields.
+
+`backronym` (my own Python script) generates random backronyms, given an acronym.
+
+### Text Adventures
+`advent` is, of course, a classic.
+
+`frotz` plays a common format of text adventures. 
+You can get them [here](http://if.illuminion.de/infocom.html) and [here](http://ifwiki.org/index.php/Main_Page).

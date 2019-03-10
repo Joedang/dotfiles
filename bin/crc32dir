@@ -1,0 +1,15 @@
+#!/bin/bash
+# echo Old IFS:
+# echo $IFS
+#IFS_old=$IFS
+#IFS="\n"
+# echo New IFS:
+# echo $IFS
+# echo
+# for f in `find $1 -type f`
+# do
+# 	echo $f
+# 	echo crc32 "$f"
+# done
+# IFS=$IFS_old
+find $1 -type f -exec crc32 '{}' + | tee -a checksum.crc32

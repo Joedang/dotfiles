@@ -17,6 +17,7 @@ PATH=/usr/local/datcom_plus/bin:$PATH
 PATH=/usr/sbin:$PATH
 PATH=/sbin:$PATH
 PATH=~/.cabal/bin:$PATH
+PATH=~/src/Android/platform-tools:$PATH
 if [ "hostname"=='localhost' ]
 then
 	# If on the chromebook, add the Ruby install that's in

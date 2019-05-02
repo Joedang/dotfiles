@@ -61,11 +61,15 @@ function note-count() {
 function note-update() {
 	if [ -f $1 ]
 	then
-		if [ "$noteEditor" == vim ]
+		echo noteEditor is $noteEditor
+		if [ "$noteEditor" == `which vim` ]
 		then
 			$noteEditor $1 +Toc '+vertical res 30' '+wincmd h'
-		else
+		elif [ ! -z "$noteEditor" ] 
+		then
 			$noteEditor $1
+		else
+			editor $1
 		fi
 	else
 		echo Couldn\'t find $1.

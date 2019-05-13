@@ -72,6 +72,9 @@ nmap <Leader>hls :set hlsearch!
 " to see available highlight groups:
 " :so $VIMRUNTIME/syntax/hitest.vim
 
+" shortcut to show whitespace characters
+nmap <Leader>ws :set list!
+
 " dates and times:
 " Note that the dates will be in local time, not UTC!
 " ISO
@@ -131,6 +134,10 @@ autocmd FileType markdown imap <c-l>ck <Esc>0f[lrX<Esc>
 " mark a TODO item as critical
 autocmd FileType markdown nmap <Leader>cr 0f]a<Space>(!)<Esc>
 autocmd FileType markdown imap <c-l>cr <Esc>0f]a<Space>(!)<Esc>
+" uncheck a TODO item
+autocmd FileType markdown nmap <Leader>uk 0f[lr <Esc>
+autocmd FileType markdown imap <c-l>uk 0f[lr <Esc>
+
 " add an item to a list
 autocmd FileType tex nmap <Leader>it o\item 
 autocmd FileType tex imap <c-l>it \item 

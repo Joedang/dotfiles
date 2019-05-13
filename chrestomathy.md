@@ -463,6 +463,22 @@ Stop on-the-fly decryption of a LUKS device:
 cryptsetup luksClose cry
 ```
 
+### Directory encryption with ecryptfs
+This all assumes the encrypted version is called `.secure`, the unencrypted version is `secure` and they are both in the working directory.
+
+#### minimal usage
+```
+mkdir .secure secure
+sudo mount -t ecryptfs .secure secure
+```
+This will ask you for a passphrase and encryption setup stuff.
+It doesn't create any record of that setup, so you'll have to re-enter that every time. 
+The defaults are sane, but filename encryption is a good idea to turn on.
+
+### Directory encryption with encfs
+mount: `encfs .secure secure`
+umount: `fusermount -u secure`
+
 ## Logout another user
 
 `pkill -u joedang` will kill all processes belonging to the user `joedang`, effectively logging them out.

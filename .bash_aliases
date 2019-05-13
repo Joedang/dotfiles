@@ -74,5 +74,8 @@ alias audio-dl='youtube-dl -f '\''bestaudio'\'
 alias batteryPercent='upower -i /org/freedesktop/UPower/devices/battery_BAT0 | grep -P '\''(?<=\s)[0-9]*%'\'
 alias cath='highlight --out-format ansi'
 alias jrnl-mount='encfs /home/joedang/Documents/.journal /home/joedang/Documents/journal'
-alias jrnl-umount='fusermount -u /home/joedang/Documents/journal'
+alias jrnl-umount='fusermount -u /home/joedang/Documents/journal && df | grep /home/joedang/Documents/journal | sed '\''s/^.*$/Seemingly failed to unmount journal./'\'
 alias jrnl='jrnl-mount; vim /home/joedang/Documents/journal/`date -I`.md; jrnl-umount'
+alias lenny="echo '( ͡° ͜ʖ ͡°)'"
+alias wut="echo 'ಠ_ಠ'"
+alias chungus='play ~/audio/samples/bigChungus.ogg'

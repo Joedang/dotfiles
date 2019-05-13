@@ -64,6 +64,9 @@ nmap <Leader>tn :tabnew
 " shortcut to turn on spelling
 nmap <Leader>sp :set spell!
 
+" shortcut to show whitespace characters
+nmap <Leader>ws :set list!
+
 " dates and times:
 " Note that the dates will be in local time, not UTC!
 " ISO
@@ -119,6 +122,8 @@ autocmd FileType markdown nmap <Leader>td o- [ ]
 autocmd FileType markdown imap <c-l>td <Esc>o- [ ] 
 autocmd FileType markdown nmap <Leader>ck 0f[lrX<Esc>
 autocmd FileType markdown imap <c-l>ck <Esc>0f[lrX<Esc>
+autocmd FileType markdown nmap <Leader>uk 0f[lr <Esc>
+autocmd FileType markdown imap <c-l>uk 0f[lr <Esc>
 
 autocmd FileType tex nmap <Leader>it o\item 
 autocmd FileType tex imap <c-l>it \item 

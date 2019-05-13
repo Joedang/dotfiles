@@ -29,7 +29,8 @@ showNames() {
 }
 
 # load the list of available files
-imgResults=$(find  $bgDir -not -type d -iname \*"$1"\*)
+# links to directories work like you'd expect
+imgResults=$(find -L  $bgDir -not -type d -iname \*"$1"\*)
 if [ -z "$1" ]
 then
 	echo No filters given. Selecting random background.

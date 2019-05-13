@@ -67,7 +67,9 @@ alias allsta=' find . -type d -name "\.git" \
 				-execdir echo -e \\n \;'
 # Count the empty lines in faces.txt. Pick a random one. Print everything after that, until the next empty line.
 alias face='awk -v r=$(( $RANDOM % ($(egrep -c '\''^$'\'' ~/dotfiles/neat/faces.txt) +1) )) '\''BEGIN{n=0}/^$/{n++;next}{if(n==r)print}'\'' ~/dotfiles/neat/faces.txt'
-infind() {find -iname "*$1*"}
+infind() {
+	find -iname "*$1*"
+}
 alias jsync='rsync -a --partial --inplace --info=progress2'
 alias pingg='ping google.com'
 alias audio-dl='youtube-dl -f '\''bestaudio'\'

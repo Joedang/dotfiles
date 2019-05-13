@@ -3,6 +3,9 @@
 CALCRC='~/.calcrc'
 export CALCRC
 
+EDITOR=/usr/bin/vim
+export EDITOR
+
 # add ~/texmf to LaTeX's path:
 if [ -d ~/texmf ]
 then

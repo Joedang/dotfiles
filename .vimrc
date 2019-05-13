@@ -64,6 +64,14 @@ nmap <Leader>tn :tabnew
 " shortcut to turn on spelling
 nmap <Leader>sp :set spell!
 
+" toggle match highlihting in searches
+nmap <Leader>hls :set hlsearch!
+
+" match and highlight the word under the cursor
+" autocmd CursorMoved * exe printf('match IncSearch /\V\<%s\>/', escape(expand('<cword>'), '/\'))
+" to see available highlight groups:
+" :so $VIMRUNTIME/syntax/hitest.vim
+
 " dates and times:
 " Note that the dates will be in local time, not UTC!
 " ISO
@@ -117,9 +125,13 @@ autocmd! User GoyoLeave Limelight!
 " add TODO list item 
 autocmd FileType markdown nmap <Leader>td o- [ ] 
 autocmd FileType markdown imap <c-l>td <Esc>o- [ ] 
+" check off a TODO item
 autocmd FileType markdown nmap <Leader>ck 0f[lrX<Esc>
 autocmd FileType markdown imap <c-l>ck <Esc>0f[lrX<Esc>
-
+" mark a TODO item as critical
+autocmd FileType markdown nmap <Leader>cr 0f]a<Space>(!)<Esc>
+autocmd FileType markdown imap <c-l>cr <Esc>0f]a<Space>(!)<Esc>
+" add an item to a list
 autocmd FileType tex nmap <Leader>it o\item 
 autocmd FileType tex imap <c-l>it \item 
 

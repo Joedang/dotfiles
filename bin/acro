@@ -1,0 +1,111 @@
+#!/bin/bash
+# A tool for looking up and recording acronyms
+# Joe Shields
+# 2019-05-18
+
+# exit codes:
+# -1:	command not found
+# 0:	normal operation
+# 1:	acronym not found
+# 2:	
+# 3:	
+
+# abort if you get errors
+# set -e
+
+foo=bar
+acroDir=$HOME/notes/acronyms
+knownFile=$acroDir/known.txt
+unknownFile=$acroDir/unknown.txt
+
+function acro-help() {
+# Short explanations of the command and its subcommands
+	echo -e usage: \\t acro '<command> [ACRONYM]'
+	echo
+	echo lookup and record acronyms
+	echo
+	echo COMMANDS:
+	echo -e 'find       search the known acronyms'
+	echo -e 'sfind      search the known acronyms with no interactivity'
+	echo -e 'known      list all known acronyms'
+	echo -e 'unknown    list all unknown acronyms'
+	echo -e 'define     add an acronym to the known list'
+	echo -e 'udefine    add an acronym to the unknown list'
+	echo -e 'init       setup the acronyms directory'
+	echo -e 'help       display this help message'
+}
+
+function acro-find() {
+# function description
+	echo about to call acro-sfind
+	results=`acro-sfind $@`
+	echo about to call it again
+	if acro-sfind $@
+	then
+		echo -e $results
+		return 0
+	else
+		echo acronym not found
+		return 1
+	fi
+}
+
+function acro-sfind() {
+# function description
+	letters=$1
+	# echo '^'$letters':' $knownFile
+	if grep -i -e '^'$letters':' $knownFile
+	then
+		return 0
+	else
+		return 1
+	fi
+}
+
+# function acro-known() {
+# # function description
+# }
+
+# function acro-unknown() {
+# # function description
+# }
+
+# function acro-define() {
+# # function description
+# }
+
+# function acro-udefine() {
+# # function description
+# }
+
+# function acro-init() {
+# # function description
+# }
+
+# function acro-() {
+# # function description
+# }
+
+# function acro-() {
+# # function description
+# }
+
+cmd=$1
+shift
+
+#### parse subcommands ####
+case $cmd in 
+	find)    acro-find    $@ ;;
+	sfind)   acro-sfind   $@ ;;
+	known)   acro-known   $@ ;;
+	unknown) acro-unknown $@ ;;
+	define)  acro-define  $@ ;;
+	udefine) acro-udefine $@ ;;
+	init)    acro-init    $@ ;;
+	help)    acro-help    $@ ;;
+	*)
+		echo acro: \'$cmd\' is not a command
+		acro-help
+		exit -1
+		;;
+esac

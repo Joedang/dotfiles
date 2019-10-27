@@ -1,5 +1,7 @@
 # A little gallery of neat one-liners and helpful reminders
 This is like Stack Exchange, but past-Joe answers the questions of present-Joe.
+(Necessarily, this only works if present-Joe answers the questions of future-Joe,
+by recording how he solves new/obnoxious problems.)
 
 ## Shell
 ### How to tell what shell you're in
@@ -8,12 +10,16 @@ All of these work:
 echo $0
 echo $SHELL
 ps | grep $$
+ps -$$
 ```
+Note, `$$` expands to the process ID of the current shell.
 
 ### Get information about CLI tools
-* man -- brief manual pages
-* info -- long-winded and explanations, but often just the man page
-* apropos -- man pages with matchning keywords
+- man -- brief manual pages
+- info -- long-winded and explanations, but often just the man page
+- apropos -- man pages with matchning keywords
+- which -- tells you where a command is located 
+- type -- tells you how a command will be interpreted (`/^\s*type` in `man bash`)
 
 ### How to change your default shell
 ```bash
@@ -23,12 +29,20 @@ chsh -s /usr/bin/zsh
 ### Built-ins
 Many commands, such as `read`, `source`, `fg`, `bg`, and `cd`, are built into Bash and don't have their own man pages. 
 The Bash manual (`man bash`) talks about these under the heading __SHELL BUILTIN COMMANDS__ on line 2580.
+`/^\s*type` in `man bash` would find the `type` built-in relatively quickly by searching for a line that starts with some whitespace followed by "type" (assuming `less` is your pager).
 
 #### read
 IMO, this is mostly useful for processing files found by `find` or `ls`. 
 For this purpose, the `-r` flag is almost always preferred, so files with spaces in their names won't get broken into multiple words. 
 (This obvioulsy requires that you feed `read` file names with the spaces escaped.) 
 If you want to mess with how the words are broken up, you need to \[temporarily!\] modify the variable `IFS`, which controlls how words are broken. (This is similar to how you might hack `for f in *` to cycle through file names.)
+
+### Getting Around
+#### Tree
+`tree` is a super-useful command that shows you the structure and contents of a directory.
+This will give you an HTML file that links to everything, so you can view it in a browser:
+
+    `tree -H file://\`pwd\` > tree.html` 
 
 ## R
 ### Figure out what you're looking at
@@ -361,6 +375,11 @@ pdfunite `ls Front*; ls Copy*; ls Pre*; ls Chap* | sort -t - -k 2 -n; ls Ind*` a
 `tlmgr search --global --file myDependency.sty`  
 `tlmgr search --global myPackage`
 
+#### Find Where a File is Located
+`kpsewhich` is very similar to the `which` built-in for Bash.
+It shows you the locations for a given LaTeX file. 
+For example, `kpsewhich article.cls` tells you where the article class is located. 
+
 ## Pandoc
 
 ### Make clean LaTeX files using Pandoc
@@ -487,6 +506,13 @@ If you're logged into another session as `joedang`, you'll be logged out too.
 You can check what's going to get killed by `pkill` by running `pgrep -u joedang -l`. 
 The `-l` option prints the name of the process in addition to the process ID.
 The default is to print the process ID alone.
+
+## Forensics
+`strings myfile.asdf` will show you the printable characters in a file. 
+This is useful for getting information from proprietary binary files.
+
+`binwalk myfile.asdf` searches files for *embedded* files and executables. 
+It's kind of like a more powerful/general version of `strings`.
 
 ## Fun
 

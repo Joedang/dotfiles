@@ -33,7 +33,7 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 
 # default to vi-like key bindings for given programs
 alias info='info --vi-keys'
-alias lynx='lynx --vikeys'
+alias lynx='lynx --vikeys --use-mouse'
 
 #alias viewmd='function _viewmd(){ pandoc -i "$1" -o /tmp/$(basename ${1%.*}.html); chromium-browser /tmp/$(basename ${1%.*}.html); };_viewmd'
 

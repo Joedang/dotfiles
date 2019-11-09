@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+# convert $1 into seconds
+stime=$(units "$1" s | grep -oPe '(?<=\*\ )[[:digit:].]*')
+# TODO: create a live display of the remaining/total time. 
+sleep "$stime"s
+notify-send -t 30000 -u critical "The $1 timer is up. $2"
+echo Ctrl+C to end the alarm.
+
+play -q ~/audio/samples/cuckoo-clock.ogg repeat 30

@@ -514,6 +514,16 @@ This is useful for getting information from proprietary binary files.
 `binwalk myfile.asdf` searches files for *embedded* files and executables. 
 It's kind of like a more powerful/general version of `strings`.
 
+## Misbehaving Programs
+### Killing an XFCE Session
+The brute-force solution is `pkill xfce`. This will nuke XFCE and its child processes.
+The more elegant solution would be the following, which actually tells XFCE to logout the user on that display.
+Of course, this only works if XFCE is responding.
+
+```
+export DISPLAY=':0.0'
+xfce4-session-logout --logout
+```
 ## Fun
 
 ### ASCII Art

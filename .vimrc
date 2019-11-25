@@ -24,6 +24,18 @@ let NERDTreeShowHidden=1
 " always show the tab line
 set showtabline=2
 
+" set the width of a tab
+set tabstop=4
+
+" set the width of an indent
+set shiftwidth=4
+
+" set the number of columns of a tab
+set softtabstop=4
+
+" use multiple spaces in place of tabs
+set expandtab
+
 " use these chars to indicate whitespace
 " when `:set list` is used
 " end-of-line shows as '$', trailing spaces show as '~', etc.

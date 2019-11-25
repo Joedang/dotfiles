@@ -81,3 +81,4 @@ alias jrnl='jrnl-mount; vim /home/joedang/Documents/journal/`date -I`.md; jrnl-u
 alias lenny="echo '( ͡° ͜ʖ ͡°)'"
 alias wut="echo 'ಠ_ಠ'"
 alias chungus='play ~/audio/samples/bigChungus.ogg'
+alias qmv='qmv -o spaces'

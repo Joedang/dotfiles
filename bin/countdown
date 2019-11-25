@@ -1,10 +1,42 @@
 #!/usr/bin/env bash
+# usage: countdown TIME [MESSAGE]
+# 
+# This waits a specified time, then plays an alarm and displays a notification.
+# The specified time is time expression acceptable to the `units` command.
+# For example "1day+3hr", "15min", "30s", or "50ms+1hr" would all be acceptable.
+# Example command: countdown 5min+30s 'Turn off the kettle!'
+# Note that the countdown command rounds to the nearest second.
+#
+# This depends on `units`, `notify-send`, and SoX (providing `play`).
+# author: Joe Shields
+# date: 2019-11-25
 
 # convert $1 into seconds
 stime=$(units "$1" s | grep -oPe '(?<=\*\ )[[:digit:].]*')
-# TODO: create a live display of the remaining/total time. 
-sleep "$stime"s
-notify-send -t 30000 -u critical "The $1 timer is up. $2"
-echo Ctrl+C to end the alarm.
+if [ -z $stime ]
+then
+    echo invalid time supplied
+    exit -1
+fi
 
+echo Ctrl+C to end the alarm.
+# This variable increments every second. It's a Bash feature.
+SECONDS=0
+intSTime=$(printf '%.0f' $stime)
+echo intSTime is $intSTime 
+while [[ $SECONDS -lt $intSTime ]]
+do
+    # create a human-readable string of the time
+    remaining=$(units $(( intSTime - SECONDS ))s 'day;hr;min;s')
+    # This hacky way of clearing the line has the wrong behavior in very small terminals.
+    echo -ne "                                       \r"
+    echo -ne "$remaining\r"
+    sleep 0.2
+done
+echo
+# TODO: Allow the message to be specified as an argument.
+notify-send -t 30000 -u critical "The $1 timer is up. $2"
+# TODO: Figure out a standalone alarm
+# TODO: Allow an audio file to be specified as an argument
 play -q ~/audio/samples/cuckoo-clock.ogg repeat 30
+exit 0

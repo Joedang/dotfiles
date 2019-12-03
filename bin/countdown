@@ -23,7 +23,7 @@ echo Ctrl+C to end the alarm.
 # This variable increments every second. It's a Bash feature.
 SECONDS=0
 intSTime=$(printf '%.0f' $stime)
-echo intSTime is $intSTime 
+# echo intSTime is $intSTime 
 while [[ $SECONDS -lt $intSTime ]]
 do
     # create a human-readable string of the time

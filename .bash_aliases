@@ -20,7 +20,9 @@ alias lsd='ls -d -- */'
 alias cj='clear; jobs'
 alias clj='clear; jobs; ls'
 alias pl='pwd;ls'
-alias home='clear; cd $HOME; jobs; ls'
+
+# Clear the screen, go to the home dir, say the user and host name, list any running jobs, list dir contents
+alias home='clear; cd $HOME; env echo -e "\e[36m$USER"\@"$HOST""\e[35m";jobs; env echo -en "\e[39m"; ls'
 alias hoe="home; echo 'What did you just call me?!'"
 
 # git aliases that are hard to build into .gitconfig

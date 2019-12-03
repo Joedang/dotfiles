@@ -70,7 +70,7 @@ alias face='awk -v r=$(( $RANDOM % ($(egrep -c '\''^$'\'' ~/dotfiles/neat/faces.
 infind() {
 	find -iname "*$1*"
 }
-alias jsync='rsync -a --partial --inplace --info=progress2'
+alias jsync='nice -n 10 rsync -a --partial --inplace --info=progress2'
 alias pingg='ping google.com'
 alias audio-dl='youtube-dl -f '\''bestaudio'\'
 alias batteryPercent='upower -i /org/freedesktop/UPower/devices/battery_BAT0 | grep -P '\''(?<=\s)[0-9]*%'\'

@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+if type colorBlocks16 1>&/dev/null
+then # silently check if this command exists then run it
+    echo
+    colorBlocks16
+    echo
+fi
+
+if type colorBlocks256 1>&/dev/null
+then # silently check if this command exists then run it
+    echo
+    colorBlocks256
+    echo
+fi

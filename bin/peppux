@@ -8,7 +8,11 @@ prevDir=`pwd`
 echo changing to $defDir
 cd $defDir
 
+echo Starting tmux server.
+tmux start-server
+sleep 1
 echo Checking for existing $sn session.
+tmux list-sessions
 tmux has-session -t $sn
 if [ $? != 0 ] 
 then
@@ -25,7 +29,10 @@ then
 	#|	       (5) rainbow clock		|
 	#\----------------------------------------------/
 	echo starting a window for disk monitoring 
-	tmux new-session -s $sn -n sys -d $@
+    # echo TERM is $TERM
+    # echo -e "color test: \e[38;5;82mHello \e[38;5;198mWorld\e[0m"
+	tmux -2 new-session -d -s $sn -n sys #-d $@
+    echo configuring window...
 	tmux send-keys -t $sn:1 "cd $defDir" C-m # get into HOME by default
 	tmux send-keys -t $sn:1 'watch -n 10 df -h .' C-m # watch disk usage
 	echo starting a new pane for htop
@@ -59,7 +66,9 @@ then
 else
 	echo $sn session found. 
 fi
-echo Attaching.
-tmux attach -t $sn
+# For whatever reason, automatically attaching breaks 256 color support...
+# echo Attaching.
+# echo -e "color test: \e[38;5;82mHello \e[38;5;198mWorld\e[0m"
+# tmux attach -t $sn
 echo Changing back to $prevDir 
 cd $prevDir

@@ -70,6 +70,7 @@ source $ZSH/oh-my-zsh.sh
 source ~/dotfiles/.bash_aliases
 source ~/dotfiles/.bash_path
 source ~/dotfiles/.bash_vars
+source ~/.local/.bashrc
 
 # You may need to manually set your language environment
 # export LANG=en_US.UTF-8

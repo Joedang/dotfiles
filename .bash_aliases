@@ -84,3 +84,4 @@ alias lenny="echo '( ͡° ͜ʖ ͡°)'"
 alias wut="echo 'ಠ_ಠ'"
 alias chungus='play ~/audio/samples/bigChungus.ogg'
 alias qmv='qmv -o spaces'
+# alias tmux='tmux -2' # This should be done in the local config.

@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+h1='\e[4;1m'
+rst='\e[0m'
+
+for fgbg in 38 48 ; do # Foreground / Background
+    if [[ $fgbg == 38 ]]; then
+        echo -e "$h1 256-color Foregrounds $rst"
+    elif [[ $fgbg == 48 ]]; then
+        echo -e "$h1 256-color Backgrounds $rst"
+    fi
+    for color in {0..256} ; do # Colors
+        # Display the color
+        printf "\e[${fgbg};5;%sm %3s \e[0m" $color $color
+        # Display 6 colors per lines
+        if [ $((($color) % 6)) == 3 ] ; then
+            echo # New line
+        fi
+    done
+    echo # New line
+done
+
+exit 0

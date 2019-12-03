@@ -4,6 +4,8 @@ This is like Stack Exchange, but past-Joe answers the questions of present-Joe.
 by recording how he solves new/obnoxious problems.)
 
 ## Shell
+`man bash` and `man zshall` are examples of how to learn about your shell (Bash and Zsh, respectively).
+
 ### How to tell what shell you're in
 All of these work:  
 ```bash
@@ -43,6 +45,10 @@ If you want to mess with how the words are broken up, you need to \[temporarily!
 This will give you an HTML file that links to everything, so you can view it in a browser:
 
     `tree -H file://\`pwd\` > tree.html` 
+
+### Output Redirection
+`echo asdf 2>&1` redirect stream 2 (stderr) to stream 1 (stdout)  
+`echo asdf 1>&/dev/null` redirect stdout into /dev/null (so, basically ignore it)
 
 ## R
 ### Figure out what you're looking at
@@ -536,6 +542,10 @@ xfce4-session-logout --logout
 `cowsay` makes speech bubbles with text said by a cow.
 
 `cmatrix` is basically a screensaver like the stuff from The Matrix.
+
+### Color Codes
+I have a tl;dr of color codes in `dotfiles/bin/colorCodes`.
+`man console_codes` provides a reference for how all the codes work.
 
 ### Text-to-Speech
 `espeak`

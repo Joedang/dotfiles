@@ -122,6 +122,11 @@ ln -st ~ ~/dotfiles/.gitconfig
 ln -st ~ ~/dotfiles/.emacs
 ln -st ~ ~/dotfiles/.calcrc
 ln -st ~ ~/dotfiles/bin
+cp --no-clobber -p dotlocal/.bashrc $HOME/.local/
+cp --no-clobber -p dotlocal/.bash_aliases $HOME/.local/
+cp --no-clobber -p dotlocal/.bash_path $HOME/.local/
+cp --no-clobber -p dotlocal/.bash_vars $HOME/.local/
+cp --no-clobber -p dotlocal/README.md $HOME/.local/
 echo
 echo You should restart your shell to get the customizations.
 

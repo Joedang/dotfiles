@@ -1,0 +1,16 @@
+# This file holds the local path configurations for this machine.
+# It doesn't get committed in ~/dotfiles.
+
+##### path for commands #####
+# PATH=stuff:and:things:$PATH
+
+##### man path ######
+# MANPATH=stuff:and:things:$MANPATH
+
+##### info path #####
+# INFOPATH=stuff:and:things:$INFOPATH
+
+##### exports #####
+# export PATH
+# export MANPATH
+# export INFOPATH

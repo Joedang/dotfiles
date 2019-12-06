@@ -35,7 +35,7 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 
 # default to vi-like key bindings for given programs
 alias info='info --vi-keys'
-alias lynx='lynx --vikeys --use-mouse'
+alias lynx='lynx --vikeys --use_mouse --enable_scrollback'
 
 #alias viewmd='function _viewmd(){ pandoc -i "$1" -o /tmp/$(basename ${1%.*}.html); chromium-browser /tmp/$(basename ${1%.*}.html); };_viewmd'
 
@@ -85,3 +85,5 @@ alias wut="echo 'ಠ_ಠ'"
 alias chungus='play ~/audio/samples/bigChungus.ogg'
 alias qmv='qmv -o spaces'
 # alias tmux='tmux -2' # This should be done in the local config.
+alias j2a='jp2a --colors --background=dark'
+alias fp='firefox --private'

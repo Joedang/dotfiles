@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+h1='\e[4;1m'
+rst='\e[0m'
+
+
+for group in '3' '9'; do # Foreground Background light-foreground light-background
+    for color in {0..7} ; do # Colors
+        code="7;$group$color"
+        printf "\e[%sm  \e[0m" $code $code
+    done
+    echo
+done

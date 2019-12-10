@@ -69,7 +69,7 @@ then
     tmux set-window-option -t $sn:3 allow-rename off
     tmux send-keys -t $sn:3.1 'firefox'
     tmux split-window -t $sn:3.1
-    tmux send-keys -t $sn:3.2 "$HOME/torbrowser-workaround"
+    tmux send-keys -t $sn:3.2 "tb"
     tmux split-window -t $sn:3.2
     tmux send-keys -t $sn:3.3 "signal-desktop"
     tmux split-window -t $sn:3.3

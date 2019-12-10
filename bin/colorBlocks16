@@ -3,29 +3,22 @@ h1='\e[4;1m'
 rst='\e[0m'
 
 echo -e "$h1 16-color Set $rst"
-for fgbg in 3 4 ; do # Foreground / Background
+echo "(fg, light-fg, bg, light-bg)"
+for group in 3 9 4 10; do # Foreground Background light-foreground light-background
     for color in {0..7} ; do # Colors
-        code=$fgbg$color
+        code=$group$color
         # Display the color
-        printf "\e[%sm %3s \e[0m" $code $code
+        printf "\e[%sm %5s \e[0m" $code $code
     done
     echo # New line
 done
- 
-# echo -e "$h1 Demo Format $rst"
-# echo "Each chunk shows a different background setting (second number)."
-# echo "Each row shows a different foreground color (third number)."
-# echo "Each column shows a different attribute (first number)."
-# 
-# Background
-# for clbg in {40..47} {100..107} 49 ; do
-#     # Foreground
-#     for clfg in {30..37} {90..97} 39 ; do
-#         # Formatting
-#         for attr in 0 1 2 4 5 7 8 9 ; do
-#             # Print the result
-#             echo -en "\e[${attr};${clbg};${clfg}m \\\\e[${attr};${clbg};${clfg}m \e[0m"
-#         done
-#         echo # Newline
-#     done
-# done
+
+echo
+echo -e "$h1 Inverted Colors $rst"
+for group in '3' '9'; do # Foreground Background light-foreground light-background
+    for color in {0..7} ; do # Colors
+        code="7;$group$color"
+        printf "\e[%sm %5s \e[0m" $code $code
+    done
+    echo
+done

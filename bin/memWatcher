@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# A program to warn the user about excessive memory usage
+# author: Joe Shields
+# date: 2019-12-10
+
+threshold=20 # percent, threshold below which a warning is given
+interval=10 # seconds, interval between observations
+interval_ms=$(( 1000 * interval / 2 )) # ms, duration to display desktop notification
+
+while true
+do
+    # get the system memory stats
+    freeStr=$(free | tr '\n' ' ')
+    # select the total and available memory from the output of `free`
+    total=$(echo $freeStr | awk -e '{print $8}')
+    avail=$(echo $freeStr | awk -e '{print $13}')
+    percAvail=$(( 100 * avail / total ))
+    # clear the terminal output
+    echo -ne "                                       \r" 
+    if [[ $percAvail -lt $threshold ]]
+    then # memory is low
+        echo -ne "\rWarning, low available memory: "$percAvail"%"
+        notify-send -t $interval_ms "memory warning" $percAvail"% memory available"
+    else # memory is fine
+        echo -ne "\rmemory available: "$percAvail"%"
+    fi
+    sleep $interval
+done
+exit 1

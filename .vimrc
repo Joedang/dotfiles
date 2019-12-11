@@ -102,7 +102,10 @@ nmap <leader>lt i<c-r>=strftime('%H:%M:%S %z')<cr><Esc>
 imap <c-l>utc <c-r>=system('date -u "+%Y-%m-%d:%H:%M:%S %Z"')<cr>
 nmap <leader>utc i<c-r>=system('date -u "+%Y-%m-%d:%H:%M:%S %Z"')<cr><Esc>
 
-command NT NERDTreeToggle
+" command NT NERDTreeToggle
+" open a NERDTree tab ahead of all the other tabs
+command NT :0tabnew | :NERDTree | :wincmd l | :q
+
 nmap <Leader>nt :NERDTreeToggle
 
 vmap <Leader>tab :Tabularize 
@@ -165,7 +168,7 @@ call vundle#begin()
 
 " let Vundle manage Vundle, required
 Plugin 'VundleVim/Vundle.vim'
-Plugin 'togglecursor' "hasn't really been useful yet
+" Plugin 'togglecursor' "hasn't really been useful yet
 Plugin 'godlygeek/tabular' "rare to use, but nice
 Plugin 'plasticboy/vim-markdown' "frequently used
 " Plugin 'python-mode/python-mode'

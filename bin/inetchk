@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# Quickly ping a list of domains and report the results.
+# This is meant to be a rough "Is the internet working?" check.
+# Joe Shields
+# 2019-12-27
+
+domains="\
+    google.com \
+    amazon.com \
+    wikipedia.com \
+    github.com \
+    pdx.edu \
+    reddit.com \
+    torproject.org \
+    packages.ubuntu.com \
+    duckduckgo.com \
+    microsoft.com \
+    apple.com \
+    "
+deadline=3
+count=3
+interval=0.2 # You need root privileges to ping faster than every 0.2 s.
+fgrst="\e[39m"
+red="\e[31m"
+green="\e[32m"
+yellow="\e[33m"
+underline="\e[4m"
+ulrst="\e[24m"
+
+for d in $domains
+do
+    echo -en "$underline$d$ulrst"':\t'
+    result=$(\
+          ping $d -c $count -w $deadline -i $interval \
+        | grep "packet loss" \
+        | sed 's/\ packet[s]*//g'\
+        )
+    loss=$(echo $result | grep -P -o '[0-9]*(?=%)')
+    if [ "$loss" = '0' ]
+    then
+        echo -en "$green"GOOD$fgrst', '
+        #echo -e "$green"Successfully pinged $d. $fgrst
+    elif [ "$loss" = 100 ]
+    then
+        echo -en "$red"FAIL$fgrst', '
+        #echo -e "$red"No pings to $d were returned. $fgrst
+    else
+        echo -en "$yellow"'OK  '$fgrst', '
+        #echo -e "$yellow"Some of the pings to $d were not returned. $fgrst
+    fi
+    echo $result
+done

@@ -41,12 +41,21 @@ set expandtab
 " end-of-line shows as '$', trailing spaces show as '~', etc.
 set listchars=eol:$,tab:>-,trail:~,extends:>,precedes:<,nbsp:%
 
+" set the color scheme for gvim
+:colo slate
+
+" highlight long lines
+set cc=+1  " highlight column after 'textwidth'
+" set cc=+1,+2,+3  " highlight three columns after 'textwidth'
+" This must come after :colo slate 
+hi ColorColumn ctermbg=DarkGray
+hi ColorColumn guibg=DarkGray
+" Leave textwidth at 0, so it doesn't display by default.
+" set textwidth=80
+
 " Set the default method of encryption for encrypted files
 " This is the strongest available by default, according to the help.
 set cryptmethod=blowfish2
-
-" set the color scheme for gvim
-:colo slate
 
 " add manually downloaded plugins
 set runtimepath+=$HOME/.vim/manual/*
@@ -66,6 +75,10 @@ nmap <C-L> <C-W><C-L>
 " somehow makes the real leader backslash
 " let mapleader = "."
 
+" shortcuts for editing and reloading .vimrc
+command RCedit :ed $MYVIMRC
+command RCsoruce :source $MYVIMRC
+
 " seek to the next instance of (!)
 nmap <Leader>! /(!)
 vmap <Leader>! /(!)
@@ -78,6 +91,9 @@ nmap <Leader>sp :set spell!
 
 " toggle match highlihting in searches
 nmap <Leader>hls :set hlsearch!
+
+" set the text width for highlighting purposes
+nmap <Leader>tw :set textwidth=
 
 " match and highlight the word under the cursor
 " autocmd CursorMoved * exe printf('match IncSearch /\V\<%s\>/', escape(expand('<cword>'), '/\'))

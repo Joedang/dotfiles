@@ -24,6 +24,7 @@ fgrst="\e[39m"
 red="\e[31m"
 green="\e[32m"
 yellow="\e[33m"
+magenta="\e[35m"
 underline="\e[4m"
 ulrst="\e[24m"
 
@@ -35,18 +36,25 @@ do
         | grep "packet loss" \
         | sed 's/\ packet[s]*//g'\
         )
+    pingReturn=$?
     loss=$(echo $result | grep -P -o '[0-9]*(?=%)')
     if [ "$loss" = '0' ]
     then
-        echo -en "$green"GOOD$fgrst', '
+        echo -en "$green"GOOD $fgrst', '
         #echo -e "$green"Successfully pinged $d. $fgrst
     elif [ "$loss" = 100 ]
     then
-        echo -en "$red"FAIL$fgrst', '
+        echo -en "$red"FAIL $fgrst', '
         #echo -e "$red"No pings to $d were returned. $fgrst
-    else
-        echo -en "$yellow"'OK  '$fgrst', '
+    elif [ ! -z "$loss" ] # $loss isn't empty (so, between 0 and 100)
+    then
+        echo -en "$yellow"'OK   '$fgrst', '
         #echo -e "$yellow"Some of the pings to $d were not returned. $fgrst
+    else
+        # some other condition
+        echo -en "$magenta"'OTHER'$fgrst', '
     fi
-    echo $result
+    echo -n $result", "
+    echo exit: "$?"
 done
+exit $pingReturn

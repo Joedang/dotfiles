@@ -87,3 +87,4 @@ alias qmv='qmv -o spaces'
 # alias tmux='tmux -2' # This should be done in the local config.
 alias j2a='jp2a --colors --background=dark'
 alias fp='firefox --private'
+alias norename='tmux set-window-option allow-rename off'

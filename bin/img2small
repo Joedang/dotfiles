@@ -11,7 +11,7 @@ import os
 import argparse
 
 # TODO: implement error catching and error codes
-exit_status= 0
+exit_status= 1
 
 ##### Parse Arguments #####
 parser= argparse.ArgumentParser(description= \
@@ -19,7 +19,9 @@ parser= argparse.ArgumentParser(description= \
     img2small converts an image to a smaller version, suitable for web use.
     Shrunken images will have "_small" appended to their base file name.
     So, `myImage.jpg` becomes `myImage_small.jpg`. Note that the original
-    file is not modified or removed.
+    file is not modified or removed, \033[31munless `myImage.jpg` and 
+    `myImage_small.jpg` already exist\033[39m, in which case the latter would be
+    overwritten.
     """
     )
 parser.add_argument(\
@@ -29,9 +31,14 @@ parser.add_argument(\
     )
 parser.add_argument(\
     '-t', '--traceback', metavar='traceback', action='store_const', \
-    const=True, default=False,\
+    const=False, default=True,\
     help='Show traceback for any exceptions in the encoding process. \
         (not implemented yet... all traceback is shown)'
+    )
+parser.add_argument(\
+    '-q', '--quiet', metavar='quiet', action='store_const', \
+    const=True, default=False,\
+    help='Silence the normal output (parroting arguments, announcing conversions)'
     )
 parser.add_argument(\
     dest='images', nargs='*', type=str,\
@@ -44,19 +51,25 @@ parser.add_argument(\
 # required argument for the file names of videos to be compressed:
 args= parser.parse_args()
 # Echo the arguments
-print('args=', args)
+if args.quiet == False:
+    print('args=', args)
 
 ##### Shrink the Images #####
 for f in args.images:
     im = Image.open(f)
     if min(im.size)>args.shortest:
         newsize = tuple([round(x*args.shortest/min(im.size)) for x in im.size])
-        print('\nResizing '+f+' to ', newsize)
+        if args.quiet == False:
+            print('Resizing '+f+' to ', newsize)
         im.thumbnail(newsize)
         f_base, f_ext = os.path.splitext(f)
-        im.save(f_base+'_small'+f_ext)
-    else:
-        print('\nSkipping '+f)
+        if im.format in ['JPEG', 'PNG', 'GIF']:
+            im.save(f_base+'_small'+f_ext, optimize=True)
+        else:
+            im.save(f_base+'_small'+f_ext)
+    elif args.quiet == False:
+            print('Skipping '+f)
     im.close()
 
+exit_status= 0
 sys.exit(exit_status)

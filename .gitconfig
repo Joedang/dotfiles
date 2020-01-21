@@ -1,26 +1,27 @@
 [user]
 	name = Joedang
 	email = shields6@pdx.edu
-	signingkey = 5892B7FC2FBFB981
+	signingkey = 5892B7FC2FBFB981 # which GPG key to use when signing tags and commits
 [credential]
 	helper = cache --timeout=3600
 [push]
-	default = simple
+	default = simple # by default, push the current branch to the same-name upstream branch
 [core]
 	editor = vim
-	excludesfile = ~/.gitignore
+	excludesfile = ~/.gitignore # this file defines which pathname patterns to ignore
 [merge]
-	tool = vimdiff
-	conflictstyle = diff3
-[alias]
-#	home = !cd "$(git rev-parse --show-toplevel)"
-#	home = rev-parse --show-toplevel
-	home = !pwd
-#	gr = log --graph --full-history --all --color --abbrev-commit --decorate --date=short
-#	gr = log --graph --full-history --all --color --format='%Cred%h%Creset %an (%G?) %Cblue%ai%Creset%d%n%s%n' 
+	tool = vimdiff # use this program to manage merges
+	conflictstyle = diff3 # also show the original text before both changes
+[alias] # these basically become new git subcommands
+    # print the root of the git repo:
+	home = !pwd 
+    # display a colorful graph of the history:
 	gr = log --graph --full-history --all --color --format='%C(auto)%h %an (%G?) %C(green)%ci%C(auto)%d%n%s%n' 
+    # Display all the commits that went into a file:
+    # Also show which files were changed in those commits.
+    # Adding the --all flag makes this like the `gr` alias, but with which files were changed.
 	gr-ch = log --graph --full-history -M --name-status --color --format='%C(auto)%h %an (%G?) %C(green)%ci%C(auto)%d%n%s%n' 
-	sta = status
-	k = !gitk --all
-	vimdiff = difftool --tool=vimdiff 
-	mt = mergetool
+	sta = status # lazy alias
+	k = !gitk --all # run the gitk tool on the whole history
+	vimdiff = difftool --tool=vimdiff # lazy alias
+	mt = mergetool # lazy alias

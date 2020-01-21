@@ -1,3 +1,4 @@
+# Zoomer Shell Config
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
@@ -41,6 +42,12 @@ HYPHEN_INSENSITIVE="true"
 # Uncomment the following line to display red dots whilst waiting for completion.
 COMPLETION_WAITING_DOTS="true"
 
+# tab completion for command options
+autoload -U compinit
+zstyle ':completion:*' menu select
+zmodload zsh/complist
+_comp_options+=(globdots)
+
 # Uncomment the following line if you want to disable marking untracked files
 # under VCS as dirty. This makes repository status check for large repositories
 # much, much faster.
@@ -61,7 +68,8 @@ HISTFILE=~/.zsh_history
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git vi-mode)
+plugins=(git vi-mode zsh-syntax-highlighting) # The highlighter has to go last.
+# The highlighter is a custom plugin at git@github.com:zsh-users/zsh-syntax-highlighting.git.
 
 source $ZSH/oh-my-zsh.sh
 

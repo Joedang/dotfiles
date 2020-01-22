@@ -90,6 +90,19 @@ cat dumpHeader.out | grep -P -e '(?<=filename=").*(?=")'
 
 Vim, for example, does not use the Perl syntax. See the `pattern-multi-items` help for more info.  
 
+### Lazy Matching
+This is also called non-greedy matching.
+Say I have an HTML file, and I want to match individual bold sections.
+
+```
+<b>Match this,</b> but not this this.  <b>Also match this.</b>
+```
+
+`grep -o -P '<b>.*?</b>' example.html` would match only the bold tags and their contents,
+unlike `grep -o '<b>.*</b>' example.html` which also matches stuff between bold elements.
+Note that this is a Perl-ism, as indicated by the `-P` flag. 
+So, this won't work in some regex systems.
+
 ### Negation
 An example of a negation in Vim would be `^#\@!`, which matches any line that doesn't start with an octothorpe. 
 

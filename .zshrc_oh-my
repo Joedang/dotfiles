@@ -58,7 +58,7 @@ DISABLE_UNTRACKED_FILES_DIRTY="true"
 # The optional three formats: "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
 HIST_STAMPS="yyyy-mm-dd"
 # HISTSIZE=10000 # already set by .bash_hist
-SAVEHIST=10000
+SAVEHIST=100000
 HISTFILE=~/.zsh_history
 
 # Would you like to use another custom folder than $ZSH/custom?

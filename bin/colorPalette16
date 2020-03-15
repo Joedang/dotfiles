@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
-h1='\e[4;1m'
-rst='\e[0m'
+# Display the 16-color palette.
 
-
-for group in '3' '9'; do # Foreground Background light-foreground light-background
+for group in 4 10 ; do # normal and light color groups
     for color in {0..7} ; do # Colors
-        code="7;$group$color"
-        printf "\e[%sm  \e[0m" $code $code
+        # highlight a few spaces using the current color
+        printf "\e[%s%sm    \e[0m" $group $color
     done
-    echo
+    echo # print a newline
 done

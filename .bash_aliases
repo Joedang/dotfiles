@@ -12,7 +12,8 @@ alias egrep='egrep --color=auto'
 
 # some navigation ls aliases
 alias ll='ls -alFh'
-alias la='ls -A'
+alias la='ls -a'
+alias lla='ls -la'
 alias l='ls -CF'
 alias cls='clear; ls'
 alias clsd='clear; lsd'
@@ -22,7 +23,7 @@ alias clj='clear; jobs; ls'
 alias pl='pwd;ls'
 
 # Clear the screen, go to the home dir, say the user and host name, list any running jobs, list dir contents
-alias home='clear; cd $HOME; env echo -e "\e[36m$USER"\@"$HOST""\e[35m";jobs; env echo -en "\e[39m"; ls'
+alias home='clear; cd $HOME; env echo -e "\e[36m$USER"\@$(uname -n)"\e[35m";jobs; env echo -en "\e[39m"; ls'
 alias hoe="home; echo 'What did you just call me?!'"
 
 # git aliases that are hard to build into .gitconfig

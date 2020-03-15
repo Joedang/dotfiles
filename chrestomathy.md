@@ -301,6 +301,30 @@ rsync -r mydir/ user@host:~/yourdir/
 ```
 `user` is your login name on that machine. (You will need to know the password for `~/.ssh/id_rsa` to get in.) `host` can be an IP address or a domain (`192.168.1.1`, `pdx.edu`, et cetera).
 
+You can also explicitly use ssh as the wrapper for rsync, if a machine doesn't like to talk to rsync by default.
+For example, using ssh over port 2222 to copy test.txt from a machine at a local IP:
+`rsync -e 'ssh -p 2222' user@192.168.1.111:test.txt ./`
+
+## Git
+### Separating Out Histories
+Let say, hypothetically, that someone was a butt with their repos. 
+They have a repo named `lv3.0-recovery` and, rather than renaming the repo to
+`lv3-recovery` and continuing to work or making a new repo called
+`lv3.1-recovery`, they've made a directory named `LV3.1` within it and done all
+their work in there.
+
+```
+git clone lv3.0-recovery lv3.1-recovery                 #1
+cd lv3.1-recovery                                       #2
+git filter-branch --subdirectory-filter LV3.1 -- --all  #3
+```
+
+On line 1, we create a new repo. This could probably be done in a branch, but
+paranoia. On line 2, we go into that repo.
+On line 3, we rewrite the history to only include the `LV3.1` directory.
+This new history will have the same commit messages, dates, names, et cetera.
+However, the commit hashes and parents will change.
+
 ## SSH
 `ssh-keygen` creates keys. 
 Checkout `ssh-copy-id` for a convenient way to copy public keys around.
@@ -449,6 +473,7 @@ Pressing `F` in `less` is the same idea as `tail -F`. This is probably the most 
 
 ### PGP via GPG
 
+
 ### full disk encryption with LUKS
 encrypt a device (or partition):  
 ```
@@ -517,6 +542,11 @@ The defaults are sane, but filename encryption is a good idea to turn on.
 mount: `encfs .secure secure`
 umount: `fusermount -u secure`
 
+## Common Problems
+### Random Red Screen
+I'm pretty sure this is caused by `slock`.
+Killing slock from a virtual terminal should solve it. (`pkill slock`)
+
 ## Logout another user
 
 `pkill -u joedang` will kill all processes belonging to the user `joedang`, effectively logging them out.
@@ -533,7 +563,111 @@ This is useful for getting information from proprietary binary files.
 `binwalk myfile.asdf` searches files for *embedded* files and executables. 
 It's kind of like a more powerful/general version of `strings`.
 
+## Disk Management
+`fdisk -l` is useful for seeing information about attached disks.
+
+### Terminology
+The terminology around partitions is kind of confusing at first.
+The items with *emphasis* are specific pieces of jargon with distinct meanings.
+
+*Partition tables*, are global to a physical drive.
+They describe where the various partitions are.
+There are different *partition table types*. 
+The major types are MBR (aka msdos or dos) and GPT (aka GUID)
+These are also referred to as *disklabel types*.
+
+*Partitions* are sections of storage space.
+The *partition type* is a hint in the partittion table to the OS on how to 
+handle the stuff at a particular address referred to in the partition table.
+Confusingly, many partition types are named after partition table types or file
+system types!
+These don't necessarily matter, if the OS is able to figure things out from the
+file system.
+
+*File systems* are a way of keeping track of... files.
+They can incorporate things like file permissions, journaling, data recovery, 
+and encryption.
+
+### Creating Partitions
+`cfdisk` is a convenient tool for managing partitions.
+`gparted` is the GUI equivalent of `cfdisk`.
+`gnome-disks` is also useful, but far less capable.
+
+### MBR Versus GPT
+A Master Boot Record (MBR) is the old style of pointing to bootable partitions. 
+It's meant to be used with BIOS firmwares.
+It's usually more compatible, but limits you to 4 partitions.
+If you want more, you need to use logical partitions.
+Some softwares call this a "dos" partition.
+
+A GUID Partition Table is the new style.
+It's meant to be used with UEFI firmwares.
+It's usually not compatible with old hardware, but you can have lots of partitions.
+
+### Formatting Partitions
+The `mkfs.*` commands can be used to format a partition to a particular file system.
+`gnome-disks` can also be used.
+
+#### Swap Partitions
+You can create a "Linux swap" partition and format it with `mkswap`.
+Then, if you use `swapon`, you can start using that partition as a swap.
+This lets Linux use it like RAM, if you happen to run out of actual RAM.
+Obviously, this is much slower, and seriously effects performance when it is used,
+but at least it prevents crashes!
+
+### Auto-mounting With fstab
+The File System TABle (fstab) is located at `/etc/fstab`.
+Entries in fstab will automatically be mounted to the file system.
+It usually contains comments hinting at its syntax.
+`man fstab` can provide a detailed explanation.
+
+Here's an example of fstab contents:
+```
+# <file system> <mount point>   <type>  <options>       <dump>  <pass>
+# / was on /dev/sda2 during installation
+UUID=c87dcf2c-bef5-4e7d-a4a0-cbd30cbaea5f /               ext4    discard,relatime,errors=remount-ro 0       1
+```
+
+The `<file system>` field *can be* a device name, like `/dev/sda1`, however this is generally inferior to using a UUID.
+Device names are generated dynamically, whereas a UUID never changes. (unless the device is reformatted?)
+You can determine the UUID of a partition with `ls -l /dev/disk/by-partuuid`.
+If available, `genfstab -U` will automatically generate a vaid fstab of everything currently mounted.
+`fdisk -l` will also tell you the UUID of your disks.
+
+### GRUB
+`grub-install /dev/sdc` (or whatever drive, sda, sdb, et cetera...)
+`grub-mkconfig -o /boot/grub/grub.cfg`
+
+### Live USBs
+The usual way to create a live USB is to start with a live image 
+and use some tool to install it on a USB drive.
+Most of the popular distros will provide a live image. 
+In fact, the preferred way to install many distros is to start with a live USB,
+using the live version of the distro to bootstrap the installer.
+
+#### Using a Dedicated Tool
+There are a lot of tools available for creating live USBs.
+The one I prefer is `unetbootin`.
+Starting with a function USB stick, open unetbootin (requires sudo), point it
+towards the image you want to use, point it towards the drive, and let it do its
+thing.
+
 ## Misbehaving Programs
+You can use `pgrep` and `pkill` to find and kill processes by their command name.
+Typically, I'll just do `pgrep -l mycommand` to confirm that only the intended processes will be selected.
+Then, I'll do `pkill mycommand`. Note that this only sends the `TERM` signal, which politely asks the process to stop.
+If the process is really pathological, you can use `pkill -KILL mycommand` 
+or `kill -KILL PID` (PID is the process ID of the thing you want to kill.)
+This tells the Linux kernel to stop the process in a non-graceful way.
+
+`ps axo pid,ppid,comm | grep mycommand` is also useful for finding the *parent process* of a misbehaving program,
+so you can determine what started it.
+
+### Orphaned Processes
+Often, misbehaving processes are doing so because their parent process terminated, but they are still running.
+AFAIK, these always get their parent reassigned to PID 1, which is the init system. 
+This can make it difficult to figure out what went wrong.
+
 ### Killing an XFCE Session
 The brute-force solution is `pkill xfce`. This will nuke XFCE and its child processes.
 The more elegant solution would be the following, which actually tells XFCE to logout the user on that display.
@@ -543,6 +677,12 @@ Of course, this only works if XFCE is responding.
 export DISPLAY=':0.0'
 xfce4-session-logout --logout
 ```
+
+
+## Desktop Environments
+You can try out a desktop environment by doing `startx myEnvironment` from a virtual terminal.
+For example, Ctrl+Alt+F1 to switch to VT 1 and then `startx i3` to start i3.
+
 ## Fun
 
 ### ASCII Art

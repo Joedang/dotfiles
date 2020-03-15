@@ -99,6 +99,10 @@ nmap <Leader>hls :set hlsearch!
 " set the text width for highlighting purposes
 nmap <Leader>tw :set textwidth=
 
+" Comment the selection with a #
+vmap <Leader>cc I#<Space><Esc>
+vmap <Leader>cu :s/^#\ \?//g<Return>
+
 " match and highlight the word under the cursor
 " autocmd CursorMoved * exe printf('match IncSearch /\V\<%s\>/', escape(expand('<cword>'), '/\'))
 " to see available highlight groups:

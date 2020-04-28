@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+# Check if there has been new news posted to archlinux.org/news.
+# Provide advice to read the news if there's new news.
+# Joe Shields
+# 2020-04-27
+
+set -e # exit upon errors
+
+# shortcuts to color text
+RED="\e[31m"
+GRN="\e[32m"
+BLU="\e[34m"
+RST="\e[39m"
+newsUrl='https://www.archlinux.org/news/'
+lastUpdate_dir=$HOME/.local/archNews
+lastUpdate_file=lastUpdate
+lastUpdate_path=$lastUpdate_dir/$lastUpdate_file
+# for now, let's assume the file at lastUpdate_path exists and contains a date
+#test -f $lastUpdate_path || $(mkdir $lastUpdate_dir && touch $lastUpdate_path)
+
+# pick out things that look like an ISO date inside of <td> tags
+echo Requesting latest news...
+latestNews=$(
+    #cat sampleNews.html \
+    curl $newsUrl \
+    | grep -oP '(?<=<td>)[[:digit:]]{4}-[[:digit:]]{2}-[[:digit:]]{2}.*?(?=</td>)' \
+    | sort -r \
+    | head -n 1
+    )
+
+lastUpdate=$(cat $lastUpdate_path)
+echo You last updated through this script on $lastUpdate.
+echo The latest Arch news was issued on $latestNews.
+
+# concatenated dates:
+catDates=$(echo -e $lastUpdate\\n$latestNews)
+# concatenated and sorted dates:
+sortDates=$(echo -e $lastUpdate\\n$latestNews | sort -r)
+
+if [ "$catDates" = "$sortDates" ]
+then
+    echo -e "$GRN"There have been no new Arch news since your last update.$RST
+    echo You should be good to go!
+    echo $newsUrl
+elif [ "$lastUpdate" = "$latestNews" ]
+then
+    echo -e "$RED"There was a new update to the Arch news on the day you last updated through this script!$RST
+    echo You should go read it before updating.
+    echo -e $BLU$newsUrl$RST
+    exit 1
+else
+    echo -e "$RED"There has been a new update to the Arch news since you updated through this script!$RST
+    echo "(Either that, or something has gone wrong with the script.)"
+    echo You should go read it before updating.
+    echo -e $BLU$newsUrl$RST
+    exit 2
+fi
+
+if [ $1 = '-u' ]
+then
+    echo -e Okay, let\'s update. \\n
+    sudo pacman -Syu && date -I > $lastUpdate_path
+fi
+
+set +ev
+exit 0

@@ -53,6 +53,11 @@ hi ColorColumn guibg=DarkGray
 " Leave textwidth at 0, so it doesn't display by default.
 " set textwidth=80
 
+" a more eye-friendly theme for vimdiff
+if &diff
+    colorscheme darkdiff
+endif
+
 let &t_SI = "\<Esc>[6 q" " IBeam shape in insert mode
 let &t_SR = "\<Esc>[4 q" " underline shape in replace mode 
 let &t_EI = "\<Esc>[2 q" " block shape in normal mode

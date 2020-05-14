@@ -9,8 +9,9 @@
 FORMER=$(date -d "$1" +%s)
 LATTER=$(date -d "$2" +%s)
 DAY_s=$(( 60*60*24 ))
-# adding half a day effectively rounds symmetrically, 
-# since shell scripts truncate decimals (flooring the result).
-DIFF_DAYS=$(( (LATTER - FORMER + DAY_s/2) / DAY_s ))
-echo $DIFF_DAYS
+DIFF_s=$(( LATTER - FORMER ))
+# This expression takes advantage of how shell scripts use integer arithmetic.
+# It rounds symmetrically, even for negative differences.
+DIFF_days=$(( ( DIFF_s +DAY_s/2 -(DIFF_s<0)*DAY_s )/DAY_s ))
+echo $DIFF_days
 exit 0

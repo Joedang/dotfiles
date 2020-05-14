@@ -2,20 +2,27 @@
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
+# If there's a config for my dotfiles, use that.
+test -f $HOME/.config/dotfiles/dotfiles.conf && . $HOME/.config/dotfiles/dotfiles.conf
+
+# Default to looking for the Git repo in the home directory.
+test -z $DOTFILES_DIR && DOTFILES_DIR=$HOME/dotfiles 
+
 # Path to your oh-my-zsh installation.
-export ZSH=$HOME/.oh-my-zsh
+export ZSH=$HOME/.config/zsh/oh-my-zsh
 
 # Set name of the theme to load. Optionally, if you set this to "random"
 # it'll load a random theme each time that oh-my-zsh is loaded.
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
-ZSH_THEME="../../dotfiles/skeleku"
+# Apparently this assumes the path is relative to the oh-my-zsh directory.
+ZSH_THEME=../../../../../..$DOTFILES_DIR/skeleku
 
 # Set list of themes to load
 # Setting this variable when ZSH_THEME=random
 # cause zsh load theme from this variable instead of
 # looking in ~/.oh-my-zsh/themes/
 # An empty array have no effect
-ZSH_THEME_RANDOM_CANDIDATES=( "../custom/skeleku" "sunaku" "bira" "robbyrussell" "agnoster")
+ZSH_THEME_RANDOM_CANDIDATES=( "skeleku" "sunaku" "bira" "robbyrussell" "agnoster")
 
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
@@ -75,9 +82,9 @@ source $ZSH/oh-my-zsh.sh
 
 # User configuration
 
-source ~/dotfiles/.bash_aliases
-source ~/dotfiles/.bash_path
-source ~/dotfiles/.bash_vars
+source $DOTFILES_DIR/.bash_vars
+source $DOTFILES_DIR/.bash_path
+source $DOTFILES_DIR/.bash_aliases
 source ~/.local/.bashrc
 
 # You may need to manually set your language environment

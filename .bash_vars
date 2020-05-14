@@ -1,14 +1,15 @@
 #!/bin/bash
-# enable the config file for calc
 
+test -f ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs && . ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs
+
+# enable the config file for calc
 export CALCRC='~/.calcrc'
-export EDITOR=/usr/bin/vim
+
+# set the default editor to vim
+export EDITOR=`which vim`
 
 # add ~/texmf to LaTeX's path:
-if [ -d ~/texmf ]
-then
-	export TEXMFHOME="$HOME/texmf"
-fi
+test -d ~/texmf && export TEXMFHOME="$HOME/texmf"
 
 # set the variable that points the gnupg.vim plugin to the current terminal
 # Only relevant once that plugin is fixed and I start using it.
@@ -18,24 +19,17 @@ fi
 ##### Make the output of `less` colored #####
 #           "stop all"="reset to defaults" (applies to so, us, mb, md, and mr)
 export LESS_TERMCAP_me=$'\e[0m'
-
 #     "start blinking"="magenta fg"
 export LESS_TERMCAP_mb=$'\e[35m'
-
 #         "start bold"="bold cyan fg"
 export LESS_TERMCAP_md=$'\e[1;96m'
-
 #     "start standout"="black fg; green bg; no dim"
 export LESS_TERMCAP_so=$'\e[30;42;22m'
-
 #       "end standout"="default fg and bg"
 export LESS_TERMCAP_se=$'\e[39;49m'
-
 #     "start underlining"="start ul; light yellow fg"
 export LESS_TERMCAP_us=$'\e[4;93m'
-
-#     "end underlining"="reset ul and fg"
+#    "end underlining"="reset ul and fg"
 export LESS_TERMCAP_ue=$'\e[24;39m'
-
 #     "start half-bright"="dim"
 export LESS_TERMCAP_mh=$'\e[2m'

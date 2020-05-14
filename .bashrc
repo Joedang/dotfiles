@@ -62,15 +62,17 @@ esac
 # Aliases and path munging
 # These things are kept in separate files, to keep everything clean.
 # See /usr/share/doc/bash-doc/examples in the bash-doc package.
+test -f $HOME/.config/dotfiles/dotfiles.conf && . $HOME/.config/dotfiles/dotfiles.conf
+test -z $DOTFILES_DIR && DOTFILES_DIR=$HOME/dotfiles
 
-if [ -f ~/dotfiles/.bash_aliases ]; then
-    . ~/dotfiles/.bash_aliases
+if [ -f $DOTFILES_DIR/.bash_aliases ]; then
+    . $DOTFILES_DIR/.bash_aliases
 fi
-if [ -f ~/dotfiles/.bash_path ]; then
-    . ~/dotfiles/.bash_path
+if [ -f $DOTFILES_DIR/.bash_path ]; then
+    . $DOTFILES_DIR/.bash_path
 fi
-if [ -f ~/dotfiles/.bash_vars ]; then
-    . ~/dotfiles/.bash_vars
+if [ -f $DOTFILES_DIR/.bash_vars ]; then
+    . $DOTFILES_DIR/.bash_vars
 fi
 if [ -f ~/.local/.bashrc ]; then
     . ~/.local/.bashrc

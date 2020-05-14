@@ -199,15 +199,15 @@ Plugin 'plasticboy/vim-markdown' "frequently used
 " Plugin 'vim-ipython'
 " Plugin 'Conque-Shell'
 Plugin 'scrooloose/nerdTree'
-Plugin 'tarruda/vim-conque-repl' "nice, but usually outdone by tmux
-Plugin 'ctrlpvim/ctrlp.vim' "nice, but I usually know where my files are
-Plugin 'tpope/vim-surround' "not used to bindings yet; often just do it manually
+" Plugin 'tarruda/vim-conque-repl' "nice, but usually outdone by tmux
+" Plugin 'ctrlpvim/ctrlp.vim' "nice, but I usually know where my files are
+" Plugin 'tpope/vim-surround' "not used to bindings yet; often just do it manually
 Plugin 'wesQ3/vim-windowswap' "<leader>ww select another pane <leader>ww panes are swapped
-Plugin 'junegunn/goyo.vim' "minimal single-column editing
-Plugin 'junegunn/limelight.vim' "darken non-current line. special colors req.
+" Plugin 'junegunn/goyo.vim' "minimal single-column editing
+" Plugin 'junegunn/limelight.vim' "darken non-current line. special colors req.
 Plugin 'alx741/vinfo' "tool for reading info pages with vim
 Plugin 'mrk21/yaml-vim' "indentation and highlighting for YAML
-Plugin 'jamessan/vim-gnupg' "integration with GPG; still buggy, use when fixed
+" Plugin 'jamessan/vim-gnupg' "integration with GPG; still buggy, use when fixed
 " Plugin 'csv.vim'
 " The following are examples of different formats supported.
 " Keep Plugin commands between vundle#begin/end.

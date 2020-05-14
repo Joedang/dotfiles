@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Take two dates and output the difference in days. 
+# Round to the nearest day. (A 13 hour difference outputs 1.)
+# daydiff FORMER LATTER
+# This should output 365: `daydiff 2021-05-13 2022-05-13`
+# author: Joe Shields
+# date: 2020-05-13
+
+FORMER=$(date -d "$1" +%s)
+LATTER=$(date -d "$2" +%s)
+DAY_s=$(( 60*60*24 ))
+# adding half a day effectively rounds symmetrically, 
+# since shell scripts truncate decimals (flooring the result).
+DIFF_DAYS=$(( (LATTER - FORMER + DAY_s/2) / DAY_s ))
+echo $DIFF_DAYS
+exit 0

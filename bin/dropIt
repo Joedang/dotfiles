@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Flash some text art in multiple colors to the beat of some music.
+# author: Joe Shields
+# date: 2020-05-14
+
+ART=~/src/dotfiles/neat/dropTheBass.txt
+MUSIC=~/audio/samples/dropIt.ogg
+MUSIC_LENGTH=16
+PERIOD=0.465
+ART_HEIGHT=$( wc -l "$ART" | awk '{print $1}')
+
+ogg123 $MUSIC 2> /dev/null & # play the music in the background with no output
+START=$SECONDS
+i=1
+while (( SECONDS < START+MUSIC_LENGTH )) # while the music is playing
+do
+    echo -ne '\e[3'$i'm' # set the color
+    cat $ART # display the text art
+    (( i++ )) # cycle to the next color
+    (( i<8 )) || i=1 # after 37 (light gray), go back to 31 (red)
+    sleep $PERIOD # wait for one beat of the music
+    echo -ne "\e[$ART_HEIGHT"A # erase the art
+done
+echo -ne "\e[39m" # reset the text color to default

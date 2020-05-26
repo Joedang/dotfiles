@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# This is a wrapper for ffmpeg that just removes the audio from a video.
+# Joe Shields
+# 2020-05-25
+
+input="$1"
+noext=${input%.*} # input pathname with the last extension removed
+ext=${input##*.} # last extension of the input path name
+
+ffmpeg -i "$input" -c copy -an "$noext"_silent."$ext"

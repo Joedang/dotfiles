@@ -56,7 +56,7 @@ else
     exit 2
 fi
 
-if [ $1 = '-u' ]
+if [ "$1" = '-u' ]
 then
     echo -e Okay, let\'s update. \\n
     sudo pacman -Syu && date -I > $lastUpdate_path

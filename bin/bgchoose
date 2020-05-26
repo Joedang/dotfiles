@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+# Match search the backgrounds directory for files with a case-insensitive substring in their name.
+# Refine the matches using each argument successively until one remains or all args are used.
+# If more than one file makes it through all the filters, select one randomly.
+# author: Joe Shields
+# date: 2020-05-17
+
+# global constants
+bgDir=~/img/backgrounds
+
+# function definitions
+countResults() {
+	if [ -z "$imgResults" ]
+	then
+		echo 0
+	else
+		echo "$imgResults" | wc -l
+	fi
+}
+showNames() {
+	resultCount=$(countResults)
+	if [[ $resultCount != 0 ]]
+	then
+		names=$(echo "$imgResults" | xargs -n 1 basename)
+		echo -e $resultCount matching files:'\n'"$names" 1>&2
+	fi
+}
+
+# load the list of available files
+# links to directories work like you'd expect
+imgResults=$(find -L  $bgDir -not -type d -iname \*"$1"\*)
+if [ -z "$1" ]
+then
+	echo No filters given. Selecting random background. 1>&2
+fi
+
+# apply remaining filters successively
+# (still works if none are given)
+## while we have a remaining argument and more than one remaining result
+while [ ! -z "$1" -a $(countResults) -gt 1 ]
+do
+	echo 1>&2
+	echo filtering for \"$1\"... 1>&2
+	imgResults=$(echo "$imgResults" | grep -i -o ".*$1.*")
+	# echo -e new imgResults is '\n' "$imgResults"
+	showNames
+	shift
+done
+
+# report any unused arguments
+if [ ! -z "$1" ]
+then
+	echo 1>&2
+	echo -n 'unused filters: ' 1>&2
+	while [ ! -z "$1" ]
+	do
+		echo -n "\"$1\" " 1>&2
+		shift
+	done
+fi
+
+# report chosen file
+resultCount=$(countResults)
+echo 1>&2
+## more than one found
+if [[ $resultCount > 1 ]]
+then
+	img=$(echo "$imgResults" | shuf -n 1)
+## none found
+elif [[ $resultCount == 0 ]]
+then
+	echo Couldn\'t find any matches! 1>&2
+	exit -1
+## exactly one found
+elif [[ $resultCount == 1 ]]
+then
+	img=$imgResults
+## Uhhh...
+else
+	echo Something\'s gone terribly wrong, lol. 1>&2
+	exit -2
+fi
+echo -e chosen file:'\n'$img 1>&2
+
+echo $img
+exit 0

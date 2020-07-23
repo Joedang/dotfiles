@@ -13,9 +13,7 @@ domains="\
     reddit.com \
     torproject.org \
     packages.ubuntu.com \
-    duckduckgo.com \
-    microsoft.com \
-    apple.com \
+    archlinux.org \
     "
 deadline=3
 count=3

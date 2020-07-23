@@ -48,7 +48,8 @@ This will give you an HTML file that links to everything, so you can view it in 
 
 ### Output Redirection
 `echo asdf 2>&1` redirect stream 2 (stderr) to stream 1 (stdout)  
-`echo asdf 1>&/dev/null` redirect stdout into /dev/null (so, basically ignore it)
+`echo asdf 1>&/dev/null` redirect stdout into /dev/null (so, basically ignore it)  
+`echo asdf >> both.log 2>&1` redirect both outputs to a log file  
 
 ## R
 ### Figure out what you're looking at
@@ -140,6 +141,63 @@ You'll probably need to add yourself to the usergroup that's allowed to talk to 
         $ sudo usermod -a -G dialout joedang
 On some machines, you may need to restart after adding yourself.
 
+## Key Mapping
+### Basics
+"Keycodes" refer to the numerical designations of physical keys.
+"Keysyms" refer to the abstract syntactic meaning of those keys.
+Keysyms have a four-byte hexadecimal representation, but are also referred to by human-readable strings.
+Keyboard layouts define how keycodes are translated into keysyms.
+
+For example, keycode 9 refers to the top left key on my keyboard, which happens to have "Esc" printed on it.
+Meanwhile, keycode 66 refers to the far-left key on the home row, which happens to have "CapsLock" printed on it.
+If I'm using the "correct" keyboard layout, keycode 66 (the "CapsLock" key) will send the "Caps_Lock"
+
+### Tools
+`setxkbmap` is the "porcelain" for keyboard layouts.
+It allows you to select layouts, perform common remappings, and other stuff.
+You can find a list of the pre-configured remapping optins in 
+`/usr/share/X11/xkb/rules/base.lst`.
+Note that these options are not systematic. Just because you can write something
+that sounds like a thing, doesn't mean it will work.
+For example, `setxkbmap -option caps:escape` is an option to take whatever keycode is currently
+mapped to the Caps_Lock keysym and map it to the Escape keysym. 
+However, `a:b` will not do they same with the "a" and "b" keysyms, 
+because that is not a preconfigured option.
+For something like that, you'd need to use `xmodmap`.
+
+`xmodmap` is a bit more low-level. 
+It allows you to explicitly map individual keycodes to keysyms.
+`setxkbmap -layout us -option` will reset the keyboard layout to "us" and
+clear all the options.
+
+`xev` will print out X events. 
+This can be used to figure out what the keycodes of physical keys are 
+and what keysyms they're sending.
+
+`xinput` will configure and explore the attached input devices.
+`xinput list` shows you what's connected and what it's device ID is.
+`xinput list-props DEVICE_ID` shows you the available properties of a device,
+what the IDs for those properties are, and what the values of those properties
+are.
+`xinput set-prop DEVICE_ID PROPERTY_ID` lets you change those properties. 
+This can be used to change things like trackpad behavior and pointer acceleration.
+
+### Config Files
+
+## Sensor Status
+The `sensors` command from the `lm_sensors` library will print out some pretty info.
+
+### Power
+`/sys/class/power_supply/BAT0/` typically has info on the main battery. 
+The `power_supply/` directory typically has useful info on other devices.
+
+`upower` can give prettier output, but you need to give it a special device name.
+The `upower` man page isn't fully written, so use `upower -h`.
+`upower -e` will tell you what device names are available. 
+
+### Temperature
+`/sys/class/thermal/thermal_zone0/temp` typically has the temperature of the CPU in milli Celsius. 
+
 ## Checking Checksums
 Use `$ md5sum myPackage.tar.gz` to show the MD5 hash for a file.  
 Use `$ md5sum -c fileList.txt` to check if multiple files are 'OK', with `fileList.txt` being something like 
@@ -163,6 +221,73 @@ When you download the source for stuff, this helps you verify that it's not corr
 
 If you hash the concatenation of a password and a website name, you can use that as a crude way of adding security to a reused password.
 (When you need to log in, rehash the password + site name and copy the result into the password field.)
+
+## Cron Jobs
+`cronie` is the implementation I went with on `arxgus`.
+It needed to be enabled/started with Systemd.
+
+A user's "crontab" contains "cron jobs".
+Each user gets a crontab.
+Each jobs is a command that gets run at the specified times.
+
+Cron jobs are edited with `crontab -e` and read with `crontab -l`.
+They are not meant to be edited directly.
+
+### Jobs
+Cron jobs use the following format.
+Each uncommented, non-empty line of a crontab is a job.  
+`M H d m u /path/to/command arg1 arg2`  
+The things before the command specify when they command is meant to be run.
+They are:
+
+| field | scale            | range
+| ---   | ---              | ---
+| M     | minutes          | 0-59
+| H     | hours            | 0-23
+| d     | days             | 0-31
+| m     | months           | 0-12
+| u     | days-of-the-week | 0-7 (Sunday is 0 and 7)
+
+In addition to the numeric values, you can use these symbols to express more complicated schedules:
+
+| symbol | meaning
+| ---    | ---
+| *      | all possible values
+| ,      | separates values in a list
+| -      | specifies a range
+| /      | specifies a step
+
+The following shorthands can be use to replace the entire 5-field schedule:
+
+| shorthand | meaning
+| ---       | ---
+| @hourly   | Run once every hour i.e. `0 * * * *`
+| @midnight | Run once every day i.e. `0 0 * * *`
+| @daily    | same as midnight
+| @weekly   | Run once every week, i.e. `0 0 * * 0`
+| @monthly  | Run once every month i.e. `0 0 1 * *`
+| @annually | Run once every year i.e. `0 0 1 1 *`
+| @yearly   | same as @annually
+| @reboot   | Run once at every startup
+
+#### Examples
+The first job will append "cron works" to `/tmp/crontest` every minute.
+The second line will append the same to `/tmp/crontest_hourly` every hour.
+```cron
+* * * * * /usr/bin/echo "cron works" >> /tmp/crontest
+@hourly /usr/bin/echo "cron works" >> /tmp/crontest_hourly
+```
+
+### Permissions
+Each line of `/etc/cron.allow` contains the username of someone who is *allowed* to use `crontab -e`.
+If this file exists, but your username *isn't* in it, `crontab -e` shouldn't work.
+
+Each line of `/etc/cron.deny` contains the username of someone who is *disallowed* to use `crontab -e`.
+If this file exists, and your username *is* in it, `crontab -e` shouldn't work.
+
+The cron jobs for a user are run *as* that user.
+If you need a cron job to be run as another user, like root, you can use the `su` command or the `-u` flag for crontab.
+Note that this will edit the crontab *for that user*, not your crontab.
 
 ## Timestamp Manipulation
 Set all the mp3 files to have the timestamp of `../flac/Tiger.flac`:  
@@ -226,6 +351,11 @@ Wow Wow.mp3
 `lame` is a stand-alone library/command that *only* writes to `mp3`.  
 `easytag` is a GUI-only program that handles `mp3` tags (called `ID3`).  
 `youtube-dl` is also good for acquiring stuff, but don't count on your package manager's repos being up to date _\*cough\*Ubuntu\*cough\*_. You pretty much have to compile both `youtube-dl` and `avconv` from source. (`libav` is the parent package/project for the `avconv` command.)
+
+#### Remove Audio from a Video
+The `-an` flag for `ffmpeg` can be used to remove all audio streams from an output file.
+There are similar flags for video, subtitles, and data.
+`ffmpeg -i input.mp4 -c copy -an silent.mp4`
 
 ### Create animated GIFs
 `convert -delay 20 -loop 0 *.png myanimation.gif`  
@@ -326,12 +456,42 @@ This new history will have the same commit messages, dates, names, et cetera.
 However, the commit hashes and parents will change.
 
 ## SSH
+"Secure SHell" (SSH) is a tool to securely communicate with another machine.
+
+### Server
+In order to connect via SSH, the host machine (the one where you aren't executing the ssh command) 
+needs to have an SSH server running and a port open (22 by default).
+`openssh-server` and `sshd` are reasonable options for this.
+When you connect to a host, you need to have each other's public keys.
+(Or, you need to verify their fingerprint.)
+
+### Opening a Port
+You need to open a port in the host's firewall, in order to accept connections.
+the easiest way to do this is with the Uncomplicated FireWall package, `ufw`.
+`ufw allow 22` will open port 22, the default for ssh.
+
+### Generating Keys
 `ssh-keygen` creates keys. 
 Checkout `ssh-copy-id` for a convenient way to copy public keys around.
 These pages are great:
 https://www.digitalocean.com/community/tutorials/how-to-configure-ssh-key-based-authentication-on-a-linux-server
 https://www.cyberciti.biz/faq/create-ssh-config-file-on-linux-unix/
 
+### Connecting to New Hosts
+When you connect to a new host, you'll be confronted with a message like this:
+
+```
+$ scp -r joedang@192.168.254.13:.gpg .gpg
+The authenticity of host '192.168.254.13 (192.168.254.13)' can't be established.
+ECDSA key fingerprint is SHA256:9gohu/O6O4eIBA4cRZ8WBganGxptHsAjE7l/ZeemrWs.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+```
+
+In order to verify that you're not connecting to an imposter, you'll need to verify the host machine's key.
+This can be done with `ssh-keygen -lf /etc/ssh/ssh_host_ecdsa_key.pub`.
+If you're using older/newer machines, you may need to use a different hashing algorithm. 
+(I think my Ubuntu 14 machine used md5.)
+This can be controlled with the `-E` option.
 
 ## Installing things from source
 My general strategy is to download an unzip the source into `/tmp/`. **Remember to do a checksum on the downloaded archive!** 
@@ -396,9 +556,25 @@ If you don't have Python 3, it would be `python -m SimpleHTTPServer`.
 
 ## Strip file extensions
 ```bash
-filename=$(basename "$fullfile")
-extension="${filename##*.}"
-filename="${filename%.*}"
+filename=$(basename "$pathname") # remove the leading directories
+extension="${pathname##*.}" # remove everything but the [last] extension
+noextension="${pathname%.*}" # remove the [last] extension
+```
+
+For clarity, here's an example using Zsh. 
+I think it should be the same with any POSIX shell.
+```zsh
+~
+$ pathname=/tmp/bungus.tar.gz
+~
+$ basename $pathname
+bungus.tar.gz
+~
+$ echo ${pathname##*.}
+gz
+~
+$ echo ${pathname%.*}
+/tmp/bungus.tar
 ```
 
 ## Sorting Numbered Files
@@ -715,3 +891,12 @@ I have a tl;dr of color codes in `dotfiles/bin/colorCodes`.
 
 `frotz` plays a common format of text adventures. 
 You can get them [here](http://if.illuminion.de/infocom.html) and [here](http://ifwiki.org/index.php/Main_Page).
+
+## Arch Linux
+### Kernel Modules
+`modprobe` and friends will help you manage kernel modules. 
+Notably, `modprobe -c` will list what's installed and `modprobe MODULE_NAME` will install a module.
+
+Sometimes, after getting a kernel update, you'll get errors related to kernel modules not being available.
+For example, you update your kernel and then install a package that implicitly installs a module.
+To address this, you should try rebooting, so you're using the newer kernel.

@@ -212,7 +212,7 @@ Plugin 'wesQ3/vim-windowswap' "<leader>ww select another pane <leader>ww panes a
 " Plugin 'junegunn/limelight.vim' "darken non-current line. special colors req.
 Plugin 'alx741/vinfo' "tool for reading info pages with vim
 Plugin 'mrk21/yaml-vim' "indentation and highlighting for YAML
-" Plugin 'jamessan/vim-gnupg' "integration with GPG; still buggy, use when fixed
+Plugin 'jamessan/vim-gnupg' "integration with GPG; still buggy, use when fixed
 " Plugin 'csv.vim'
 " The following are examples of different formats supported.
 " Keep Plugin commands between vundle#begin/end.

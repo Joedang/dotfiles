@@ -1,9 +1,10 @@
 #!/bin/bash
 # Actually, you can just do this with the `showfigfonts` command...
 # ACTUALLY, it only seems to show the default figlet fonts. This script will show everything in the figlet font folder.
-for fonts in $(ls /usr/share/figlet)
+fontDir=/usr/local/share/figlet
+for fonts in $(ls $fontDir)
 do
 	echo $fonts
-	figlet -f $fonts The quick brown fox jumps over the lazy dog. \n 1234567890
+	figlet -d $fontDir -f $fonts The quick brown fox jumps over the lazy dog. \n 1234567890
 done
 toilet -f future --gay "A E S T H E T I C                 as                       fuck"

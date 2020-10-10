@@ -50,6 +50,9 @@ set cc=+1  " highlight column after 'textwidth'
 " This must come after :colo slate 
 hi ColorColumn ctermbg=DarkGray
 hi ColorColumn guibg=DarkGray
+hi Folded ctermfg=250
+hi Folded ctermbg=235
+
 " Leave textwidth at 0, so it doesn't display by default.
 " set textwidth=80
 
@@ -213,6 +216,7 @@ Plugin 'wesQ3/vim-windowswap' "<leader>ww select another pane <leader>ww panes a
 Plugin 'alx741/vinfo' "tool for reading info pages with vim
 Plugin 'mrk21/yaml-vim' "indentation and highlighting for YAML
 Plugin 'jamessan/vim-gnupg' "integration with GPG; still buggy, use when fixed
+Plugin 'goerz/jupytext.vim' "for editing .ipynb files in the style of Rmarkdown; relies on Python's jupytext package
 " Plugin 'csv.vim'
 " The following are examples of different formats supported.
 " Keep Plugin commands between vundle#begin/end.

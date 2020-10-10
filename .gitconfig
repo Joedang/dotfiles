@@ -20,8 +20,10 @@
     # Display all the commits that went into a file:
     # Also show which files were changed in those commits.
     # Adding the --all flag makes this like the `gr` alias, but with which files were changed.
-	gr-ch = log --graph --full-history -M --name-status --color --format='%C(auto)%h %an (%G?) %C(green)%ci%C(auto)%d%n%s%n' 
+	gr-ch = log --graph --full-history -M --name-status --color --format='───╮%n%C(auto)%h %an (%G?) %C(green)%ci%C(auto)%d%n%B' 
 	sta = status # lazy alias
 	k = !gitk --all # run the gitk tool on the whole history
 	vimdiff = difftool --tool=vimdiff # lazy alias
 	mt = mergetool # lazy alias
+[pull]
+	rebase = false

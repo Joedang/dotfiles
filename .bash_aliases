@@ -17,7 +17,8 @@ alias egrep='egrep --color=auto'
 alias clear='clear -x' # don't attempt to empty the scrollback buffer
 alias cls='clear; ls'
 alias clsd='clear; lsd'
-alias ll='ls -alFh'
+#alias ll='ls -alFh'
+alias ll='echo "\e[36mflags,   refs,owner, group, size,  modified, name\e[39m" ; ls -alFh'
 alias la='ls -a'
 alias lla='ls -la'
 alias l='ls -CF'
@@ -25,6 +26,7 @@ alias lsd='ls -d -- */'
 alias cj='clear; jobs'
 alias clj='clear; jobs; ls'
 alias pl='pwd;ls'
+function cdls() { cd "$@"; ls; }
 
 # Clear the screen, go to the home dir, say the user and host name, list any running jobs, list dir contents 
 alias home='clear; cd $HOME; env echo -e "\e[36m$USER"\@$(uname -n)"\e[35m";jobs; env echo -en "\e[39m"; ls'
@@ -48,6 +50,7 @@ alias trash='gvfs-trash' # TODO: figure out how to use the trash on Arch
 alias trashls='gvfs-ls trash://'
 alias xop='xdg-open'
 alias iR='jupyter console --kernel ir'
+alias R='R --no-save' # this is simpler than putting a wrapper around q() in .Rprofile
 alias histless='history | less'
 alias pyserve2='python2 -m SimpleHTTPServer'
 alias pyserve3='python3 -m http.server'

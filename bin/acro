@@ -15,6 +15,7 @@ set -e
 acroDir=$HOME/notes/acronyms
 KNOWNFILE=$acroDir/known.txt
 UNKNOWNFILE=$acroDir/unknown.txt
+BAKDIR=$acroDir/bak
 VERBOSITY=0
 
 function acro-find() {
@@ -135,13 +136,27 @@ function acro-edit() {
 }
 
 function acro-uedit() {
-# function description
+# edit the unknown file
     acro-edit $UNKNOWNFILE
 }
 
+function acro-sort() {
+# sort the known and unknown files
+    acro-backup
+    # sort the lines of the files
+    sort "$KNOWNFILE" -o "$KNOWNFILE"
+    sort "$UNKNOWNFILE" -o "$UNKNOWNFILE"
+}
+
+acro-backup() {
+# backup the acronym lists
+    cp --backup=numbered "$KNOWNFILE" "$BAKDIR"
+    cp --backup=numbered "$UNKNOWNFILE" "$BAKDIR"
+}
+
 function acro-init() {
-# function description
-    for F in $KNOWNFILE $UNKNOWNFILE
+# initialize the acronym lists
+    for F in "$KNOWNFILE" "$UNKNOWNFILE" "$BAKDIR"
     do
         if [ ! -f "$F" ]; then # if the file doesn't exist
             mkdir -p `dirname "$F"` # ensure its dir exists
@@ -179,6 +194,8 @@ function acro-help() {
 	echo -e '                Edit the known list with $EDITOR or vim if not defined.'
 	echo -e '                Edit FILE if given.'
 	echo -e 'acro uedit      Edit the unknown list with $EDITOR or vim if not defined.'
+    echo -e 'acro sort       Sort the acronym lists.'
+	echo -e 'acro backup     Make backups of the acronym lists.'
 	echo -e 'acro init       Setup the acronyms directory.'
 	echo -e 'acro help       Display this help message.'
 	echo -e 
@@ -203,6 +220,8 @@ case $cmd in
 	udefine) acro-udefine $@ ;;
     edit)    acro-edit    $@ ;;
     uedit)   acro-uedit      ;;
+    sort)    acro-sort       ;;
+    backup)  acro-backup     ;;
 	init)    acro-init       ;;
 	help)    acro-help       ;;
 	*)

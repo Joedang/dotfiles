@@ -33,6 +33,16 @@ Many commands, such as `read`, `source`, `fg`, `bg`, and `cd`, are built into Ba
 The Bash manual (`man bash`) talks about these under the heading __SHELL BUILTIN COMMANDS__ on line 2580.
 `/^\s*type` in `man bash` would find the `type` built-in relatively quickly by searching for a line that starts with some whitespace followed by "type" (assuming `less` is your pager).
 
+#### Special Variables
+```bash
+$? # exit status of the previous command
+$! # PID of the previous backgrounded command
+$0 # the name of the command that invoked the current process
+$1 # the first argument of the process
+$2 # the second argument of the process
+$@ # all arguments of the process
+```
+
 #### read
 IMO, this is mostly useful for processing files found by `find` or `ls`. 
 For this purpose, the `-r` flag is almost always preferred, so files with spaces in their names won't get broken into multiple words. 
@@ -47,9 +57,17 @@ This will give you an HTML file that links to everything, so you can view it in 
     `tree -H file://\`pwd\` > tree.html` 
 
 ### Output Redirection
-`echo asdf 2>&1` redirect stream 2 (stderr) to stream 1 (stdout)  
+`echo asdf 2>&1` redirect stream 2 (stderr) to stream 1 (stdout) (so, you get both)  
 `echo asdf 1>&/dev/null` redirect stdout into /dev/null (so, basically ignore it)  
 `echo asdf >> both.log 2>&1` redirect both outputs to a log file  
+`ls notafile 2>&1 | tee -a asdf.log` redirect both outputs to a log file and the terminal
+
+### Readline Configuration
+The `readline` library controls the behavior of a lot of programs that use a command line interface (CLI).
+This includes shells like Bash and Zsh, as well as stuff like R and Python.
+The ~/.inputrc file controls the behavior of this library.
+So, spending some time on that can make *all* your shells more productive, enjoyable, and uniform.
+The system default is usually somewhere like `/etc/inputrc`.
 
 ## R
 ### Figure out what you're looking at
@@ -87,6 +105,12 @@ Example: look for anything occurring between `filename="` and `"`. Note that thi
 
 ```
 cat dumpHeader.out | grep -P -e '(?<=filename=").*(?=")'
+```
+
+### negative look behind 
+Look for "respond" but not "correspond".
+```
+grep -riP '(?<!cor)respond'
 ```
 
 Vim, for example, does not use the Perl syntax. See the `pattern-multi-items` help for more info.  
@@ -493,6 +517,11 @@ If you're using older/newer machines, you may need to use a different hashing al
 (I think my Ubuntu 14 machine used md5.)
 This can be controlled with the `-E` option.
 
+When connecting to a new IP, you may get a warning about it being added to the known_hosts file.
+To check the fingerprint of the host, you can do `ssh-keygen -lf ~/.ssh/known_hosts`.
+
+GitHub publishes the fingerprints and IP addresses of their SSH servers at `https://api.github.com/meta`.
+
 ## Installing things from source
 My general strategy is to download an unzip the source into `/tmp/`. **Remember to do a checksum on the downloaded archive!** 
 
@@ -537,6 +566,43 @@ export MANPATH
 INFOPATH=/usr/local/MYLIB/foobar/man:$INFOPATH
 export INFOPATH
 ```
+## Makefiles
+Makefiles contain recipes which describe how to build outputs from sources.
+If a directory has a file named `Makefile`, you can run `make TARGET` to make a certain output.
+
+Makefiles have their own weird syntax. Most of the useful documentation is in the info pages.
+Use `info make` or the `vinfo make` alias.
+Sources may alternatively be called prerequisites or inputs.
+Outputs may alternatively be called targets.
+The basic syntax looks like this:
+```make
+output.o: source.cpp
+	g++ source.cpp -o output.o
+```
+
+### Variables
+Variables are assigned similar to shell variables: `MYVAR=value`.
+You can also do shell expansion there: `MARKDOWNS=$(shell *.md)`.
+To access variables, you need to keep the "$()": `echo MYVAR is: $(MYVAR)`.
+
+#### Automatic Variables
+There are some variable names which take convenient values for the current recipe.
+```make
+$@ # target file name
+$% # target member name, when the target is an archive memeber
+$< # first prerequisite
+$^ # list of all prerequisites 
+$^ # list of all prerequisites with duplicates
+$? # all prerequisites newer than the target
+$| # order-only prerequisites
+$* # stem that an implicit rule matches
+```
+
+Similarly, variables for just the file name or the directory name can be constructed by appending `F` or `D`.
+For example, if `$@` is `dir/foo.o`, then `$(@D)` is `dir` and `$(@F)` is `foo.o`.
+
+### Recipes 
+
 ## Rip content from a webpage for local viewing
 This is hecka useful if you know you're going to be away from da innanetz and want to study. 
 

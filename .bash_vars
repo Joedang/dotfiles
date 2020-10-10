@@ -5,6 +5,9 @@ test -f ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs && . ${XDG_CONFIG_HOME:-~/.
 # enable the config file for calc
 export CALCRC='~/.calcrc'
 
+# default location for Python REPL config
+export PYTHONSTARTUP=~/.config/pythonrc
+
 # set the default editor to vim
 export EDITOR=`which vim`
 

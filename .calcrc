@@ -1,3 +1,5 @@
 #!/usr/bin/calc -f
 pi=4*atan(1)
 e=exp(1)
+;config("prompt", "\001\033[32m\002calc➜ \001\033[39m\002")
+;config("more",   "\001\033[32m\002      ... \001\033[39m\002")

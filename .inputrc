@@ -1,0 +1,52 @@
+set completion-ignore-case on
+set show-mode-in-prompt on
+
+# force 8-bit character use
+# set meta-flag on
+# set input-meta on
+# set convert-meta off
+# set output-meta on
+
+set editing-mode vi
+
+# automatically expand history references, e.g. !$ and tildes
+$if Bash
+    Space: magic-space
+
+    # tab completion
+    set completion-ignore-case on
+    set show-all-if-ambiguous on
+    set completion-query-items 200
+    set match-hidden-files off
+	set page-completions off
+
+	# set input-meta on
+	set visible-stats
+$endif
+
+$if mode=vi
+    set keymap vi-insert
+    "\C-l": clear-screen
+    "\C-p": history-search-backward
+    "\C-n": history-search-forward
+    # alt dot cycles through last argument
+    "\e.":yank-last-arg
+
+    set keymap vi-command
+    "D":kill-line
+    "dw": kill-word
+    "dd": kill-whole-line
+    "db": backward-kill-word
+    "cc": "ddi"
+    "cw": "dwi"
+    "cb": "dbi"
+    "diw": "lbdw"
+    "yiw": "lbyw"
+    "ciw": "lbcw"
+    "diW": "lBdW"
+    "yiW": "lByW"
+    "ciW": "lBcW"
+    "gg": beginning-of-history
+    "G": end-of-history
+    "\C-xR": redraw-current-line
+$endif

@@ -1,4 +1,6 @@
 #!/usr/bin/Rscript
 
+#print('This is ~/.Renviron')
+
 # Set the default library install location to my source directory
-R_LIBS=~/src/R/lib
+R_LIBS='~/src/R/lib'

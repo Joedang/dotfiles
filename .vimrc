@@ -42,7 +42,7 @@ set expandtab
 set listchars=eol:$,tab:>-,trail:~,extends:>,precedes:<,nbsp:%
 
 " set the color scheme for gvim
-:colo slate
+:colo plasticflower
 
 " highlight long lines
 set cc=+1  " highlight column after 'textwidth'
@@ -52,6 +52,10 @@ hi ColorColumn ctermbg=DarkGray
 hi ColorColumn guibg=DarkGray
 hi Folded ctermfg=250
 hi Folded ctermbg=235
+
+" paren matching and visual selections invert colors
+hi MatchParen term=reverse cterm=reverse ctermbg=black
+hi Visual  term=reverse cterm=reverse ctermbg=black
 
 " Leave textwidth at 0, so it doesn't display by default.
 " set textwidth=80
@@ -202,7 +206,7 @@ call vundle#begin()
 Plugin 'VundleVim/Vundle.vim'
 " Plugin 'togglecursor' "hasn't really been useful yet
 Plugin 'godlygeek/tabular' "rare to use, but nice
-Plugin 'plasticboy/vim-markdown' "frequently used
+" Plugin 'plasticboy/vim-markdown' "frequently used
 " Plugin 'python-mode/python-mode'
 " Plugin 'vim-ipython'
 " Plugin 'Conque-Shell'

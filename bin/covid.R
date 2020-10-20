@@ -121,10 +121,37 @@ cat(
 )
 # xfce4 }}}
 
+# predictions {{{
+predict_indices <- 1:contagiousDays
+mdat <- data.frame( # data to use for the predictive model
+                   date= as.Date(dat$submission_date[predict_indices]), 
+                   active= active[predict_indices], 
+                   growth=dailyGrowth[predict_indices]
+)
+m_growth <- lm(growth ~ poly(date,2), mdat)
+m_active <- lm(active ~ poly(date, 2), mdat)
+predictDays_past <- mdat$date
+predictDays_future <- rev(predictDays_past[1] + as.difftime(1:7, units='days')) # predict a week into the future
+predictDays <- c(predictDays_future, predictDays_past)
+predictDays <- unique(predictDays)
+pactive <- predict(m_active, data.frame(date= predictDays))
+pred_growth <- predict(m_growth, data.frame(date=predictDays))
+pred_growth_future <- pred_growth[1:8]
+pg_active <- numeric()
+pg_active[8] <- active[1] # active cases today
+for (i in 7:1){ # Euler method forwards in time
+    pg_active[i] <- (1+pred_growth[i+1])*pg_active[i+1]
+}
+for (i in 9:length(pred_growth)){ # Euler method backwards in time
+    pg_active[i] <- pg_active[i-1]/(1+pred_growth[i])
+}
+# }}}
+
 # plotting {{{
 # The Multnomah county site is probably more reliable, 
 # but it's also a little more like reading tea leaves / stock performance.
 # It can be hard to tell what's noise on their ultra-coarse plot.
+# setup {{{
 drawGrids <- function() {
     abline(v=months, col='darkgray', lty='dashed') # monthly grid
     abline(v=weeks, col='darkgray', lty='dotted') # weekly grid
@@ -145,9 +172,40 @@ par(
 today <- Sys.Date()
 today_str <- paste('today (', today, ')', sep='')
 weeks <- as.Date('2020-03-02') + as.difftime(0:52, units='weeks')
-months <- as.Date(c('2020-01-01', '2020-02-01', '2020-03-01', '2020-04-01', '2020-05-01', '2020-06-01', '2020-07-01', '2020-08-01', '2020-09-01', '2020-10-01', '2020-11-01', '2020-12-01'))
+months <- as.Date(c(
+                    '2020-01-01', '2020-02-01', '2020-03-01', '2020-04-01', '2020-05-01', '2020-06-01', 
+                    '2020-07-01', '2020-08-01', '2020-09-01', '2020-10-01', '2020-11-01', '2020-12-01'
+                    ))
+# }}}
 
-# active cases
+# daily new cases {{{
+plot(
+     as.Date(dat$submission_date[1:length(dailyGrowth)]),
+     dat$new_case[1:length(dailyGrowth)],
+     #main= 'Daily New Cases',
+     ylim= c(0, max(dat$new_case)),
+     #xlab= 'date',
+     ylab= 'new cases'
+)
+title(main='Summary of COVID-19 Growth in Oregon')
+abline(v=oldestCaseDate, col='blue', lty='dashed')
+lines(
+      as.Date(dat$submission_date), 
+      filter(dat$new_case, filter= filterVector), 
+      col='red'
+)
+drawGrids()
+legend(
+       'topleft',
+       legend = c(
+                  'daily', 'rolling weekly average', 
+                  'oldest currently active', today_str, 'months', 'weeks'
+                  ),
+       col= c(par('fg'), 'red', 'blue', 'blue', 'gray', 'gray'),
+       lty= c('solid', 'solid', 'dashed', 'solid', 'dashed', 'dotted')
+)
+# }}}
+# active cases {{{
 plot(
      as.Date(dat$submission_date[1:length(active)]), 
      active, 
@@ -157,35 +215,38 @@ plot(
      #xlab= 'date',
      ylab= 'number of active cases'
 )
-title(main='Summary of COVID-19 Growth in Oregon')
+drawGrids()
 abline(v=oldestCaseDate, col='blue', lty='dashed') # oldest active case
 # prediction calcs
-mdat <- data.frame(date= as.Date(dat$submission_date[1:contagiousDays]), active= active[1:contagiousDays])
-m <- lm(active ~ poly(date, 2), mdat)
-predictDays <- mdat$date
-predictDays <- c(predictDays + as.difftime(7, units='days'), predictDays) # predict a week into the future
-predictDays <- unique(predictDays)
-pactive <- predict(m, data.frame(date= predictDays))
 lines( # quadratic prediction
      predictDays, 
      pactive,
      col='green',
      lty='dashed'
 )
+lines( # Euler method using growth rate
+      predictDays,
+      pg_active,
+      col='magenta',
+      lty='dashed'
+)
 lines( # rolling weekly average
       as.Date(dat$submission_date[1:length(active)]), 
       filter(active, filter= filterVector),
       col= 'red'
 )
-drawGrids()
 legend(
        'topleft',
-       legend = c('daily', 'rolling weekly average', 'quadratic fit of currently active', 'oldest currently active', today_str, 'months', 'weeks'),
-       col= c(par('fg'), 'red', 'green', 'blue', 'blue', 'gray', 'gray'),
-       lty= c('solid', 'solid', 'dashed', 'dashed', 'solid', 'dashed', 'dotted')
+       legend = c(
+                  'daily', 'rolling weekly average', 
+                  'quadratic fit', "Euler method from growth rate fit",
+                  'oldest currently active', today_str, 'months', 'weeks'
+                  ),
+       col= c(par('fg'), 'red', 'green', 'magenta', 'blue', 'blue', 'gray', 'gray'),
+       lty= c('solid', 'solid', 'dashed', 'dashed', 'dashed',  'solid', 'dashed', 'dotted')
 )
-
-# growth rate
+# }}}
+# growth rate {{{
 par(mar= c(2,4,1,1)) # bottom, left, top, right
 plot(
      as.Date(dat$submission_date[1:length(dailyGrowth)]), 
@@ -196,6 +257,13 @@ plot(
      #xlab= 'date',
      ylab= 'daily growth rate of active cases'
 )
+drawGrids()
+lines( # quadratic fit
+      predictDays,
+      pred_growth,
+      col='green',
+      lty='dashed'
+)
 abline(v=oldestCaseDate, col='blue', lty='dashed')
 abline(h=0, lty='dashed')
 lines(
@@ -204,37 +272,18 @@ lines(
       col='red', 
       lty='solid'
 )
-drawGrids()
 legend(
        'topleft',
-       legend = c('daily', 'rolling weekly average', 'oldest currently active', today_str, 'no growth (steady active cases)'),
-       col= c(par('fg'), 'red', 'blue', 'blue', par('fg')),
-       lty= c('solid', 'solid', 'dashed', 'solid', 'dashed')
+       legend = c(
+                  'daily', 'rolling weekly average', 
+                  "quadratic fit", 
+                  'oldest currently active', today_str, 'months', 'weeks'
+                  ),
+       col= c(par('fg'), 'red', 'green', 'blue', 'blue', 'gray', 'gray'),
+       lty= c('solid', 'solid', 'dashed', 'dashed', 'solid', 'dashed', 'dotted')
 )
+# }}}
 
-# daily new cases
-plot(
-     as.Date(dat$submission_date[1:length(dailyGrowth)]),
-     dat$new_case[1:length(dailyGrowth)],
-     #main= 'Daily New Cases',
-     ylim= c(0, max(dat$new_case)),
-     #xlab= 'date',
-     ylab= 'new cases'
-)
-abline(v=oldestCaseDate, col='blue', lty='dashed')
-lines(
-      as.Date(dat$submission_date), 
-      filter(dat$new_case, filter= filterVector), 
-      col='red'
-)
-drawGrids()
-legend(
-       'topleft',
-       legend = c('daily', 'rolling weekly average', 'oldest currently active', today_str),
-       col= c(par('fg'), 'red', 'blue', 'blue'),
-       lty= c('solid', 'solid', 'dashed', 'solid')
-)
-# plot.new()
 # text(x=0.5, y=0.5, labels= dashboardLink, col= par('col.lab'), adj=0.5, cex= 0.7)
 #cat('some expected warnings:\n')
 suppressWarnings(par(par.old))

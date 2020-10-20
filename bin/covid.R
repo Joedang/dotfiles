@@ -29,15 +29,17 @@
 # <txtclick>The command to be executed when clicking on the text</txtclick>
 # info }}}
 
-# script configuration
+# script configuration {{{
 dateFormat <- '%Y-%m-%d\n' # format to use when printing dates
 dateRetrieved <- as.POSIXct(Sys.time()) # time the script was started
 outputDir <- paste(Sys.getenv('HOME'), '.local/status/covid/', sep='/') # path for the output files
 avgWindow <- 7 # days; window over which the growth rate is averaged; does not necessarily need to be a week
 interestWindow <- 210 # days; period over which you want to know the number of active cases; must be greater than avgWindow
 contagiousDays <- 20 # days; how long a case is considered "active" after reporting
+plotWindow <- Sys.Date()+as.difftime(c(-5*contagiousDays,7), units='days') # what time range to show
 dashboardLink <- 'https://multco.us/novel-coronavirus-covid-19/regional-covid-19-data-dashboard' # website to reference for further information
 pdfViewer <- 'zathura' # command to open a PDF
+# }}}
 
 # ensure the outputDir exists {{{
 cat('outputDir is:', outputDir, '\n')
@@ -72,10 +74,39 @@ dailyGrowth_avg <- filter(dailyGrowth, filter= filterVector)
 weeklyPercent <- mean(dailyGrowth[1:7])*100*7 # the average percent growth over the past week
 # processing }}}
 
+# predictions {{{
+predict_indices <- 1:contagiousDays
+mdat <- data.frame( # data to use for the predictive model
+                   date= as.Date(dat$submission_date[predict_indices]), 
+                   active= active[predict_indices], 
+                   growth=dailyGrowth[predict_indices]
+)
+m_growth <- lm(growth ~ poly(date,2), mdat)
+m_active <- lm(active ~ poly(date, 2), mdat)
+predictDays_past <- mdat$date
+predictDays_future <- rev(predictDays_past[1] + as.difftime(1:7, units='days')) # predict a week into the future
+predictDays <- c(predictDays_future, predictDays_past)
+predictDays <- unique(predictDays)
+pactive <- predict(m_active, data.frame(date= predictDays))
+pred_growth <- predict(m_growth, data.frame(date=predictDays))
+# growth rate *today*, based on the quadratic fit of the growth rate:
+pred_growth_today <- pred_growth[match(Sys.Date(), predictDays)]
+# weekly percent growth rate based on the above daily growth rate:
+weeklyPercent_pgt <- pred_growth_today*100*7
+pg_active <- numeric()
+pg_active[8] <- active[1] # last known active cases 
+for (i in 7:1){ # Euler method forwards in time
+    pg_active[i] <- (1+pred_growth[i+1])*pg_active[i+1]
+}
+for (i in 9:length(pred_growth)){ # Euler method backwards in time
+    pg_active[i] <- pg_active[i-1]/(1+pred_growth[i])
+}
+# }}}
+
 # output results to simple files {{{
 write.csv(dat, file= paste(outputDir, 'covid.csv', sep='')) # so I can review stuff without requesting the data again
 cat(
-    format(weeklyPercent, digits=2), "\n", sep='', 
+    format(weeklyPercent_pgt, digits=2), "\n", sep='', 
     file=paste(outputDir, 'weeklyPercent', sep='')
 )
 cat(
@@ -97,7 +128,7 @@ cat(
 # simple files }}}
 
 # output to XML for xfce4 {{{
-bg <- if (weeklyPercent < 0) 'Green' else 'Red'
+bg <- if (weeklyPercent_pgt < 0) 'Green' else 'Red'
 # if (weeklyPercent < 0) 
 #     bg <- 'Green'
 # else 
@@ -105,7 +136,7 @@ bg <- if (weeklyPercent < 0) 'Green' else 'Red'
 cat(
     "<txt>",
     " 😷📈 \n<span background='", bg, "' foreground='Black'>",
-    sprintf(' %0.1f%%', weeklyPercent),
+    sprintf(' %0.1f%%', weeklyPercent_pgt),
     '</span></txt>\n', 
     "<tool>", 
     "weekly growth rate for COVID cases in Oregon\n", 
@@ -120,32 +151,6 @@ cat(
     sep=''
 )
 # xfce4 }}}
-
-# predictions {{{
-predict_indices <- 1:contagiousDays
-mdat <- data.frame( # data to use for the predictive model
-                   date= as.Date(dat$submission_date[predict_indices]), 
-                   active= active[predict_indices], 
-                   growth=dailyGrowth[predict_indices]
-)
-m_growth <- lm(growth ~ poly(date,2), mdat)
-m_active <- lm(active ~ poly(date, 2), mdat)
-predictDays_past <- mdat$date
-predictDays_future <- rev(predictDays_past[1] + as.difftime(1:7, units='days')) # predict a week into the future
-predictDays <- c(predictDays_future, predictDays_past)
-predictDays <- unique(predictDays)
-pactive <- predict(m_active, data.frame(date= predictDays))
-pred_growth <- predict(m_growth, data.frame(date=predictDays))
-pred_growth_future <- pred_growth[1:8]
-pg_active <- numeric()
-pg_active[8] <- active[1] # active cases today
-for (i in 7:1){ # Euler method forwards in time
-    pg_active[i] <- (1+pred_growth[i+1])*pg_active[i+1]
-}
-for (i in 9:length(pred_growth)){ # Euler method backwards in time
-    pg_active[i] <- pg_active[i-1]/(1+pred_growth[i])
-}
-# }}}
 
 # plotting {{{
 # The Multnomah county site is probably more reliable, 
@@ -184,6 +189,7 @@ plot(
      dat$new_case[1:length(dailyGrowth)],
      #main= 'Daily New Cases',
      ylim= c(0, max(dat$new_case)),
+     xlim= plotWindow,
      #xlab= 'date',
      ylab= 'new cases'
 )
@@ -210,6 +216,7 @@ plot(
      as.Date(dat$submission_date[1:length(active)]), 
      active, 
      type='l', 
+     xlim= plotWindow,
      ylim= c(0, max(active)),
      #main='Active Cases',
      #xlab= 'date',
@@ -251,6 +258,7 @@ par(mar= c(2,4,1,1)) # bottom, left, top, right
 plot(
      as.Date(dat$submission_date[1:length(dailyGrowth)]), 
      dailyGrowth,
+     xlim= plotWindow,
      ylim= range(c(0, range(dailyGrowth))),
      type='l',
      #main='Daily Growth Rate',

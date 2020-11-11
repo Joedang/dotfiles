@@ -1,0 +1,19 @@
+set page-padding 10
+set recolor-keephue true
+map + zoom in
+map = zoom in
+map - zoom out
+map _ zoom out
+map [fullscreen] + zoom in
+map [fullscreen] = zoom in
+map [fullscreen] - zoom out
+map [fullscreen] _ zoom out
+map [normal] i recolor
+map [fullscreen] i recolor
+map [normal] f toggle_fullscreen
+map [fullscreen] f toggle_fullscreen
+map p print
+map d scroll half-down
+map u scroll half-up
+map D toggle_page_mode
+set default-bg "#222"

@@ -27,6 +27,7 @@ alias cj='clear; jobs'
 alias clj='clear; jobs; ls'
 alias pl='pwd;ls'
 function cdls() { cd "$@"; ls; }
+alias chonkers='du -hd1 * | sort -hr | head' # show the chonky dirs that take up a lot of space
 
 # Clear the screen, go to the home dir, say the user and host name, list any running jobs, list dir contents 
 alias home='clear; cd $HOME; env echo -e "\e[36m$USER"\@$(uname -n)"\e[35m";jobs; env echo -en "\e[39m"; ls'

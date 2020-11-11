@@ -370,11 +370,23 @@ Wow Wow.mp3
 ## Media Conversion
 
 ### Audio and Video
+~~
 `avconv`\* and `flac2mp3` are pretty good. The default settings for `flac2mp3` are basically perfect. You'll probably have to compile flac2mp3 from source.  
 \* Lately, `avconv` has not been so great. It couldn't find the codecs required for writing to `mp3`, despite attempts to help it find them.
 `lame` is a stand-alone library/command that *only* writes to `mp3`.  
+~~
+`ffmpeg` has come out on top as the silver bullet of audio-visual media conversion.
+
 `easytag` is a GUI-only program that handles `mp3` tags (called `ID3`).  
-`youtube-dl` is also good for acquiring stuff, but don't count on your package manager's repos being up to date _\*cough\*Ubuntu\*cough\*_. You pretty much have to compile both `youtube-dl` and `avconv` from source. (`libav` is the parent package/project for the `avconv` command.)
+`youtube-dl` is also good for acquiring stuff, but don't count on your package manager's repos being up to date _\*cough\*Ubuntu\*cough\*_. You pretty much have to compile both `youtube-dl` and ~~`avconv`~~ `ffmpeg` from source. (`libav` is the parent package/project for the `avconv` command.)
+
+### General ffmpeg Stuff
+The main places to get help are:
+- the ffmpeg man pages (ffmpeg, ffmpeg-filters, ffmpeg-utils, et cetera), 
+- `ffmpeg -h` (which can take arguments), 
+- and the [online documentation](https://ffmpeg.org/documentation.html) (which really just mirrors the man pages).
+You can find out what filters are available by using `ffmpeg -filters`.
+You can get some help with a filter with `ffmpeg -h filter=crop`.
 
 #### Remove Audio from a Video
 The `-an` flag for `ffmpeg` can be used to remove all audio streams from an output file.
@@ -414,6 +426,44 @@ fontcolor=green: x=5: y=5: fontsize=35" \
 frames%03d.png
 ```
 
+### Overlay An Image On A Video
+This is an example of a complex filter in ffmpeg.
+This strings together a bunch of other filters in a potentially non-linear way.
+
+```bash
+#        ⬐video streams 0 and 1, respectively
+ffmpeg \
+    -i garyAnimation_alligned.gif \
+    -i psasMotto_YOLO.png \
+    -filter_complex "[0:v]scale=w=1056:h=-1, crop=w=1056:h=816:y=-100[b1], [b1][1:v]overlay" output.mp4
+#                     |     ⬑-----------------⬑---------filter names------------------⬏    |  | 
+#                     |         |      |   | |                          |    |   |         |  | 
+#                     ⬑automatic name for video 1                       |    |   |         |  |     
+#                               ⬑width ⬑height= nearest mod 1           |    |   |         |  |     
+#                                          ⬑ ⬑implied output and input streams   |         |  |         
+#                                                                       ⬑label output stream as b1                          
+#                                                                            ⬑use output labeled b1 as first input
+#                                                                                ⬑use video 1 as second input
+#                                                                                          ⬑  ⬑implied output
+```
+
+### Normalizing Audio
+Use the `loudnorm` audio filter.  
+`ffmpeg -i mictest.ogg -af loudnorm mictest_norm.ogg`
+
+### Recording
+To stop recording with ffmpeg, you can just press Control-C.
+
+#### From the microphone
+`ffmpeg -f pulse -i default mictest.ogg`
+
+#### From the screen
+`ffmpeg -f x11grab -i :0.0 screencast.mp4`
+
+#### From the webcam
+check for device names: `v4l2-ctl --list-devices`  
+check which one's which: `mpv /dev/video0`  
+record: `ffmpeg -f v4l2 -i /dev/video0 camtest.mp4`
 
 ## Installing Fonts
 GIMP checks for typefaces on its own, so running `$ sudo fc-cache -fv` may be unnecessary.
@@ -517,7 +567,7 @@ If you're using older/newer machines, you may need to use a different hashing al
 (I think my Ubuntu 14 machine used md5.)
 This can be controlled with the `-E` option.
 
-When connecting to a new IP, you may get a warning about it being added to the known_hosts file.
+When connecting to a new IP, you may get a warning about it being added to the `known_hosts` file.
 To check the fingerprint of the host, you can do `ssh-keygen -lf ~/.ssh/known_hosts`.
 
 GitHub publishes the fingerprints and IP addresses of their SSH servers at `https://api.github.com/meta`.

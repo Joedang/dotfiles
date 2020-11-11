@@ -22,9 +22,10 @@ hi Comment ctermfg=227
 hi Constant ctermfg=226
 hi String cterm=italic ctermfg=41
 hi Character cterm=italic ctermfg=36
-hi Number ctermfg=203
-hi Boolean ctermfg=210
-hi Float ctermfg=215
+hi Number ctermfg=215
+hi Float ctermfg=210
+"hi Boolean ctermfg=203
+hi boolean ctermfg=199
 
 hi Identifier cterm=bold ctermfg=38
 hi Function cterm=bold ctermfg=135
@@ -61,10 +62,16 @@ hi Underlined cterm=underline ctermfg=26
 hi Ignore cterm=italic ctermbg=234
 hi Error cterm=bold ctermfg=Black ctermbg=196
 hi Todo cterm=bold ctermfg=black ctermbg=226
-hi SpecialKey cterm=italic ctermfg=black ctermbg=208
+hi SpecialKey cterm=italic ctermfg=208 ctermbg=237
+
+hi SpellBad cterm=bold,italic ctermfg=black ctermbg=9
+hi SpellCap cterm=bold,italic ctermfg=black ctermbg=4
+hi SpellLocal cterm=bold ctermfg=black ctermbg=11
+hi SpellRare cterm=bold ctermfg=black ctermbg=13
 " }}}
 " UI styling {{{
 hi Search cterm=bold ctermbg=46
+hi IncSearch cterm=bold ctermbg=201 ctermfg=black
 hi Visual cterm=reverse ctermbg=Black
 
 hi TabLine cterm=underline ctermfg=250 ctermbg=none
@@ -74,6 +81,10 @@ hi TabLineFill cterm=underline ctermfg=none ctermbg=none
 hi StatusLineNC cterm=underline 
 hi StatusLine cterm=bold ctermfg=white ctermbg=238
 hi ModeMsg cterm=bold ctermfg=208
+
+hi CursorColumn ctermbg=235
+hi! link CursorLine CursorColumn
+"hi CursorLine cterm=underline
 
 hi ColorColumn ctermbg=DarkGray guibg=DarkGray
 hi Folded ctermfg=250 ctermbg=235

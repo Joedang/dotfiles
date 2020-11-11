@@ -27,6 +27,12 @@
 # <bar>Pourcentage to display in the bar</bar>
 # <click>The command to be executed when clicking on the image</click>
 # <txtclick>The command to be executed when clicking on the text</txtclick>
+
+# TODO:
+# - either refactor things to either *convert* the data into a one-record-per-day format,  
+#   or tolerate time-series inconsistencies.
+# - get everything into oldest-data-first
+# - introduce variables for misc stuff like week length
 # info }}}
 
 # script configuration {{{
@@ -34,9 +40,12 @@ dateFormat <- '%Y-%m-%d\n' # format to use when printing dates
 dateRetrieved <- as.POSIXct(Sys.time()) # time the script was started
 outputDir <- paste(Sys.getenv('HOME'), '.local/status/covid/', sep='/') # path for the output files
 avgWindow <- 7 # days; window over which the growth rate is averaged; does not necessarily need to be a week
-interestWindow <- 210 # days; period over which you want to know the number of active cases; must be greater than avgWindow
+interestWindow <- 300 # days; period over which you want to know the number of active cases; must be greater than avgWindow
 contagiousDays <- 20 # days; how long a case is considered "active" after reporting
-plotWindow <- Sys.Date()+as.difftime(c(-5*contagiousDays,7), units='days') # what time range to show
+daysToPredict_forwards <- 14 # days; window over which to predict the growth rate and active cases
+daysToPredict_backwards <- ceiling(1.5*contagiousDays)
+plotWindow <- Sys.Date()+as.difftime(c(-5*contagiousDays,daysToPredict_forwards), units='days') # what time range to show
+plotElbowroom <- 1.2 # factor by which plot windows are scaled beyond their data (only in cases where sensible)
 dashboardLink <- 'https://multco.us/novel-coronavirus-covid-19/regional-covid-19-data-dashboard' # website to reference for further information
 pdfViewer <- 'zathura' # command to open a PDF
 # }}}
@@ -55,27 +64,35 @@ cat( # if the script silently fails when refreshed through the GUI, this error w
     file=paste(outputDir, 'genmon.xml', sep=''),
     sep=''
 )
-url <- paste("http://data.cdc.gov/resource/9mfq-cb36.csv?$limit=", interestWindow+contagiousDays, "&$order=submission_date%20DESC&state=OR&$where=submission_date%20>=%20'2020-02-01'", sep='') # Socrata query URL 
+url <- paste("http://data.cdc.gov/resource/9mfq-cb36.csv?$limit=", interestWindow+contagiousDays, "&$order=submission_date%20DESC&state=OR&$where=submission_date%20>=%20'2020-01-01'", sep='') # Socrata query URL 
 dat <- read.csv(url) # get the latest chunk of data
 nDays <- dim(dat)[1] # number of records returned (I'm assuming there's one record per day.)
 dataDate <- as.POSIXct(dat$submission_date[1]) # date of latest record
 stale <- format(dateRetrieved - dataDate, digits=2) # time between the latest record and the time of retrieval 
 oldestCaseDate <- as.Date(dat$submission_date[contagiousDays]) # date of the oldest active case
+dat$submission_date <- as.Date(dat$submission_date)
+if ( min(dat$submission_date) > min(plotWindow) )
+    plotWindow[1] <- min(dat$submission_date)
+if (length(dat$submission_date) < interestWindow)
+    interestWindow <- length(dat$submission_date)
 # I could get the daily growth by simply subtracting the new cases on day i-contagiousDays from the new cases on day i.
 # However, it's still nice to know the active cases on a given day, since that can be compared to the plot on the 
 # Multnomah county website.
 active <- integer()
-for (i in 1:interestWindow) {
+for (i in 1:min(interestWindow, length(dat$new_case)-contagiousDays)) {
     active[i] <- sum(dat$new_case[i:(i+contagiousDays)]) # sum over the preceeding contagious period
 }
 dailyGrowth <- -diff(active)/active[1:(length(active)-1)] # how much the pool of active cases grows or shrinks per day; the sign flip is because the records are in reverse chronological order
+for (i in 1:length(dailyGrowth))
+    if (is.nan(dailyGrowth[i])) # handle divide-by-zero 
+        dailyGrowth[i] <- 0
 filterVector <- rep(1/avgWindow, length.out=avgWindow)
 dailyGrowth_avg <- filter(dailyGrowth, filter= filterVector)
 weeklyPercent <- mean(dailyGrowth[1:7])*100*7 # the average percent growth over the past week
 # processing }}}
 
 # predictions {{{
-predict_indices <- 1:contagiousDays
+predict_indices <- 1:daysToPredict_backwards
 mdat <- data.frame( # data to use for the predictive model
                    date= as.Date(dat$submission_date[predict_indices]), 
                    active= active[predict_indices], 
@@ -84,7 +101,7 @@ mdat <- data.frame( # data to use for the predictive model
 m_growth <- lm(growth ~ poly(date,2), mdat)
 m_active <- lm(active ~ poly(date, 2), mdat)
 predictDays_past <- mdat$date
-predictDays_future <- rev(predictDays_past[1] + as.difftime(1:7, units='days')) # predict a week into the future
+predictDays_future <- rev(predictDays_past[1] + as.difftime(1:daysToPredict_forwards, units='days')) # predict a week into the future
 predictDays <- c(predictDays_future, predictDays_past)
 predictDays <- unique(predictDays)
 pactive <- predict(m_active, data.frame(date= predictDays))
@@ -94,11 +111,11 @@ pred_growth_today <- pred_growth[match(Sys.Date(), predictDays)]
 # weekly percent growth rate based on the above daily growth rate:
 weeklyPercent_pgt <- pred_growth_today*100*7
 pg_active <- numeric()
-pg_active[8] <- active[1] # last known active cases 
-for (i in 7:1){ # Euler method forwards in time
+pg_active[daysToPredict_forwards+1] <- active[1] # last known active cases 
+for (i in daysToPredict_forwards:1){ # Euler method forwards in time
     pg_active[i] <- (1+pred_growth[i+1])*pg_active[i+1]
 }
-for (i in 9:length(pred_growth)){ # Euler method backwards in time
+for (i in (daysToPredict_forwards+2):length(pred_growth)){ # Euler method backwards in time
     pg_active[i] <- pg_active[i-1]/(1+pred_growth[i])
 }
 # }}}
@@ -172,11 +189,13 @@ par(
     col.lab= 'white',
     col.main= 'white',
     col.sub= 'white',
-    mar= c(2,4,3,1) # bottom, left, top, right
+    mar= c(2,7,3,1) # bottom, left, top, right
 )
+legendBG <- rgb(0,0,0,0.85)
+plotInds <- which( (plotWindow[1] <= dat$submission_date) & (dat$submission_date <= plotWindow[2]) )
 today <- Sys.Date()
 today_str <- paste('today (', today, ')', sep='')
-weeks <- as.Date('2020-03-02') + as.difftime(0:52, units='weeks')
+weeks <- as.Date('2020-01-01') + as.difftime(0:52, units='weeks')
 months <- as.Date(c(
                     '2020-01-01', '2020-02-01', '2020-03-01', '2020-04-01', '2020-05-01', '2020-06-01', 
                     '2020-07-01', '2020-08-01', '2020-09-01', '2020-10-01', '2020-11-01', '2020-12-01'
@@ -184,11 +203,12 @@ months <- as.Date(c(
 # }}}
 
 # daily new cases {{{
+print("Plotting daily new cases...")
 plot(
      as.Date(dat$submission_date[1:length(dailyGrowth)]),
      dat$new_case[1:length(dailyGrowth)],
      #main= 'Daily New Cases',
-     ylim= c(0, max(dat$new_case)),
+     ylim= c(0, max(dat$new_case[plotInds])),
      xlim= plotWindow,
      #xlab= 'date',
      ylab= 'new cases'
@@ -208,19 +228,27 @@ legend(
                   'oldest currently active', today_str, 'months', 'weeks'
                   ),
        col= c(par('fg'), 'red', 'blue', 'blue', 'gray', 'gray'),
-       lty= c('solid', 'solid', 'dashed', 'solid', 'dashed', 'dotted')
+       lty= c('solid', 'solid', 'dashed', 'solid', 'dashed', 'dotted'),
+       bg= legendBG
 )
 # }}}
 # active cases {{{
+print("Plotting active cases...")
 plot(
      as.Date(dat$submission_date[1:length(active)]), 
      active, 
      type='l', 
      xlim= plotWindow,
-     ylim= c(0, max(active)),
+#      ylim= c(0, max(
+#                     active[ min(c(
+#                                   plotInds, 
+#                                   length(active)
+#                                   )) ]
+#                     )*plotElbowroom),
+     ylim= c(0, max(active[ 1:length(active) %in% plotInds ]*plotElbowroom)),
      #main='Active Cases',
      #xlab= 'date',
-     ylab= 'number of active cases'
+     ylab= c('number of active cases\n(a) (cases)')
 )
 drawGrids()
 abline(v=oldestCaseDate, col='blue', lty='dashed') # oldest active case
@@ -250,20 +278,31 @@ legend(
                   'oldest currently active', today_str, 'months', 'weeks'
                   ),
        col= c(par('fg'), 'red', 'green', 'magenta', 'blue', 'blue', 'gray', 'gray'),
-       lty= c('solid', 'solid', 'dashed', 'dashed', 'dashed',  'solid', 'dashed', 'dotted')
+       lty= c('solid', 'solid', 'dashed', 'dashed', 'dashed',  'solid', 'dashed', 'dotted'),
+       bg= legendBG
 )
 # }}}
 # growth rate {{{
-par(mar= c(2,4,1,1)) # bottom, left, top, right
+#par(mar= c(2,4,1,1)) # bottom, left, top, right
+print("Plotting growth rate...")
 plot(
      as.Date(dat$submission_date[1:length(dailyGrowth)]), 
      dailyGrowth,
      xlim= plotWindow,
-     ylim= range(c(0, range(dailyGrowth))),
+     #ylim= range(c(0, range(dailyGrowth[plotInds])*plotElbowroom)),
+     ylim= range(c(0, dailyGrowth[
+                                     1:length(dailyGrowth) %in% plotInds
+                                 ]))*plotElbowroom,
      type='l',
      #main='Daily Growth Rate',
      #xlab= 'date',
-     ylab= 'daily growth rate of active cases'
+     #ylab= expression(paste("daily growth rate of active cases \n", (dot(a)/a), " ", (days^-1) ))
+     ylab= expression(
+                      atop(
+                           "daily growth rate of active cases", 
+                           paste( (frac(da/dt,a)), " ", (days^-1) )
+                           )
+     )
 )
 drawGrids()
 lines( # quadratic fit
@@ -288,7 +327,8 @@ legend(
                   'oldest currently active', today_str, 'months', 'weeks'
                   ),
        col= c(par('fg'), 'red', 'green', 'blue', 'blue', 'gray', 'gray'),
-       lty= c('solid', 'solid', 'dashed', 'dashed', 'solid', 'dashed', 'dotted')
+       lty= c('solid', 'solid', 'dashed', 'dashed', 'solid', 'dashed', 'dotted'),
+       bg= legendBG
 )
 # }}}
 

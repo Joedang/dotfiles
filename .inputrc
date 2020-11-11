@@ -1,5 +1,7 @@
 set completion-ignore-case on
 set show-mode-in-prompt on
+set vi-cmd-mode-string "\001\033[33m\002(cmd)\001\033[39m\002"
+set vi-ins-mode-string "\001\033[32m\002(ins)\001\033[39m\002"
 
 # force 8-bit character use
 # set meta-flag on

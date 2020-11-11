@@ -36,6 +36,8 @@ set softtabstop=4
 " use multiple spaces in place of tabs
 set expandtab
 
+"set completeopt="menuone,preview,noinsert,popup"
+
 " use these chars to indicate whitespace
 " when `:set list` is used
 " end-of-line shows as '$', trailing spaces show as '~', etc.
@@ -90,6 +92,16 @@ nmap <C-L> <C-W><C-L>
 
 " somehow makes the real leader backslash
 " let mapleader = "."
+
+" toggle both cursorline and cursorcol
+command Reticule :set cuc! | :set cul!
+nmap <Leader>ret :Reticule<Return>
+vmap <Leader>ret :Reticule<Return>
+imap <c-l>ret <Esc>:Reticule<Return>a
+"function Reticule()
+"    set cuc!
+"    set cul!
+"endfunction
 
 " shortcuts for editing and reloading .vimrc
 command RCedit :ed $MYVIMRC

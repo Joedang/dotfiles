@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# unmount a storage device via dmenu
+# Joe Shields, 2020-11-10
+
+# make an array of mounted device names          (type lvm or partition with no mountpoint)        not part of volgroup or sda
+unmountable=($(lsblk -lnpo NAME,TYPE,MOUNTPOINT | grep -Pe '\s(lvm|part)\s+[^[:space:]]+$' | grep -vPe '(volgroup|sda)'| awk '{print $1}'))
+#echo
+#echo "unmountable:"
+#echo ${unmountable[*]}
+if [ -z "${unmountable[*]}" ]
+then
+    echo "nothing to unmount" 
+    dunstify -u critical "nothing to unmount" -t 5000
+    exit 1
+fi
+options=$(lsblk -lnpo NAME,MOUNTPOINT,SIZE,LABEL ${unmountable[*]}) # use array elements as arguments
+nlines=$(echo -e "$options" | wc -l)
+chosen=$(echo -e "$options" | dmenu -i -p "drive to unmount:" -l "$nlines")
+chosenDev=$(echo "$chosen" | awk '{print $1}')
+chosenMountpoint=$(echo "$chosen" | awk '{print $2}')
+chosenLabel=$(echo "$chosen" | awk '{print $4}')
+test -z "$chosen" && echo "no drive chosen" && exit 1
+if gio mount -u "$chosenMountpoint"
+then
+    dunstify -u normal "successfully unmounted" \
+        "<tt>device: $chosenDev</tt>\n<tt>label: $chosenLabel</tt>\n<tt>mountpoint: $chosenMountpoint</tt>"
+    exit 0
+else
+    dunstify -u critical "failed to auto unmount" \
+        "<tt>device: $chosenDev</tt>\n<tt>label: $chosenLabel</tt>\n<tt>mountpoint: $chosenMountpoint</tt>"
+    exit 1
+fi

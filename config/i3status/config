@@ -1,0 +1,101 @@
+# i3status configuration file.  # see "man i3status" for documentation.
+
+# It is important that this file is edited as UTF-8.
+# The following line should contain a ~~sharp s~~ silly German B thing and not a box with numbers:
+# ß
+# If the above line is not correctly displayed, fix your editor first!
+
+general {
+        colors = true
+        interval = 5
+        color_good = "#55FF55"
+        color_degraded = "#CCCC33"
+        color_bad = "#FF3333"
+}
+
+#order += "ipv6"
+#order += "wireless _first_"
+order += "ethernet _first_"
+order += "wireless _first_"
+order += "battery all"
+order += "disk /"
+order += "disk /home"
+order += "load"
+order += "memory"
+order += "volume master"
+order += "read_file brightness"
+order += "read_file covid"
+order += "tztime local"
+
+wireless _first_ {
+        #format_up = "📡 (%quality on %essid) %ip" 
+        format_up = "📡" 
+        format_down = "📡❌"
+}
+
+ethernet _first_ {
+        format_up = "E: %ip (%speed)"
+        format_down = "" #"E: down"
+}
+
+battery all {
+        #format = "⏻ %status %percentage %remaining to full %emptytime to empty"
+        format = "⏻ %status %percentage"
+        last_full_capacity = true
+        format_down = "❗NO BATTERY❗"
+        status_chr =  "🔌"
+        status_bat =  "🔋"
+        status_unk =  "🤷❓"
+        status_full = "🌝"
+        path = "/sys/class/power_supply/BAT%d/uevent"
+        low_threshold = 15
+        threshold_type = "percentage"
+        #format_below_threshold = "⏻ %status %percentage LOW BATT"
+}
+
+# battery brightness {
+# path = ""
+# }
+
+disk '/' {
+        format = "🖴 %percentage_used"
+}
+
+disk '/home' {
+        format = "🏡 %percentage_used"
+}
+
+load {
+        format = "🧠 %1min/4"
+        max_threshold = "3"
+}
+
+memory {
+        format = "🐘 %percentage_used"
+        threshold_degraded = "15%"
+        #format_degraded = "MEMORY < %available"
+}
+
+read_file brightness {
+        path = "/sys/class/backlight/acpi_video0/brightness"
+        color_good = "#EAEAEA"
+        format = "🌞 %content/15"
+        #format = "%title: %content"
+}
+
+read_file covid {
+        path = "/home/joedang/.local/status/covid/weeklyPercent"
+        color_good = "#EAEAEA"
+        format = "😷 %content%"
+        #format = "%title: %content"
+}
+
+volume master {
+        device = "default"
+        format = "🔊 %volume"
+        format_muted = "🔇"
+}
+
+tztime local {
+        format = "🕑 %Y-%m-%d %H:%M %a"
+}

@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# mount a storage device via dmenu
+# inspired by Luke Smith's dmenumount
+# Joe Shields, 2020-11-10
+
+# make an array of mountable device names        not part of sda           unmounted partition or lvm     get drive label
+mountable=($(lsblk -lnpo NAME,TYPE,MOUNTPOINT | grep -v -e '^/dev/sda' | grep -e 'part\s*$' -e 'lvm\s*$' | awk '{print $1}'))
+#lsblk -lnpo NAME,TYPE,MOUNTPOINT
+#echo "mountable:"
+#echo ${mountable[*]}
+if [ -z "${mountable[*]}" ]
+then
+    echo "nothing to mount" 
+    dunstify -u critical "nothing to mount" -t 5000
+    exit 1
+fi
+options=$(lsblk -lnpo NAME,SIZE,LABEL ${mountable[*]}) # use array elements as arguments
+#echo "options:"
+#echo "$options"
+#test -z "$options" && echo "no mountable drive available" && exit 1
+nlines=$(echo -e "$options" | wc -l)
+chosen=$(echo -e "$options" | dmenu -i -p "drive to mount:" -l "$nlines")
+chosenDev=$(echo "$chosen" | awk '{print $1}')
+chosenLabel=$(echo "$chosen" | awk '{print $3}')
+test -z "$chosenDev" && echo "no drive chosen" && exit 1
+if gio mount -d "$chosenDev"
+then
+    chosenMountpoint=$(lsblk -lnpo MOUNTPOINT "$chosenDev")
+    dunstify -u normal "successfully mounted" \
+        "<tt>device: $chosenDev</tt>\n<tt>label: $chosenLabel</tt>\n<tt>mountpoint: $chosenMountpoint</tt>"
+    exit 0
+else
+    dunstify -u critical "failed to auto mount" "<tt>device: $chosenDev</tt>\n<tt>label: $chosenLabel</tt>"
+    exit 1
+fi

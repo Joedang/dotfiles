@@ -1,0 +1,27 @@
+#/usr/bin/env bash
+# search for a unicode symbol using dmenu
+# Joe Shields, 2020-11-11
+
+# You can update the list of unicode characters like so:
+# curl https://www.unicode.org/Public/UCD/latest/ucd/UnicodeData.txt > UnicodeData.txt
+
+selection=$(
+            cat /home/joedang/.local/share/UnicodeData.txt \
+                | awk --non-decimal-data -F \; '{printf "%8s;\\U%08X; %s; %s\n", $1, "0x"$1, $2, $11}' \
+                | dmenu -i -p 'select a character' -l 10 \
+                | awk -F \; '{printf $2}'#\
+            )
+echo selection is: "$selection"
+literal=$(echo -en "$selection")
+echo literal is: "$literal"
+if [ -n "$literal" ]
+then
+    echo length of literal is nonzero
+    echo -n "$literal" | xclip -in -selection clipboard
+    dunstify -u normal "$literal copied to clipboard"
+    exit 0
+else
+    echo length of literal is zero
+    dunstify -u critical -t 5000 "nothing copied to clipboard"
+    exit 1
+fi

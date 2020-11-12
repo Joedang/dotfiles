@@ -145,7 +145,28 @@ bindsym $mod+F2 exec dmenu_run
 bindsym $mod+equal exec echo "" | dmenu -p "calc:" -l 0 | calc | xargs -II dmenu -p \"I\"
 
 # simple unit conversion (just passes a string to units)
-bindsym $mod+u exec units --compact --one-line --verbose $(echo '' | dmenu -p 'you have: ') $(echo '' | dmenu -p 'you want: ') | xargs -II dmenu -p 'I'
+bindsym $mod+u exec \
+                    units --compact --one-line --verbose \
+                        $(echo '' | dmenu -p 'you have: ') $(echo '' | dmenu -p 'you want: ') \
+                        | xargs -II dmenu -p 'I'
+bindsym $mod+Shift+u exec --no-startup-id /home/joedang/src/dotfiles/bin/dmenu-unicode
+
+# set the background
+#bindsym $mod+b exec find -L ~/img/backgrounds -printf '%f\n' | dmenu -i -l 10 -p 'select a new background' | 
+bindsym $mod+b exec --no-startup-id \
+                    find -L ~/img/backgrounds -printf '%P\n' \
+                        | dmenu -i -l 10 -p 'select a new background' \
+                        | xargs -II feh --bg-fill ~/img/backgrounds/"I"
+bindsym $mod+Shift+b exec --no-startup-id \
+                    find -L ~/img/backgrounds  -printf '%p\n' \
+                        | grep '\.' \
+                        | sort -R \
+                        | head -n 1 \
+                        | xargs feh --bg-fill
+
+# mount and unmount removable storage devices (flash drives, SD cards, external disks)
+bindsym $mod+m exec ~/src/dotfiles/bin/dmenu-mount
+bindsym $mod+Shift+m exec ~/src/dotfiles/bin/dmenu-umount
 
 # bindsym Print exec xfce4-screenshooter --save $HOME/img/capture/Screenshot_$(date +%Y-%m-%d_%H-%M-%S).png
 # bindsym Ctrl+Print exec xfce4-screenshooter --fullscreen --save $HOME/img/capture/Screenshot_$(date +%Y-%m-%d_%H-%M-%S).png
@@ -195,10 +216,6 @@ bindsym $mod+space focus mode_toggle
 
 # jump between windows by name, similar to Alt+Tab in popular DEs
 bindsym $mod+Tab exec --no-startup-id wmctrl -l | dmenu -i -p "switch to window" -l $(wmctrl -l | wc -l) | xargs -II wmctrl -i -a \"I\"
-
-# mount and unmount removable storage devices (flash drives, SD cards, external disks)
-bindsym $mod+m exec ~/src/dotfiles/bin/dmenu-mount
-bindsym $mod+Shift+m exec ~/src/dotfiles/bin/dmenu-umount
 
 # }}}
 

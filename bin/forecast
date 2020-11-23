@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+# fetch a weather report based on either a requested city or the current IP address
+# dependencies: 
+#   geoip with the city database (`geoip` and `geoip-database-extr` in Arch)
+#   https://nominatim.openstreetmap.org
+#   http://ifconfig.me
+#   https://forecast.weather.gov
+#   _prettifyForecast.awk
+#   I think everything else is in coreutils...
+# Joe Shields, 2020-11-22
+#set -v
+
+method=none
+if [ -z "$1" ]
+then # lookup lat/long by IP address
+    method=ip
+    response=$( \
+            geoiplookup $(curl --silent https://ifconfig.me) \
+                | grep  '^GeoIP City Edition.*:' \
+                | sed 's/^.*:\s*//; s/,\s*/\n/g;' \
+                | sed -n '2s/^/region:/p; 
+                          4s/^/city:/p; 
+                          6s/^/lat:/p; 
+                          7s/^/lon:/p'\
+        )
+    cityName="$(echo "$response" | grep -oPe '(?<=city:).*'), $(echo "$response" | grep -oPe '(?<=region:).*')"
+else
+    method=name
+    cityName="$@"
+    cityUrl="https://nominatim.openstreetmap.org/search?q=$cityName&format=json&limit=1"
+    response=$(curl --silent "$cityUrl" | sed 's/,/\n/g; s/"//g')
+fi
+
+lat=$(echo "$response" | grep -oPe '(?<=^lat:).*')
+long=$(echo "$response" | grep -oPe '(?<=^lon:).*')
+weatherUrl="https://forecast.weather.gov/MapClick.php?lat=$lat&lon=$long"
+
+noaaResponse=$(curl --silent "$weatherUrl")
+
+if [ -z "$noaaResponse" ] || echo "$noaaResponse" | grep "Forecast Error" > /dev/null
+then # deal with errors
+    echo -ne "\e[93m"
+    echo error: got an error from NOAA
+    echo raw NOAA response:
+    #echo "$noaaResponse" | sed 's/^/\t/' # raw html, tabbed in
+    echo saving NOAA response to /tmp/NOAA.response
+    echo "$noaaResponse" > /tmp/NOAA.response
+    echo method: "$method"
+    echo cityName: "$cityName"
+    echo cityUrl: "$cityUrl"
+    echo lat, long: "$lat", "$long"
+    echo weatherUrl: "$weatherUrl"
+    #echo -ne "\e[39m"
+    echo "location response (OSM for "city" method, GeoIP for "ip" method):"
+    echo "$response" | sed 's/^/\t/' # mangled JSON, tabbed in
+    echo -ne "\e[31m"
+    echo "$noaaResponse" | grep -oPe '(?<=<span class="big">)[^<]*(?=</span>)'
+    echo -ne "\e[39m"
+    exit -1
+fi
+
+echo "$noaaResponse" | _prettifyForecast.awk -
+exit $? # https://youtu.be/ryv9GLpRlGY
+#set +v

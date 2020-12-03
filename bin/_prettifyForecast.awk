@@ -6,6 +6,7 @@
 BEGIN {
     intarget=0
     conditions=""
+    i=0
     #while ("curl https://forecast.weather.gov/MapClick.php\?lat\=45.5\&lon\=-122.8" | getline){print}
 }
 
@@ -13,20 +14,8 @@ BEGIN {
 /<!-- 7-Day Forecast -->/{ intarget=1 } # beginning of target area
 /text\/javascript/{ intarget=0 } # end of target area
 
-# create a string of emojois based on weather conditions
+# initialize the string of emojis
 /<p class="period-name">/ { conditions = "" }
-/Fog/ { conditions = "🌁" conditions }
-/Mist/ { conditions = "🌫" conditions }
-/Snow/ { conditions = "❄" conditions }
-/Ice/ { conditions = "🧊" conditions }
-/(Mostly|Partly) (Cloudy|Sun)/ { conditions = "⛅" conditions }
-/(?!Mostly )Cloudy/ { conditions = "☁" conditions }
-/Sun/ { conditions = "🌞" conditions }
-/Showers/ { conditions = "💧" conditions }
-/Rain/ { conditions = "💦" conditions }
-/Alert/ { conditions = "❗" conditions }
-/Advisory/ { conditions = "❗" conditions }
-{ conditions = "\033[24m" conditions } # reset underline 
 
 { # perform a bunch of substitutions
     if (intarget==1){
@@ -36,16 +25,39 @@ BEGIN {
         gsub(/<p class="temp temp-high">/, "\033[91;22m") # light red; reset bold
         gsub(/<p class="temp temp-low">/, "\033[96;22m") # light cyan; reset bold
         # add on the emojis
-        gsub(/<p class="short-desc">/, conditions "\033[1m ") #  insert emojis; bold
+        gsub(/<p class="short-desc">/, "\033[24mCONDITIONS\033[1m ") #  reset underline; placeholder for emojis; bold
         gsub(/<[^>]*>/, " ") # remove tags
         sub(/^\s*/, "") # remove leading whitespace
         gsub(/\s+/, " ") # contract whitespace
         sub(/\s$/, "") # remove trailing whitespace
         gsub(/&deg;/, "°") # literal degree sign
-        }
+    }
     else { next }
 }
 
+# create a string of emojois based on weather conditions
+/Fog/ { conditions = "🌁" conditions }
+/Mist/ { conditions = "🌫" conditions }
+/Snow/ { conditions = "❄" conditions }
+/Ice/ { conditions = "🧊" conditions }
+#/(Mostly|Partly) (Cloudy|Sun)/ { conditions = "⛅" conditions }
+/Cloud/ { conditions = "☁" conditions }
+/(Sun[^d]|Clear)/ { conditions = "🌞" conditions } # avoid matching "Sunday"
+/Wind/ { conditions = "💨" conditions }
+/Shower/ { conditions = "🚿" conditions }
+/Rain/ { conditions = "💦" conditions }
+/Warning/ { conditions = "❗" conditions }
+/Alert/ { conditions = "❗" conditions }
+/Advisory/ { conditions = "❗" conditions }
+/CONDITIONS/ { 
+    sub("CONDITIONS", conditions) # add in the emojis
+
+    # color freezing temperatures
+    if ($(NF-1) <= 32) { # if the temperature is freezing
+        $(NF-2) = "\033[48;5;17m" $(NF-2) # blue bg for the temperature
+        $(NF) = $(NF) "\033[49m" # turn off highlighting at the end of the line
+    }
+}
 
 # join the "Extended Forecast" heading with the location name
 /Extended Forecast/ { 

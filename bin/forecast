@@ -1,69 +1,154 @@
 #!/usr/bin/env bash
-# fetch a weather report based on either a requested city or the current IP address
-# dependencies: 
-#   geoip with the city database (`geoip` and `geoip-database-extr` in Arch)
-#   https://nominatim.openstreetmap.org
-#   http://ifconfig.me
-#   https://forecast.weather.gov
-#   _prettifyForecast.awk
-#   I think everything else is in coreutils...
-# Joe Shields, 2020-11-22
-#set -v
+# vim: set foldmethod=marker:
+# get the NOAA forecast for a named city or the current IP address
+# Joe Shields, 2020-11-29
+#
+# This could be a lot shorter. The majority of the functionality can be done in one pipe:
+# curl -s "https://api.weather.gov/points/45,-122" \
+#     | jq -r .properties.forecast \
+#     | xargs curl -s \
+#     | jq -r '.properties.periods | map(.name+" "+(.temperature | tostring)+.temperatureUnit+" "+.shortForecast) | .[]'
+# This script mostly serves to make that process more CLI-comfy.
+# system dependencies: Bash curl jq awk sed xargs printf geoip 
+# geoip needs the city database (`geoip` and `geoip-database-extra` in Arch)
+# There may be some coreutils dependencies I missed.
+# web dependencies:
+#   https://nominatim.openstreetmap.org (There's probably a way to get lat/lon from a city name using the GeoIP database...)
+#   https://ifconfig.me (TODO: There must be some way to ask an ISP for your public address, to avoid this dep.)
+#   https://api.weather.gov
+#   https://forecast.weather.gov (only for viewing the forecast in a browser)
 
-method=none
-if [ -z "$1" ]
-then # lookup lat/long by IP address
-    method=ip
-    #echo calling geoip
-    response=$( \
-            geoiplookup $(curl --silent https://ifconfig.me) \
-                | grep  '^GeoIP City Edition.*:' \
-                | sed 's/^.*:\s*//; s/,\s*/\n/g;' \
-                | sed -n '2s/^/region:/p; 
-                          4s/^/city:/p; 
-                          6s/^/lat:/p; 
-                          7s/^/lon:/p'\
+#### CONFIGURATION #### {{{
+debug="" # leave empty to hide debug messages
+errmsg() {
+    if [ -n "$debug" ]; then
+        echo "$@" 1>&2
+    fi
+}
+# }}}
+
+##### LOCATION ##### {{{
+errmsg getting lat/lon
+latlon_raw=$(
+    if [ -z "$1" ]  # if no arguments given
+    then # lookup lat/lon by IP address
+        geoiplookup $(curl --silent https://ifconfig.me) \
+            | awk ' /GeoIP City Edition/{
+                        sub(/^GeoIP City Edition.*:/, ""); 
+                        gsub(/,/, "");
+                        #printf("%0.4f,%0.4f", $6, $7);
+                        printf $6 " " $7;
+                    } ' # the g format is important, because NOAA throws a fit about trailing zeroes
+    else # lookup lat/lon by city name
+        cityUrl="https://nominatim.openstreetmap.org/search?q=$@&format=json&limit=1"
+        curl --silent "$cityUrl" \
+            | jq -r '.[0].lat+" "+.[0].lon' #\
+            #| xargs printf '%0.4f,%0.4f'
+    fi
+)
+latlon=$(echo "$latlon_raw" | xargs printf '%0.3f,%0.3f' | sed 's/0*,/,/; s/0*$//')
+lat=${latlon%,*} # strip off longitude
+lon=${latlon##*,} # strip off latitude
+errmsg latlon: $latlon
+# }}}
+##### FORECAST ##### {{{
+errmsg getting forecast
+forecast_resp=$( curl --silent "https://api.weather.gov/points/$latlon" ) 
+locationName=$(echo "$forecast_resp" | jq -r '.properties.relativeLocation.properties | .city+", "+.state')
+forecast=$(echo "$forecast_resp" \
+            | jq -r .properties.forecast \
+            | xargs curl --silent \
+            | jq -r ".properties.periods" \
         )
-    cityName="$(echo "$response" | grep -oPe '(?<=city:).*'), $(echo "$response" | grep -oPe '(?<=region:).*')"
-else
-    method=name
-    cityName="$@"
-    cityUrl="https://nominatim.openstreetmap.org/search?q=$cityName&format=json&limit=1"
-    #echo calling OSM
-    response=$(curl --silent "$cityUrl" | sed 's/,/\n/g; s/"//g')
+errmsg forecast_resp: $forecast_resp
+errmsg forecast: $forecast
+
+errmsg prettifying
+#echo "$forecast" | jq -r '.[].name+": "+(.[].temperature | tostring)+" °"+.[].temperatureUnit+" "+.[].shortForecast+"\n"' 
+echo -e "\e[1;32m$locationName\e[22;39m"
+echo "$forecast" \
+    | jq -r 'map(.name+";"+(.isDaytime | tostring)+";"+(.temperature | tostring)+";"+.temperatureUnit+";"+.shortForecast) | .[]' \
+    | awk -F ';' '
+        BEGIN {
+            CDAY="\033[93m"
+            CNGT="\033[94;4m"
+            RST="\033[0m"
+        }
+        {
+            if ($2 == "true") {
+                daytime = "true"
+                daytime_emoji = "🌞"
+            } else if ($2 == "false") {
+                daytime = "false"
+                daytime_emoji = "🌛"
+            } else {
+                daytime = "error"
+                daytime_emoji = "❓"
+            }
+            if ((daytime == "false") && ($1 ~ Night))
+                sub(/ Night/, "")
+
+            sub(/^Today/,     "2day")
+            sub(/^Tonight/,   "2nit")
+            sub(/^Monday/,    "Mon.")
+            sub(/^Tuesday/,   "Tue.")
+            sub(/^Wednesday/, "Wed.")
+            sub(/^Thursday/,  "Thu.")
+            sub(/^Friday/,    "Fri.")
+            sub(/^Saturday/,  "Sat.")
+            sub(/^Sunday/,    "Sun.")
+
+            name=$1
+            temp=$3
+            tempUnit=$4
+            description=$5
+            conditions = "";
+            nemojis = 0;
+            emojiwidth = 8; # number of character spaces allocated for condition emojis (assumed to use 2 spaces each)
+
+            if ( ((tempUnit == "F") && (temp <= 32)) || ((tempUnit == "C") && (temp <= 0)) )
+                freezing= 1
+            else 
+                freezing= 0
+            temp= sprintf("%3.0f", $3)
+            if (freezing)
+                temp= "\033[48;5;18m" temp "\033[49m"
+        }
+
+        /Fog/ { conditions = "🌁" conditions; nemojis++ }
+        /Mist/ { conditions = "🌫" conditions }
+        /Snow/ { conditions = "❄" conditions }
+        /Ice/ { conditions = "🧊" conditions; nemojis++ }
+        /Cloud/ { conditions = "☁" conditions }
+        /Sun[^d]/ { conditions = "🌞" conditions; nemojis++ } # avoid matching "Sunday"
+        #/Clear/ { conditions = "💎" conditions; nemojis++ }
+        /Wind/ { conditions = "💨" conditions; nemojis++ }
+        /Shower/ { conditions = "🚿" conditions; nemojis++ }
+        /Rain/ { conditions = "💦" conditions; nemojis++ }
+        /Warning/ { conditions = "❗" conditions; nemojis++ }
+        /Alert/ { conditions = "❗" conditions; nemojis++ }
+        /Advisory/ { conditions = "❗" conditions; nemojis++ }
+        {
+            if (daytime == "true")
+                printf CDAY
+            else if (daytime == "false")
+                printf CNGT
+            printf("%-4s ", name); # name of the day
+            printf daytime_emoji " "
+            printf("%s°%s ", temp, tempUnit); 
+            printf("%-"(emojiwidth - nemojis)"s ", conditions); 
+            printf description RST "\n"
+        }'
+# }}}
+##### ALERTS ##### {{{
+errmsg getting alerts
+alerts=$(\
+    curl --silent "https://api.weather.gov/alerts/active?point=$latlon&status=actual" \
+        | jq -r '.features[].properties | .event+":\n\t"+.parameters.NWSheadline[]'\
+    )
+if [ -n "$alerts" ]; then
+    echo -e "\e[1;31m$alerts\e[22;39m"
 fi
-
-lat=$(echo "$response" | grep -oPe '(?<=^lat:).*')
-long=$(echo "$response" | grep -oPe '(?<=^lon:).*')
-weatherUrl="https://forecast.weather.gov/MapClick.php?lat=$lat&lon=$long"
-
-#echo calling NOAA
-noaaResponse=$(curl --silent "$weatherUrl")
-
-if [ -z "$noaaResponse" ] || echo "$noaaResponse" | grep "Forecast Error" > /dev/null
-then # deal with errors
-    echo -ne "\e[93m"
-    echo error: got an error from NOAA
-    echo raw NOAA response:
-    #echo "$noaaResponse" | sed 's/^/\t/' # raw html, tabbed in
-    echo saving NOAA response to /tmp/NOAA.response
-    echo "$noaaResponse" > /tmp/NOAA.response
-    echo method: "$method"
-    echo cityName: "$cityName"
-    echo cityUrl: "$cityUrl"
-    echo lat, long: "$lat", "$long"
-    echo weatherUrl: "$weatherUrl"
-    #echo -ne "\e[39m"
-    echo "location response (OSM for "city" method, GeoIP for "ip" method):"
-    echo "$response" | sed 's/^/\t/' # mangled JSON, tabbed in
-    echo -ne "\e[31m"
-    echo "$noaaResponse" | grep -oPe '(?<=<span class="big">)[^<]*(?=</span>)'
-    echo -ne "\e[39m"
-    exit -1
-fi
-
-echo full report: "$weatherUrl"
-#echo calling prittifier
-echo "$noaaResponse" | _prettifyForecast.awk -
-exit $? # https://youtu.be/ryv9GLpRlGY
-#set +v
+# }}}
+echo -e "full in-browser report: https://forecast.weather.gov/MapClick.php?lat=$lat&lon=$lon"
+exit 0

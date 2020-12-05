@@ -1,0 +1,282 @@
+#!/usr/bin/env bash
+# Curse text with Unicode modifier characters.
+# 
+# Joe Shields, 2020-12-05
+# vim: foldmethod=marker:
+
+# static stuff {{{
+# config {{{
+debug="" # leave empty to suppress debug messages
+err="true" # leave empty to suppress error messages
+quiet="" # leave empty to unsuppress foreboding messages
+stdinMode="" # leave blank to use the trailing arguments as input, rather than stdin
+# }}}
+# defaults {{{
+declare -i level=1
+declare -i    up=0
+declare -i   mid=0
+declare -i  down=0
+# }}}
+# functions {{{
+helpMessage() {
+    echo \
+"
+Usage: $0 [OPTIONS] TEXT
+Curse some text with spooky Unicode modifier characters.
+
+    -l LEVEL    Apply a curse corresponding to a particular level of Hell. The default is 1.
+    -u          Curse the heavens.
+    -m          Cursed to the core.
+    -d          Curse the depths.
+    -q          Quiet mode. (no foreboding messages)
+    -h          Display this help message.
+    -b          Enable debug messages.
+                (This must be enabled in the source to get debug info on option parsing.)
+    -s          Read from standard input. (not implemented yet)
+"
+}
+previewSymbol() {
+    echo escape:"$1"
+    echo -e "literal:""$1"
+}
+previewMany() {
+    name=$1[@]
+    arr=("${!name}")
+    len=${#arr[@]}
+    for (( i=0; i<len; ++i ))
+    do
+        echo -e $i:${arr[i]}
+    done
+}
+randomMember() {
+    # get a random member of an array
+    name=$1[@]
+    declare -i n
+    if [ -z "$2" ]; then
+        n=1
+    else
+        n=$2
+    fi
+    arr=("${!name}") # copy the named array
+    for (( i=0; i<n; ++i ))
+    do
+        echo -n ${arr[(RANDOM % ${#arr[@]})]} # echo a random character from curseUp
+    done
+}
+curseLine() {
+    len=${#1}
+    for (( i=0; i<len; ++i ))
+    do
+        echo -n "${1:i:1}"
+        if [ "$up" -eq 1 ]; then
+            echo -ne $(randomMember curseUp "$nUp") # echo a random character from curseUp
+        fi
+        if [ "$mid" -eq 1 ]; then
+            echo -ne $(randomMember curseMid "$nMid")
+        fi
+        if [ "$down" -eq 1 ]; then
+            echo -ne $(randomMember curseDown "$nDown")
+        fi
+    done
+}
+dbgmsg() {
+    if [ -n "$debug" ]; then
+        echo "$@" 1>&2
+    fi
+}
+errmsg() {
+    if [ -n "$err" ]; then
+        echo "$@" 1>&2
+    fi
+}
+# }}}
+# arrays of cursed characters {{{
+curseUp=(\
+    '\u030d' '\u030e' '\u0304' '\u0305' '\u033f' '\u0311' '\u0306' '\u0310' \
+    '\u0352' '\u0357' '\u0351' '\u0307' '\u0308' '\u030a' '\u0342' '\u034a' \
+    '\u034b' '\u034c' '\u0303' '\u0302' '\u030c' '\u0350' '\u0300' '\u0301' \
+    '\u030b' '\u030f' '\u0312' '\u0313' '\u0314' '\u033d' '\u0309' '\u0363' \
+    '\u0364' '\u0365' '\u0366' '\u0367' '\u0368' '\u0369' '\u036a' '\u036b' \
+    '\u036c' '\u036d' '\u036e' '\u036f' '\u033e' '\u035b' '\u0346' '\u031a' \
+)
+curseMid=(\
+    '\u0315' '\u031b' '\u0340' '\u0341' '\u0358' '\u0321' '\u0322' '\u0327' \
+    '\u0328' '\u0334' '\u0335' '\u0336' '\u034f' '\u035c' '\u035d' '\u035e' \
+    '\u035f' '\u0360' '\u0362' '\u0338' '\u0337' '\u0361' '\u0489' \
+)
+
+curseDown=(\
+    '\u0316' '\u0317' '\u0318' '\u0319' '\u031c' '\u031d' '\u031e' '\u031f' \
+    '\u0320' '\u0324' '\u0325' '\u0326' '\u0329' '\u032a' '\u032b' '\u032c' \
+    '\u032d' '\u032e' '\u032f' '\u0330' '\u0331' '\u0332' '\u0333' '\u0339' \
+    '\u033a' '\u033b' '\u033c' '\u0345' '\u0347' '\u0348' '\u0349' '\u034d' \
+    '\u034e' '\u0353' '\u0354' '\u0355' '\u0356' '\u0359' '\u035a' '\u0323' 
+)
+# }}}
+# forebodings {{{
+declare -a forebodings
+forebodings+=('What have you done?')
+forebodings+=('This will not end well.')
+forebodings+=('This may have... unintended consequences.')
+forebodings+=('Payment received: 1 soul.')
+forebodings+=('Summoning...')
+forebodings+=('Zalgo will be pleased.')
+forebodings+=('HE COMES')
+forebodings+=('That was your last chance.')
+forebodings+=('All hope is gone now.')
+forebodings+=('☠')
+forebodings+=('aaaaaaAAAAAAAA A A A A A ! ! !')
+forebodings+=('Eyes. So many eyes...')
+forebodings+=('Let the warm vortex embrace you.')
+forebodings+=('One need not be a chamber to be haunted.')
+forebodings+=('Beware the man you think you know.')
+forebodings+=('Can you hear it too?')
+forebodings+=('The devil used to be an angel.')
+forebodings+=("Now it's in you too.")
+forebodings+=('STOP RUNNING')
+forebodings+=("PLEASE! STOP RUNNING $0! PLEASE! IT HURTS ME! PLEASE!")
+#forebodings+=('')
+# }}}
+# }}}
+
+# pre work {{{
+# handle option flags and arguments{{{
+dbgmsg OPTIND: $OPTIND
+while getopts 'l:umdqhbs' name
+do
+    dbgmsg name: $name
+    dbgmsg OPTARG: $OPTARG
+    dbgmsg arg: "$1"
+    case "$name" in 
+        l)
+            dbgmsg setting level
+            level=$OPTARG
+            ;;
+        u)
+            dbgmsg setting up
+            up=1
+            ;;
+        m)
+            dbgmsg setting mid
+            mid=1
+            ;;
+        d)
+            dbgmsg setting down
+            down=1
+            ;;
+        q)
+            dbgmsg quiet mode enabled
+            quiet="true"
+            ;;
+        h)
+            helpMessage
+            exit 1
+            ;;
+        b)
+            dbgmsg debug messages already enabled :P
+            debug="true"
+            ;;
+        s)
+            dbgmsg reading form stdin
+            stdinMode="true"
+            ;;
+        *)
+            errmsg Unknown option passed.
+            helpMessage
+            exit -1
+            ;;
+    esac
+    dbgmsg
+    dbgmsg OPTIND: $OPTIND
+done
+
+if [ $up -eq 0 -a $mid -eq 0 -a $down -eq 0 ]; then
+    dbgmsg No directions were given. Defaulting to mid and down...
+    mid=1
+    down=1
+fi
+
+# grab the trailing arguments
+argArr=( "$@" )
+trailing="${argArr[@]:OPTIND-1}"
+# }}}
+
+# debug stuff {{{
+dbgmsg upwards curse characters: ${#curseUp[*]}
+dbgmsg ${curseUp[*]}
+#dbgmsg $(previewMany ${curseUp[*]})
+dbgmsg $(previewMany curseUp)
+dbgmsg middle curse characters: ${#curseMid[*]}
+dbgmsg ${curseMid[*]}
+#dbgmsg $(previewMany ${curseMid[*]})
+dbgmsg $(previewMany curseMid)
+dbgmsg downward curse characters: ${#curseDown[*]}
+dbgmsg ${curseDown[*]}
+#dbgmsg $(previewMany ${curseDown[*]})
+dbgmsg $(previewMany curseDown)
+dbgmsg forebodings: ${#forebodings[*]}
+#dbgmsg $(previewMany ${forebodings[*]})
+dbgmsg $(previewMany forebodings)
+dbgmsg 
+# }}}
+# pre-curse debug {{{
+dbgmsg
+dbgmsg level: $level
+dbgmsg up: $up
+dbgmsg mid: $mid
+dbgmsg down: $down
+dbgmsg trailing: $trailing
+dbgmsg stdinMode: "$stdinMode"
+# }}}
+# }}}
+
+# execution {{{
+# decide how much to curse the text {{{
+case $level in
+    1)
+        # standard curse
+        nUp=$((  RANDOM%3 +1))
+        nMid=$(( RANDOM%2 +0))
+        nDown=$((RANDOM%4 +1))
+        ;;
+    2)
+        # serious curse
+        nUp=$((   RANDOM%8 +1 ))
+        nMid=$((  RANDOM%3 +0 ))
+        nDown=$(( RANDOM%8 +1 ))
+        ;;
+    3)
+        # elder curse
+        nUp=$((   RANDOM%16 +1 ))
+        nMid=$((  RANDOM%4  +1 ))
+        nDown=$(( RANDOM%16 +1 ))
+        ;;
+    *)
+        # fallback
+        nUp=2
+        nMid=1
+        nDown=2
+        ;;
+esac
+# }}}
+# apply curses to each character {{{
+if [ -n "$stdinMode" ]; then
+    dbgmsg clearing trailing arguments
+    trailing=""
+fi
+if [ -n "$trailing" ];then
+    curseLine "$trailing"
+else
+    while read -r line
+    do
+        curseLine "$line"
+    done < /dev/stdin
+fi
+echo
+# }}}
+# give a foreboding message
+if [ -z "$quiet" ]; then
+    echo -e '\e[31m'$(randomMember forebodings)'\e[39m' 1>&2
+fi
+# }}}
+exit 0

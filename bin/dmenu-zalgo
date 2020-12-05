@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+cursed=$(echo "" | dmenu $@ -i -p "Offer your sacrifice:" | /home/joedang/src/dotfiles/bin/zalgo -sq)
+if [ -n "$cursed" ]; then
+    dunstify -u normal "copied to clipboard:" "$cursed"
+    echo -n "$cursed" | xclip -in -selection clipboard
+else
+    dunstify -u critical -t 5000 "nothing copied to clipboard"
+fi

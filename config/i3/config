@@ -20,7 +20,7 @@
 set $mod Mod4
 #exec --no-startup-id picom -b # see ~/.config/picom.conf
 #exec_always to run something during a restart of i3
-exec picom -b # see ~/.config/picom.conf
+exec --no-startup-id picom -b # see ~/.config/picom.conf
 
 # The keyboard mapping is pretty buggy the way I'm doing it.
 # The i3 config may be the wrong place to do this.
@@ -29,17 +29,21 @@ exec picom -b # see ~/.config/picom.conf
 # Map the physical "Esc" keycode to send the super keysym.
 # This must be done after setxkbmap.
 # exec_always xmodmap -e "keycode 9 = Super_L" # this undoes the caps:escape remapping when restarting i3 twice in a row...??
+exec --no-startup-id /home/joedang/src/dotfiles/bin/capsRemap
 
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
 #font IBM Plex Sans:Regular 20
 #font LAYOUT_ENGINE:FAMILY_LIST [STYLE_OPTIONS] [SIZE]
-font pango:'IBM Plex Sans' 'Regular' 7
+font pango:IBM Plex Sans Light 9.5
 
 #font pango:monospace 8
 # This font is widely installed, provides lots of unicode glyphs, right-to-left
 # text rendering and scalability on retina/hidpi displays (thanks to pango).
 #font pango:DejaVu Sans Mono 8
+
+# dmenu defaults
+set $dmenu_flags -b -i -fn 'IBMPlexMono-Light.ttf:pixelsize=18' -nb '#222' -nf '#888' -sb '#80d' -sf '#fff'
 
 # Before i3 v4.8, we used to recommend this one as the default:
 # font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
@@ -52,6 +56,26 @@ font pango:'IBM Plex Sans' 'Regular' 7
 # and nm-applet is a desktop environment-independent system tray GUI for it.
 exec --no-startup-id nm-applet
 
+# audio widget
+exec --no-startup-id pasystray
+
+# power manager
+exec --no-startup-id xfce4-power-manager
+
+# set a background
+exec --no-startup-id find -L ~/img/backgrounds  -printf '%p\n' \
+                        | grep '\.' \
+                        | sort -R \
+                        | head -n 1 \
+                        | xargs feh --bg-fill
+
+# start a terminal
+exec --no-startup-id kitty
+
+# start the music daemon
+exec --no-startup-id pgrep mpd || mpd && mpc pause
+exec --no-startup-id kitty ncmpcpp
+
 # mouse settings
 # xinput --list # get the names/IDs of the input devices
 # xinput --list-props 11 12 # get the properties of the mouse devices
@@ -63,11 +87,21 @@ exec_always xinput --set-prop "TPPS/2 IBM TrackPoint" "libinput Accel Speed" 1 #
 # lock when the lid is closed, screensaver activated, etc. 
 exec_always xss-lock -- i3lock -i $HOME/img/lock --show-failed-attempt 
 # suspend/sleep the system (triggering a lock as well; also shows the lock screen before suspending)
-bindsym $mod+Ctrl+l exec systemctl suspend
-bindsym Ctrl+Mod1+l exec systemctl suspend
+bindsym $mod+Ctrl+l exec --no-startup-id systemctl suspend
+bindsym Ctrl+Mod1+l exec --no-startup-id systemctl suspend
 # just lock the screen
 # bindsym $mod+Ctrl+l exec i3lock -i $HOME/img/lock --show-failed-attempt
 # bindsym Ctrl+Mod1+l exec i3lock -i $HOME/img/lock --show-failed-attempt
+
+# reload the configuration file
+bindsym $mod+Shift+c reload
+# restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
+bindsym $mod+Shift+r restart
+
+# restart picom
+bindsym $mod+Shift+p exec "bash -c 'pkill picom && sleep 1 && picom -b'"
+# exit i3 (logs you out of your X session)
+bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -B 'Yes, exit i3' 'i3-msg exit'"
 # }}}
 
 # key bindings {{{
@@ -78,6 +112,7 @@ set $audioNotifyDelay 2000
 set $volumeIncrement 5
 set $brightnessNotifyID 2
 set $brightnessNotifyDelay 2000
+set $backlightDir /sys/class/backlight/intel_backlight
 # Use pactl to adjust volume in PulseAudio.
 set $refresh_i3status killall -SIGUSR1 i3status
 bindsym XF86AudioRaiseVolume \
@@ -104,58 +139,80 @@ bindsym XF86AudioMicMute \
         #&& dunstify -r $audioNotifyID -u low -t $audioNotifyDelay $(pactl list sinks | grep -Pom 1 '(?<=Mute: ).*' | sed -e 's/yes/🔇 muted/' -e 's/no/🔊 un-muted/')
 #bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle && $refresh_i3status
 
-# media keys
-bindsym XF86AudioPlay exec playerctl play-pause
-bindsym XF86AudioPause exec playerctl play-pause
-bindsym XF86AudioNext exec playerctl next
-bindsym XF86AudioPrev exec playerctl previous
+# open volume settings
+bindsym $mod+XF86AudioRaiseVolume exec --no-startup-id pavucontrol
+bindsym $mod+XF86AudioLowerVolume exec --no-startup-id pavucontrol
+
+# media keys (if there's nothing to control via playerctl, then try to use mpc)
+bindsym XF86AudioPlay exec --no-startup-id playerctl play-pause || mpc toggle
+bindsym XF86AudioPause exec --no-startup-id playerctl play-pause || mpc toggle
+bindsym XF86AudioNext exec --no-startup-id playerctl next || mpc next
+bindsym XF86AudioPrev exec --no-startup-id playerctl previous || mpc prev
 
 # adjust brightness with function keys
-# For some reason, these function keys get bypassed in a weird way, so these bindings never get called.
-bindsym XF86MonBrightnessUp         exec --no-startup-id xbacklight -inc 5  -time 100 -steps 10
-bindsym Shift+XF86MonBrightnessUp   exec --no-startup-id xbacklight -inc 10 -time 100 -steps 10
-bindsym XF86MonBrightnessDown       exec --no-startup-id xbacklight -dec 5  -time 100 -steps 10
-bindsym Shift+XF86MonBrightnessDown exec --no-startup-id xbacklight -dec 10 -time 100 -steps 10
+# TODO: I need a cleaner way to handle the notifications.
+# The firmware seems to grab these keys to control brightness, unless xfce4-power-manager is running.
+# coarse control
+bindsym XF86MonBrightnessUp exec --no-startup-id \
+        xbacklight -inc 10 && xbacklight -get > ~/.cache/backlight && $refreSH_I3status #\
+#        dunstify -r $brightnessNotifyID -u low -t $brightnessNotifyDelay -a SettingsNotify \
+#        "🌞 "$(echo '100*'$(cat $backlightDir/actual_brightness)"/"$(cat $backlightDir/max_brightness) | bc) \
+#        && $refreSH_I3status
+bindsym XF86MonBrightnessDown exec --no-startup-id \
+        xbacklight -dec 10 && xbacklight -get > ~/.cache/backlight && $refreSH_I3status #\
+#        dunstify -r $brightnessNotifyID -u low -t $brightnessNotifyDelay -a SettingsNotify \
+#        "🌚 "$(echo '100*'$(cat $backlightDir/actual_brightness)"/"$(cat $backlightDir/max_brightness) | bc) \
+#        && $refresh_i3status
+# fine control
+bindsym Ctrl+XF86MonBrightnessUp exec --no-startup-id \
+        xbacklight -inc 1 && xbacklight -get > ~/.cache/backlight && refreSH_I3status #\
+#        dunstify -r $brightnessNotifyID -u low -t $brightnessNotifyDelay -a SettingsNotify \
+#        "🌞 "$(echo '100*'$(cat $backlightDir/actual_brightness)"/"$(cat $backlightDir/max_brightness) | bc) \
+#        && $refreSH_I3status
+bindsym Ctrl+XF86MonBrightnessDown exec --no-startup-id \
+        xbacklight -dec 1 && xbacklight -get > ~/.cache/backlight && $refresh_i3status #\
+#        dunstify -r $brightnessNotifyID -u low -t $brightnessNotifyDelay -a SettingsNotify \
+#        "🌚 "$(echo '100*'$(cat $backlightDir/actual_brightness)"/"$(cat $backlightDir/max_brightness) | bc) \
+#        && $refresh_i3status
+#bindsym XF86MonBrightnessUp         exec --no-startup-id "xbacklight -inc 5  -time 100 -steps 10; dunstify brightness up"
+#bindsym Shift+XF86MonBrightnessUp   exec --no-startup-id xbacklight -inc 10 -time 100 -steps 10
+#bindsym XF86MonBrightnessDown       exec --no-startup-id xbacklight -dec 5  -time 100 -steps 10
+#bindsym Shift+XF86MonBrightnessDown exec --no-startup-id xbacklight -dec 10 -time 100 -steps 10
 #bindsym $mod+F8 exec --no-startup-id dunstify -r $brightnessNotifyID -u low -t $brightnessNotifyDelay -a SettingsNotify  '🌞 '$(cat /sys/class/backlight/acpi_video0/brightness)/15
 # }}}
-
-# Use Mouse+$mod to drag floating windows to their wanted position
-floating_modifier $mod
-
-# kill focused window
-bindsym $mod+Shift+q kill
-bindsym mod1+F4 kill
-
-# rerun the capsRemap script
-bindsym $mod+c exec /home/joedang/src/dotfiles/bin/capsRemap
 
 # launchers {{{
 # start a terminal
 bindsym $mod+Return exec kitty
 
 # start dmenu (a program launcher)
-bindsym $mod+d exec dmenu_run
-bindsym $mod+F2 exec dmenu_run
+bindsym $mod+d exec --no-startup-id dmenu_run $dmenu_flags
+bindsym $mod+F2 exec --no-startup-id dmenu_run $dmenu_flags
 # There also is the (new) i3-dmenu-desktop which only displays applications
 # shipping a .desktop file. It is a wrapper around dmenu, so you need that
 # installed.
 # bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
 
 # simple calculator (just passes a string to calc)
-bindsym $mod+equal exec echo "" | dmenu -p "calc:" -l 0 | calc | xargs -II dmenu -p \"I\"
+bindsym $mod+equal exec --no-startup-id echo "" | dmenu $dmenu_flags -p "calc:" -l 0 | calc | xargs -II dmenu $dmenu_flags -p \"I\"
 
 # simple unit conversion (just passes a string to units)
-bindsym $mod+u exec \
+bindsym $mod+u exec --no-startup-id \
                     units --compact --one-line --verbose \
-                        $(echo '' | dmenu -p 'you have: ') $(echo '' | dmenu -p 'you want: ') \
-                        | xargs -II dmenu -p 'I'
-bindsym $mod+Shift+u exec --no-startup-id /home/joedang/src/dotfiles/bin/dmenu-unicode
+                        $(echo '' | dmenu $dmenu_flags -p 'you have: ') $(echo '' | dmenu $dmenu_flags -p 'you want: ') \
+                        | xargs -II dmenu $dmenu_flags -p 'I'
+
+# select unicode characters
+bindsym $mod+Shift+u exec --no-startup-id /home/joedang/src/dotfiles/bin/dmenu-unicode $dmenu_flags
+
+# cursed text ("Zalgo" text)
+bindsym $mod+Shift+z exec --no-startup-id /home/joedang/src/dotfiles/bin/dmenu-zalgo $dmenu_flags
 
 # set the background
 #bindsym $mod+b exec find -L ~/img/backgrounds -printf '%f\n' | dmenu -i -l 10 -p 'select a new background' | 
 bindsym $mod+b exec --no-startup-id \
                     find -L ~/img/backgrounds -printf '%P\n' \
-                        | dmenu -i -l 10 -p 'select a new background' \
+                        | dmenu $dmenu_flags -i -l 10 -p 'select a new background' \
                         | xargs -II feh --bg-fill ~/img/backgrounds/"I"
 bindsym $mod+Shift+b exec --no-startup-id \
                     find -L ~/img/backgrounds  -printf '%p\n' \
@@ -165,13 +222,21 @@ bindsym $mod+Shift+b exec --no-startup-id \
                         | xargs feh --bg-fill
 
 # mount and unmount removable storage devices (flash drives, SD cards, external disks)
-bindsym $mod+m exec ~/src/dotfiles/bin/dmenu-mount
-bindsym $mod+Shift+m exec ~/src/dotfiles/bin/dmenu-umount
+bindsym $mod+m exec --no-startup-id ~/src/dotfiles/bin/dmenu-mount $dmenu_flags
+bindsym $mod+Shift+m exec --no-startup-id ~/src/dotfiles/bin/dmenu-umount $dmenu_flags
 
 # bindsym Print exec xfce4-screenshooter --save $HOME/img/capture/Screenshot_$(date +%Y-%m-%d_%H-%M-%S).png
 # bindsym Ctrl+Print exec xfce4-screenshooter --fullscreen --save $HOME/img/capture/Screenshot_$(date +%Y-%m-%d_%H-%M-%S).png
-bindsym --release Print exec "scrot -sfl style=dash,color=red -e 'mv $f ~/img/capture/; xclip -selection clipboard -t image/png ~/img/capture/$f'"
-bindsym --release Ctrl+Print exec scrot -e 'mv $f ~/img/capture/'
+bindsym --release Print exec --no-startup-id "scrot -sfl style=dash,color=red -e 'mv $f ~/img/capture/; xclip -selection clipboard -t image/png ~/img/capture/$f'"
+bindsym --release Ctrl+Print exec --no-startup-id scrot -e 'mv $f ~/img/capture/'
+
+# bring up a digital clock
+bindsym $mod+t exec --no-startup-id \
+    xclock -update 1 -digital -strftime $'%a %b %F %T %Z(%z)' \
+    -fg '#530093' -bg '#111' -face 'IBM Plex Mono Light:size=24:style=Bold'
+
+# rerun the capsRemap script
+bindsym $mod+c exec --no-startup-id /home/joedang/src/dotfiles/bin/capsRemap
 # }}}
 
 # window navigation {{{
@@ -199,6 +264,13 @@ bindsym $mod+Shift+Down move down
 bindsym $mod+Shift+Up move up
 bindsym $mod+Shift+Right move right
 
+# Use Mouse+$mod to drag floating windows to their wanted position
+floating_modifier $mod
+
+# kill focused window
+bindsym $mod+Shift+q kill
+bindsym mod1+F4 kill
+
 # split in horizontal orientation
 bindsym $mod+bar split h
 
@@ -215,7 +287,19 @@ bindsym $mod+Shift+space floating toggle
 bindsym $mod+space focus mode_toggle
 
 # jump between windows by name, similar to Alt+Tab in popular DEs
-bindsym $mod+Tab exec --no-startup-id wmctrl -l | dmenu -i -p "switch to window" -l $(wmctrl -l | wc -l) | xargs -II wmctrl -i -a \"I\"
+bindsym mod1+Shift+Tab exec --no-startup-id wmctrl -l | dmenu $dmenu_flags -i -p "switch to window" -l $(wmctrl -l | wc -l) | xargs -II wmctrl -i -a \"I\"
+
+# rename window
+bindsym $mod+comma exec --no-startup-id echo '' | dmenu $dmenu_flags -i -p 'rename window: ' | xargs -IS wmctrl -r :ACTIVE: -N S
+
+# scroll via keyboard
+bindsym --release $mod+mod1+k exec --no-startup-id xdotool click 4 # up
+bindsym --release $mod+mod1+j exec --no-startup-id xdotool click 5 # down
+
+# hide the bar
+#bindsym $mod+Shift+n bar mode toggle
+#bindsym $mod bar mode dock
+#bindsym --release $mod bar mode hide
 
 # }}}
 
@@ -237,15 +321,27 @@ bindsym $mod+z focus child
 # Define names for default workspaces for which we configure key bindings later on.
 # We use variables to avoid repeating the names in multiple places.
 set $ws0 "0"
-set $ws1 "1"
-set $ws2 "2"
-set $ws3 "3"
+set $ws1 "1: tty"
+set $ws2 "2: web"
+set $ws3 "3: msg"
 set $ws4 "4"
 set $ws5 "5"
 set $ws6 "6"
 set $ws7 "7"
 set $ws8 "8"
 set $ws9 "9"
+
+# propagate those names
+# rename workspace 0 to $ws0
+# rename workspace 1 to $ws1
+# rename workspace 2 to $ws2
+# rename workspace 3 to $ws3
+# rename workspace 4 to $ws4
+# rename workspace 5 to $ws5
+# rename workspace 6 to $ws6
+# rename workspace 7 to $ws7
+# rename workspace 8 to $ws8
+# rename workspace 9 to $ws9
 
 # switch to workspace
 bindsym $mod+0 workspace number $ws0
@@ -270,17 +366,22 @@ bindsym $mod+Shift+6 move container to workspace number $ws6
 bindsym $mod+Shift+7 move container to workspace number $ws7
 bindsym $mod+Shift+8 move container to workspace number $ws8
 bindsym $mod+Shift+9 move container to workspace number $ws9
+
+# move between adjacent workspaces
+bindsym $mod+n workspace next
+bindsym $mod+p workspace prev
+
+# switch to the last-used workspace
+bindsym mod1+Tab workspace back_and_forth
+
+# scratchpad stuff
+bindsym $mod+grave scratchpad show
+bindsym $mod+Shift+asciitilde move scratchpad
+
+# rename the current workspace
+bindsym $mod+Shift+comma exec --no-startup-id echo '' | dmenu $dmenu_flags -i -p "rename workspace: " | xargs -II i3-msg 'rename workspace to "I"'
+#bindsym $mod+Shift+comma exec i3-input -F 'rename workspace to "%s"' -P 'New name: '
 # }}}
-
-# reload the configuration file
-bindsym $mod+Shift+c reload
-# restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
-bindsym $mod+Shift+r restart
-
-# restart picom
-bindsym $mod+Shift+p exec "bash -c 'pkill picom && sleep 1 && picom -b'"
-# exit i3 (logs you out of your X session)
-bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -B 'Yes, exit i3' 'i3-msg exit'"
 
 # resize window (you can also use the mouse for that) {{{
 bindsym $mod+r mode "resize"
@@ -321,6 +422,8 @@ mode "resize" {
 #default_border pixel 2
 default_border normal
 #for_window [class=".*"] border pixel 3
+for_window [class="XClock"] border pixel 3 floating enable 
+for_window [title="video0 - mpv"] border pixel 3 floating enable # auto float when viewing /dev/video0
 
 #for_window [layout="stacking"] border normal 2
 
@@ -328,6 +431,7 @@ default_border normal
 gaps inner 6
 gaps outer 0
 smart_gaps on # no gaps for a loneley window
+smart_borders on # no borders for a lonely window
 
 # class                 border  backgr. text    indicator child_border
 #                       purple  purple  white   purple    purple
@@ -343,15 +447,21 @@ client.focused          #530093 #530093 #eeeeee #8b00dd   #8b00dd
 #client.background       #ffffff
 
 # Start i3bar to display a workspace bar (plus the system information i3status finds out, if available)
-bar {
+bar { # {{{
     # the bar is configured in ~/.config/i3status/config
     status_command i3status 
     tray_output primary
     i3bar_command i3bar --transparency
-    font pango:'IBM Plex Sans' 'Regular' 9
+    position top
+    hidden_state hide
+    mode hide
+    modifier $mod
+    font pango:IBM Plex Mono Light 9.5
+    separator_symbol "‖"
 
     colors {
         background #111111cc
+        #background #111111
         statusline #dddddd
         separator #8b00dd
 
@@ -361,9 +471,9 @@ bar {
         active_workspace   #333333 #5f676a #ffffff
         inactive_workspace #333333 #222222 #888888
         urgent_workspace   #2f343a #900000 #ffffff
-        binding_mode       #2f343a #900000 #ffffff
+        binding_mode       #203020 #900000 #ffffff
     }
-}
+} # }}}
 
 exec bgset
 # }}}

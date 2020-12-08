@@ -67,50 +67,50 @@ errmsg prettifying
 #echo "$forecast" | jq -r '.[].name+": "+(.[].temperature | tostring)+" °"+.[].temperatureUnit+" "+.[].shortForecast+"\n"' 
 echo -e "\e[1;32m$locationName\e[22;39m"
 echo "$forecast" \
-    | jq -r 'map(.name+";"+(.isDaytime | tostring)+";"+(.temperature | tostring)+";"+.temperatureUnit+";"+.shortForecast) | .[]' \
+    | jq -r 'map(.startTime+";"+.name+";"+(.isDaytime | tostring)+";"+(.temperature | tostring)+";"+.temperatureUnit+";"+.shortForecast) | .[]' \
     | awk -F ';' '
         BEGIN {
             CDAY="\033[93m"
-            CNGT="\033[94;4m"
+            CNGT="\033[34m"
             RST="\033[0m"
         }
         {
-            if ($2 == "true") {
-                daytime = "true"
-                daytime_emoji = "🌞"
-            } else if ($2 == "false") {
-                daytime = "false"
-                daytime_emoji = "🌛"
-            } else {
-                daytime = "error"
-                daytime_emoji = "❓"
-            }
-            if ((daytime == "false") && ($1 ~ Night))
-                sub(/ Night/, "")
 
-            sub(/^Today/,     "2day")
-            sub(/^Tonight/,   "2nit")
-            sub(/^Monday/,    "Mon.")
-            sub(/^Tuesday/,   "Tue.")
-            sub(/^Wednesday/, "Wed.")
-            sub(/^Thursday/,  "Thu.")
-            sub(/^Friday/,    "Fri.")
-            sub(/^Saturday/,  "Sat.")
-            sub(/^Sunday/,    "Sun.")
+            sub(/;Today/,     ";2day")
+            sub(/;Tonight/,   ";2nit")
+            sub(/;Monday/,    ";Mon.")
+            sub(/;Tuesday/,   ";Tue.")
+            sub(/;Wednesday/, ";Wed.")
+            sub(/;Thursday/,  ";Thu.")
+            sub(/;Friday/,    ";Fri.")
+            sub(/;Saturday/,  ";Sat.")
+            sub(/;Sunday/,    ";Sun.")
 
-            name=$1
-            temp=$3
-            tempUnit=$4
-            description=$5
+            date=$1
+            name=$2
+            daytime=$3
+            temp=$4
+            tempUnit=$5
+            description=$6
             conditions = "";
             nemojis = 0;
             emojiwidth = 8; # number of character spaces allocated for condition emojis (assumed to use 2 spaces each)
+
+            if (daytime == "true") 
+                daytime_emoji = "🌞"
+            else if (daytime == "false")
+                "lunarphase -e " date | getline daytime_emoji
+            else
+                daytime_emoji = "❓"
+
+            if (name ~ "Night")
+                sub(/ Night/, "", name)
 
             if ( ((tempUnit == "F") && (temp <= 32)) || ((tempUnit == "C") && (temp <= 0)) )
                 freezing= 1
             else 
                 freezing= 0
-            temp= sprintf("%3.0f", $3)
+            temp= sprintf("%3.0f", temp)
             if (freezing)
                 temp= "\033[48;5;18m" temp "\033[49m"
         }
@@ -120,7 +120,7 @@ echo "$forecast" \
         /Snow/ { conditions = "❄" conditions }
         /Ice/ { conditions = "🧊" conditions; nemojis++ }
         /Cloud/ { conditions = "☁" conditions }
-        /Sun[^d]/ { conditions = "🌞" conditions; nemojis++ } # avoid matching "Sunday"
+        /Sun[^d.]/ { conditions = "🌞" conditions; nemojis++ } # avoid matching "Sunday"
         #/Clear/ { conditions = "💎" conditions; nemojis++ }
         /Wind/ { conditions = "💨" conditions; nemojis++ }
         /Shower/ { conditions = "🚿" conditions; nemojis++ }

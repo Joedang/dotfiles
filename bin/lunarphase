@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+# get the lunar phase of a date
+# Joe Shields, 2020-12-08
+# vim: set foldmethod=marker:
+
+# Constants {{{
+declare -i synodicPeriod_sec=2551443 # s, Unix time, lunar synodic period (29day+12hr+44min+2.9s)
+declare -i knownFull_sec=1606728600 # s, Unix time, date of a known full moon ('2020-11-30 0930 UTC')
+
+declare -a phaseNames=(\
+    'full' 'waning gibbous' 'waning half' 'waning crecent' \
+    'new' 'waxing crecent' 'waxing half' 'waxing gibbous' 'full'\
+)
+declare -a phaseEmojis=( 🌕 🌖 🌗 🌘 🌑 🌒 🌓 🌔 🌕 )
+helpText="Usage: ${0##*/} [OPTIONS] [DATE]
+Get the lunar phase of a given datetime.
+DATE is in the format understood by date -d DATE.
+
+Options:
+-p  Output the phase of the moon in percent. (0 is full. 50 is new.)
+-i  Output the numerical phase of the moon. (0 is full, 7 is waxing gibbous)
+-t  Output the human-readable name of the phase. (full, waning gibbous, et cetera)
+-e  Output the emoji for the phase of the moon.
+-h  Display this message.  "
+# }}}
+
+# Parse Options {{{
+perc=0
+ind=0
+text=0
+emoji=0
+while getopts 'piteh' name
+do
+    case "$name" in 
+        p)
+            perc=1
+            ;;
+        i)
+            ind=1
+            ;;
+        t)
+            text=1
+            ;;
+        e)
+            emoji=1
+            ;;
+        h)
+            echo "$helpText"
+            exit 1
+            ;;
+        *)
+            echo "Unknown option passed."
+            echo "$helpText"
+            exit -1
+            ;;
+    esac
+done
+argArr=( "$@" )
+trailing="${argArr[@]:OPTIND-1}" # grab the trailing arguments
+(( perc==0 && ind==0 && text==0 && emoji==0 )) && text=1 # fallback if nothing set
+# }}}
+
+# Main Arithmetic {{{
+declare -i target_sec # s, Unix time, target date
+if [ -z "$trailing" ] ; then # no arguments given
+    target_sec=$(date +%s) # use the current date
+else
+    target_sec=$(date -d "$trailing" +%s) # use the supplied date
+fi
+declare -i phase_sec=$(( (target_sec-knownFull_sec)%synodicPeriod_sec ))
+phase_sec=$(( phase_sec +synodicPeriod_sec*(phase_sec<0) )) # avoid negative values
+declare -i phase_percent=$(( phase_sec*100/synodicPeriod_sec ))
+declare -i phase_index=$(( (phase_sec+synodicPeriod_sec/16)%synodicPeriod_sec*8/synodicPeriod_sec )) # phase index (0-7)
+# }}}
+
+# Format Output {{{
+declare -a output
+(( perc==1 ))  && output+=("$phase_percent")
+(( ind==1 ))   && output+=("$phase_index")
+(( text==1 ))  && output+=("${phaseNames[phase_index]}")
+(( emoji==1 )) && output+=("${phaseEmojis[phase_index]}")
+echo "${output[*]}"
+# }}}
+
+exit 0
+
+#echo "
+#synodicPeriod_sec: $synodicPeriod_sec
+#knownFull_sec: $knownFull_sec
+#target_sec: $target_sec
+#x: $x
+#phasePercent: $phasePercent
+#_______phases_______
+#full:            00% | 0
+#waning gibbous:  12% | 1
+#waning half:     25% | 2
+#waning crecent:  37% | 3
+#new:             50% | 4
+#waxing crecent:  62% | 5
+#waxing half:     75% | 6
+#waxing gibbous:  87% | 7
+#full:           100% | 0
+#"

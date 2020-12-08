@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+# output a bar depicting a percentage with a given width
+# Joe Shields, 2020-12-08
+# vim: set foldmethod=marker:
+
+# Constants {{{
+# fancy-ish bar: ████├────┤
+fillStartChar=''
+fillChar='█'
+fillEndChar=''
+emptyStartChar='├'
+emptyChar='─'
+emptyEndChar='┤'
+helpText="Usage: ${0##*/} [-w WIDTH] PERCENT
+Output a bar depicting a percentage, PERCENT, with a given width.
+
+Options:
+-w WIDTH    Specify the total width of the bar in characters. (default is 80)
+-h          Display this message.  "
+# }}}
+
+# Parse Options {{{
+declare -i perc=0
+declare -i width=80
+while getopts 'w:h' name
+do
+    case "$name" in 
+        w)
+            width=$OPTARG
+            ;;
+        h)
+            echo "$helpText"
+            exit 1
+            ;;
+        *)
+            echo "Unknown option passed."
+            echo "$helpText"
+            exit -1
+            ;;
+    esac
+done
+argArr=( "$@" )
+trailing="${argArr[@]:OPTIND-1}" # grab the trailing arguments
+perc="$trailing"
+#(( perc==0 && ind==0 && text==0 && emoji==0 )) && text=1 # fallback if nothing set
+# }}}
+
+(( perc>100 )) && perc=100 # cap at 100%
+width=${width#-} # absolute value of width (remove - sign)
+nfill=$(( (width*perc+49)/100 )) # round symmetrically(ish) (width*(perc/100) +0.49)
+nfill=$(( nfill*(nfill>0) )) # treat negative percentages as zero
+nempty=$(( width-nfill ))
+
+printf "%${nfill}s"    | sed -e "s/ /$fillChar/g"  -e "s/$fillChar\$/$fillEndChar/"   -e "s/^$fillChar/$fillStartChar/"
+printf "%${nempty}s\n" | sed -e "s/ /$emptyChar/g" -e "s/$emptyChar\$/$emptyEndChar/" -e "s/^$emptyChar/$emptyStartChar/"
+
+exit 0

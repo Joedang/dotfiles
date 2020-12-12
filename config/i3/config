@@ -18,18 +18,6 @@
 # general settings {{{
 # use Super as the modifier
 set $mod Mod4
-#exec --no-startup-id picom -b # see ~/.config/picom.conf
-#exec_always to run something during a restart of i3
-exec --no-startup-id picom -b # see ~/.config/picom.conf
-
-# The keyboard mapping is pretty buggy the way I'm doing it.
-# The i3 config may be the wrong place to do this.
-#exec_always setxkbmap -layout us -option # reset the keyboard layout
-#exec_always setxkbmap -option caps:escape # use the CapsLock key as escape
-# Map the physical "Esc" keycode to send the super keysym.
-# This must be done after setxkbmap.
-# exec_always xmodmap -e "keycode 9 = Super_L" # this undoes the caps:escape remapping when restarting i3 twice in a row...??
-exec --no-startup-id /home/joedang/src/dotfiles/bin/capsRemap
 
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
@@ -43,7 +31,7 @@ font pango:IBM Plex Sans Light 9.5
 #font pango:DejaVu Sans Mono 8
 
 # dmenu defaults
-set $dmenu_flags -b -i -fn 'IBMPlexMono-Light.ttf:pixelsize=18' -nb '#222' -nf '#888' -sb '#80d' -sf '#fff'
+set $dmenu_flags -b -i -fn 'IBMPlexMono-Light.ttf:pixelsize=22' -nb '#222' -nf '#888' -sb '#80d' -sf '#fff'
 
 # Before i3 v4.8, we used to recommend this one as the default:
 # font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
@@ -51,6 +39,20 @@ set $dmenu_flags -b -i -fn 'IBMPlexMono-Light.ttf:pixelsize=18' -nb '#222' -nf '
 # clear in small sizes. However, its unicode glyph coverage is limited, the old
 # X core fonts rendering does not support right-to-left and this being a bitmap
 # font, it doesn’t scale on retina/hidpi displays.
+# }}}
+
+# one-time startup {{{
+#exec_always to run something during a restart of i3
+exec --no-startup-id picom -b # see ~/.config/picom.conf
+
+# The keyboard mapping is pretty buggy the way I'm doing it.
+# The i3 config may be the wrong place to do this.
+#exec_always setxkbmap -layout us -option # reset the keyboard layout
+#exec_always setxkbmap -option caps:escape # use the CapsLock key as escape
+# Map the physical "Esc" keycode to send the super keysym.
+# This must be done after setxkbmap.
+# exec_always xmodmap -e "keycode 9 = Super_L" # this undoes the caps:escape remapping when restarting i3 twice in a row...??
+exec --no-startup-id /home/joedang/src/dotfiles/bin/capsRemap
 
 # NetworkManager is the most popular way to manage wireless networks on Linux,
 # and nm-applet is a desktop environment-independent system tray GUI for it.
@@ -63,6 +65,7 @@ exec --no-startup-id pasystray
 exec --no-startup-id xfce4-power-manager
 
 # set a background
+#exec bgset
 exec --no-startup-id find -L ~/img/backgrounds  -printf '%p\n' \
                         | grep '\.' \
                         | sort -R \
@@ -70,12 +73,14 @@ exec --no-startup-id find -L ~/img/backgrounds  -printf '%p\n' \
                         | xargs feh --bg-fill
 
 # start a terminal
-exec --no-startup-id kitty
+exec --no-startup-id i3-msg 'workspace 1; exec kitty'
 
 # start the music daemon
 exec --no-startup-id pgrep mpd || mpd && mpc pause
-exec --no-startup-id kitty ncmpcpp
+exec --no-startup-id i3-msg 'exec kitty ncmpcpp; move scratchpad'
+# }}}
 
+# every-time startup {{{
 # mouse settings
 # xinput --list # get the names/IDs of the input devices
 # xinput --list-props 11 12 # get the properties of the mouse devices
@@ -86,6 +91,10 @@ exec_always xinput --set-prop "TPPS/2 IBM TrackPoint" "libinput Accel Speed" 1 #
 
 # lock when the lid is closed, screensaver activated, etc. 
 exec_always xss-lock -- i3lock -i $HOME/img/lock --show-failed-attempt 
+# }}}
+
+# key bindings {{{
+# system control {{{
 # suspend/sleep the system (triggering a lock as well; also shows the lock screen before suspending)
 bindsym $mod+Ctrl+l exec --no-startup-id systemctl suspend
 bindsym Ctrl+Mod1+l exec --no-startup-id systemctl suspend
@@ -104,7 +113,6 @@ bindsym $mod+Shift+p exec "bash -c 'pkill picom && sleep 1 && picom -b'"
 bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -B 'Yes, exit i3' 'i3-msg exit'"
 # }}}
 
-# key bindings {{{
 # media/function keys {{{
 set $audioNotifyID 1
 set $audioNotifyDelay 2000
@@ -296,6 +304,13 @@ bindsym $mod+comma exec --no-startup-id echo '' | dmenu $dmenu_flags -i -p 'rena
 bindsym --release $mod+mod1+k exec --no-startup-id xdotool click 4 # up
 bindsym --release $mod+mod1+j exec --no-startup-id xdotool click 5 # down
 
+# invert the active window (toggle its "TAG_INVERT" property)
+bindsym $mod+i exec --no-startup-id xprop -id $(xdotool getwindowfocus) -format TAG_INVERT 8c \
+            -set TAG_INVERT $(\
+                                xprop -id $(xdotool getwindowfocus) 8c TAG_INVERT \
+                                | sed -e 's/.*= 1.*/0/' -e 's/.*= 0.*/1/'  -e 's/.*not found.*/1/'\
+                            )
+
 # hide the bar
 #bindsym $mod+Shift+n bar mode toggle
 #bindsym $mod bar mode dock
@@ -456,7 +471,7 @@ bar { # {{{
     hidden_state hide
     mode hide
     modifier $mod
-    font pango:IBM Plex Mono Light 9.5
+    font pango:IBM Plex Mono Light 12
     separator_symbol "‖"
 
     colors {
@@ -474,6 +489,4 @@ bar { # {{{
         binding_mode       #203020 #900000 #ffffff
     }
 } # }}}
-
-exec bgset
 # }}}

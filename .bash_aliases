@@ -1,5 +1,6 @@
 #!/bin/bash
 # This should be source-able from any POSIX shell.
+# vim: foldmethod=marker:
 
 # some navigation aliases {{{
 ## colored output for core stuff {{{
@@ -26,7 +27,9 @@ alias lsd='ls -d -- */'
 alias cj='clear; jobs'
 alias clj='clear; jobs; ls'
 alias pl='pwd;ls'
-function cdls() { cd "$@"; ls; }
+function cdls() { 
+    cd "$@"; ls; 
+}
 alias chonkers='du -hd1 * | sort -hr | head' # show the chonky dirs that take up a lot of space
 
 # Clear the screen, go to the home dir, say the user and host name, list any running jobs, list dir contents 
@@ -70,6 +73,16 @@ alias ssay='spd-say'
 # default to vi-like key bindings for given programs
 alias info='info --vi-keys'
 alias lynx='lynx --vikeys --use_mouse --enable_scrollback'
+alias facecam='mpv --profile=low-latency --vf=hflip --geometry=20%x20%-5-25 /dev/video0'
+alias nmpc='ncmpcpp'
+quicklog() {
+    QUICKLOG="$HOME/log/quick.log"
+    date -Iseconds >> "$QUICKLOG"
+    printf "$*\n" >> "$QUICKLOG"
+}
+alias ql='quicklog'
+# show quicklog entries from today and yesterday:
+alias qlc='cat $HOME/log/quick.log | grep -A 100 --color=never -e $(date -Idate) -e $(date -Idate -d yesterday)'
 # }}} 
 # things to control the encrypted journal {{{
 alias jrnl-mount="encfs $XDG_DOCUMENTS_DIR/.journal $XDG_DOCUMENTS_DIR/journal"
@@ -90,6 +103,9 @@ alias face='awk -v r=$(( $RANDOM % ($(egrep -c '\''^$'\'" $DOTFILES_DIR/neat/fac
 alias lenny="echo '( ͡° ͜ʖ ͡°)'"
 alias wut="echo 'ಠ_ಠ'"
 alias rainbowClock='watch -t -n1 --color _rainbowHelper'
+gayman() {
+    man $1 | toilet --gay -f term -w $(tput cols) | less
+}
 # }}} 
 # Uncategorized {{{
 alias mouseWiggler='watch -n 240 "xdotool mousemove 50 50 mousemove restore"'

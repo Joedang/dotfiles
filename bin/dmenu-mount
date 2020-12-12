@@ -19,7 +19,7 @@ options=$(lsblk -lnpo NAME,SIZE,LABEL ${mountable[*]}) # use array elements as a
 #echo "$options"
 #test -z "$options" && echo "no mountable drive available" && exit 1
 nlines=$(echo -e "$options" | wc -l)
-chosen=$(echo -e "$options" | dmenu -i -p "drive to mount:" -l "$nlines")
+chosen=$(echo -e "$options" | dmenu $@ -i -p "drive to mount:" -l "$nlines")
 chosenDev=$(echo "$chosen" | awk '{print $1}')
 chosenLabel=$(echo "$chosen" | awk '{print $3}')
 test -z "$chosenDev" && echo "no drive chosen" && exit 1

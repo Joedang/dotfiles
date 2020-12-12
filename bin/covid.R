@@ -44,7 +44,8 @@ interestWindow <- 300 # days; period over which you want to know the number of a
 contagiousDays <- 20 # days; how long a case is considered "active" after reporting
 daysToPredict_forwards <- 14 # days; window over which to predict the growth rate and active cases
 daysToPredict_backwards <- ceiling(1.5*contagiousDays)
-plotWindow <- Sys.Date()+as.difftime(c(-5*contagiousDays,daysToPredict_forwards), units='days') # what time range to show
+#plotWindow <- Sys.Date()+as.difftime(c(-5*contagiousDays,daysToPredict_forwards), units='days') # what time range to show
+plotWindow <- c(as.Date('2020-04-01'), Sys.Date()+as.difftime(daysToPredict_forwards, units='days')) # what time range to show
 plotElbowroom <- 1.2 # factor by which plot windows are scaled beyond their data (only in cases where sensible)
 dashboardLink <- 'https://multco.us/novel-coronavirus-covid-19/regional-covid-19-data-dashboard' # website to reference for further information
 pdfViewer <- 'zathura' # command to open a PDF

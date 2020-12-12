@@ -1,6 +1,7 @@
 # dotfiles
 This is used to synchronize configuration files between my machines. 
-It's also expanded in scope to store a few really handy scripts/commands.
+It's also expanded in scope to store a "few" really handy scripts/commands.
+Some of these could probably be turned into `m_I_n_I_m_A_l___S_o_F_t_W_a_R_e` packages.
 
 Symbolically link to the things you (I) want like `ln -s ~/dotfiles/.bashrc ~/.bashrc`.
 Don't forget to push and pull things appropriately, so you're (I'm) not caught without biz.

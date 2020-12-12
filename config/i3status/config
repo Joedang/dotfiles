@@ -18,9 +18,11 @@ general {
 order += "ethernet _first_"
 order += "wireless _first_"
 order += "battery all"
+order += "cpu_temperature 0"
 order += "disk /"
 order += "disk /home"
-order += "load"
+order += "cpu_usage"
+#order += "load"
 order += "memory"
 order += "volume master"
 order += "read_file brightness"
@@ -39,8 +41,8 @@ ethernet _first_ {
 }
 
 battery all {
-        #format = "⏻ %status %percentage %remaining to full %emptytime to empty"
-        format = "⏻ %status %percentage"
+        #format = "⏻%status%percentage%remaining to full %emptytime to empty"
+        format = "⏻%status%percentage"
         last_full_capacity = true
         format_down = "❗NO BATTERY❗"
         status_chr =  "🔌"
@@ -50,7 +52,14 @@ battery all {
         path = "/sys/class/power_supply/BAT%d/uevent"
         low_threshold = 15
         threshold_type = "percentage"
-        #format_below_threshold = "⏻ %status %percentage LOW BATT"
+        #format_below_threshold = "⏻%status%percentage LOW BATT"
+}
+
+cpu_temperature 0 {
+        format = "🌡%degrees℃"
+        path = "/sys/devices/platform/coretemp.0/hwmon/hwmon4/temp1_input"
+        max_threshold = 75
+        format_above_threshold = "🔥🌡%degrees℃"
 }
 
 # battery brightness {
@@ -58,44 +67,56 @@ battery all {
 # }
 
 disk '/' {
-        format = "🖴 %percentage_used"
+        format = "🖴%percentage_used"
 }
 
 disk '/home' {
-        format = "🏡 %percentage_used"
+        format = "🏡%percentage_used"
 }
 
 load {
-        format = "🧠 %1min/4"
+        format = "🧠%1min/4"
         max_threshold = "3"
 }
 
+cpu_usage {
+    format = "🧠%usage"
+    max_threshold = 75
+    format_above_threshold = "🔥🧠%usage"
+    degraded_threshold = 40
+    format_above_degraded_threshold = "🧠%usage"
+}
+
 memory {
-        format = "🐘 %percentage_used"
+        format = "🐘%percentage_used"
         threshold_degraded = "15%"
         #format_degraded = "MEMORY < %available"
 }
 
+# TODO: show whether the speakers or headphones are being used
+volume master {
+        device = "default"
+        format = "🔊%volume"
+        format_muted = "🔇%volume"
+}
+
+# TODO: show the state and gain of the microphone
+
 read_file brightness {
-        path = "/sys/class/backlight/acpi_video0/brightness"
+        #path = "/sys/class/backlight/acpi_video0/brightness"
+        path = "/home/joedang/.cache/backlight"
         color_good = "#EAEAEA"
-        format = "🌞 %content/15"
+        format = "🌞%content%"
         #format = "%title: %content"
 }
 
 read_file covid {
         path = "/home/joedang/.local/status/covid/weeklyPercent"
         color_good = "#EAEAEA"
-        format = "😷 %content%"
+        format = "😷%content%"
         #format = "%title: %content"
 }
 
-volume master {
-        device = "default"
-        format = "🔊 %volume"
-        format_muted = "🔇"
-}
-
 tztime local {
-        format = "🕑 %Y-%m-%d %H:%M %a"
+        format = "🕑%Y-%m-%d %H:%M %a"
 }

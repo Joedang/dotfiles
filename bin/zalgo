@@ -135,6 +135,11 @@ forebodings+=('The devil used to be an angel.')
 forebodings+=("Now it's in you too.")
 forebodings+=('STOP RUNNING')
 forebodings+=("PLEASE! STOP RUNNING $0! PLEASE! IT HURTS ME! PLEASE!")
+forebodings+=('A loving god would not allow this.')
+forebodings+=('Into the deep...')
+forebodings+=('The drums in the deep are beating.')
+forebodings+=("You won't be able to undo that.")
+#forebodings+=('')
 #forebodings+=('')
 # }}}
 # }}}
@@ -266,13 +271,14 @@ if [ -n "$stdinMode" ]; then
 fi
 if [ -n "$trailing" ];then
     curseLine "$trailing"
+    echo
 else
     while read -r line
     do
         curseLine "$line"
+        echo
     done < /dev/stdin
 fi
-echo
 # }}}
 # give a foreboding message
 if [ -z "$quiet" ]; then

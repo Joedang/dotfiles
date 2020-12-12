@@ -7,21 +7,32 @@
 
 selection=$(
             cat /home/joedang/.local/share/UnicodeData.txt \
-                | awk --non-decimal-data -F \; '{printf "%8s;\\U%08X; %s; %s\n", $1, "0x"$1, $2, $11}' \
-                | dmenu -i -p 'select a character' -l 10 \
-                | awk -F \; '{printf $2}'#\
+                | awk --non-decimal-data -F \; '{printf "%8s;\\U%08X;%s; %s\n", $1, "0x"$1, $2, $11}' \
+                | dmenu $@ -i -p 'select a character' -l 10 \
+                | awk -F \; '{print "\\"$2}' \
+                | xargs -II printf I
             )
 echo selection is: "$selection"
-literal=$(echo -en "$selection")
-echo literal is: "$literal"
-if [ -n "$literal" ]
+if [ -n "$selection" ]
 then
     echo length of literal is nonzero
-    echo -n "$literal" | xclip -in -selection clipboard
-    dunstify -u normal "$literal copied to clipboard"
+    echo -n "$selection" | xclip -in -selection clipboard
+    dunstify -u normal "$selection copied to clipboard"
     exit 0
 else
     echo length of literal is zero
     dunstify -u critical -t 5000 "nothing copied to clipboard"
     exit 1
 fi
+# I tried a version where all the character codes get interpreted to literal characters for pretty displaying,
+# but that took way too long to execute. I would need to do something that responds to the fuzzy search and 
+# responds with results, rather than trying to process every unicode character.
+#selection=$(
+#            cat /home/joedang/.local/share/UnicodeData.txt \
+#                | grep -v -e '<control>' -e '^[0]*003B'\
+#                | head -n 1000 \
+#                | awk --non-decimal-data -F \; '{printf "%8s;\\\\U%08X; %s; %s\\\\n\n", $1, "0x"$1, $2, $11}' \
+#                | xargs -II printf 'I' \
+#                | bemenu -i -p 'select a character' -l 10 \
+#                | awk -F \; '{printf $2}'#\
+#            )

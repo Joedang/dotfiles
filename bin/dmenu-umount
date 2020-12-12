@@ -15,7 +15,7 @@ then
 fi
 options=$(lsblk -lnpo NAME,MOUNTPOINT,SIZE,LABEL ${unmountable[*]}) # use array elements as arguments
 nlines=$(echo -e "$options" | wc -l)
-chosen=$(echo -e "$options" | dmenu -i -p "drive to unmount:" -l "$nlines")
+chosen=$(echo -e "$options" | dmenu $@ -i -p "drive to unmount:" -l "$nlines")
 chosenDev=$(echo "$chosen" | awk '{print $1}')
 chosenMountpoint=$(echo "$chosen" | awk '{print $2}')
 chosenLabel=$(echo "$chosen" | awk '{print $4}')

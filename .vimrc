@@ -93,6 +93,10 @@ nmap <C-L> <C-W><C-L>
 " somehow makes the real leader backslash
 " let mapleader = "."
 
+nmap <Leader>rd :redraw!<Return>
+vmap <Leader>rd :redraw!<Return>
+vmap <c-l>rd <Esc>:redraw!<Return>a
+
 " toggle both cursorline and cursorcol
 command Reticule :set cuc! | :set cul!
 nmap <Leader>ret :Reticule<Return>

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Use bgchoose to select a background.
 # Set the selected file as the current background.
 # Joe Shields

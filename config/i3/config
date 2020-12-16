@@ -91,9 +91,17 @@ exec_always xinput --set-prop "TPPS/2 IBM TrackPoint" "libinput Accel Speed" 1 #
 
 # lock when the lid is closed, screensaver activated, etc. 
 exec_always xss-lock -- i3lock -i $HOME/img/lock --show-failed-attempt 
+
+# send notificaitons when the battery is low (the script ensures only a single instance is run)
+exec_always /home/joedang/src/dotfiles/bin/batteryMonitor
 # }}}
 
 # key bindings {{{
+# variable assignment example
+#bindsym $mod+o exec "echo $(\
+#read -r x < <(echo bar);\
+#notify-send foo $x\
+#)"
 # system control {{{
 # suspend/sleep the system (triggering a lock as well; also shows the lock screen before suspending)
 bindsym $mod+Ctrl+l exec --no-startup-id systemctl suspend
@@ -311,6 +319,10 @@ bindsym $mod+i exec --no-startup-id xprop -id $(xdotool getwindowfocus) -format 
                                 | sed -e 's/.*= 1.*/0/' -e 's/.*= 0.*/1/'  -e 's/.*not found.*/1/'\
                             )
 
+# change window opacity
+bindsym $mod+F8 exec --no-startup-id picom-trans -c -10
+bindsym $mod+F9 exec --no-startup-id picom-trans -c +11
+
 # hide the bar
 #bindsym $mod+Shift+n bar mode toggle
 #bindsym $mod bar mode dock
@@ -336,9 +348,9 @@ bindsym $mod+z focus child
 # Define names for default workspaces for which we configure key bindings later on.
 # We use variables to avoid repeating the names in multiple places.
 set $ws0 "0"
-set $ws1 "1: tty"
-set $ws2 "2: web"
-set $ws3 "3: msg"
+set $ws1 "1:🖳"
+set $ws2 "2:🖧"
+set $ws3 "3:🖆"
 set $ws4 "4"
 set $ws5 "5"
 set $ws6 "6"
@@ -347,16 +359,16 @@ set $ws8 "8"
 set $ws9 "9"
 
 # propagate those names
-# rename workspace 0 to $ws0
-# rename workspace 1 to $ws1
-# rename workspace 2 to $ws2
-# rename workspace 3 to $ws3
-# rename workspace 4 to $ws4
-# rename workspace 5 to $ws5
-# rename workspace 6 to $ws6
-# rename workspace 7 to $ws7
-# rename workspace 8 to $ws8
-# rename workspace 9 to $ws9
+#rename workspace 0 to $ws0
+#rename workspace 1 to $ws1
+#rename workspace 2 to $ws2
+#rename workspace 3 to $ws3
+#rename workspace 4 to $ws4
+#rename workspace 5 to $ws5
+#rename workspace 6 to $ws6
+#rename workspace 7 to $ws7
+#rename workspace 8 to $ws8
+#rename workspace 9 to $ws9
 
 # switch to workspace
 bindsym $mod+0 workspace number $ws0

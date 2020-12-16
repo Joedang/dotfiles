@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Send alerts when the battery is low.
+# This should probably be started by a window manager or X.
+# Joe Shields, 2020-12-16
+
+# parameters
+lowPercent=25 # send a low-urgency notification when <= this percent
+critPercent=13 # send critical-urgency notifications <= this percent
+batDir=/sys/class/power_supply/BAT0 # directory of battery info
+delay=60 # seconds between checks
+
+# initialization
+scriptName=${0##*/}
+PID_name=$(pgrep -f $scriptName)
+lowLatch=0 # whether a low-urgency notification has been sent since we dropped below the threshold
+echo PID_name is $PID_name
+echo BASHPID is $BASHPID
+if [[ "$PID_name" != "$BASHPID" ]];then # this is not the only instance of this script running
+    dunstify -u low "It looks like $scriptName is already running." "PID: $PID_name"
+    exit 1
+fi
+echo script not yet started. continuing...
+ID=$(dunstify -u low -p "battery monitor started")
+sleep 5 # leave some time for the notification to be viewed
+
+# main loop
+while true 
+do
+    capacity=$(cat "$batDir"/capacity)
+    #printf "capacity: "$capacity"%%\n"
+    if [[ "$capacity" -le "$critPercent" ]];then
+        dunstify -u critical -t 0 -r "$ID" "Critically Low Battery: $capacity%"
+    elif [[ "$lowLatch" == 0 && "$capacity" -le "$lowPercent" ]];then
+        dunstify -u low -t 0 -r "$ID" "Low Battery: $capacity%"
+        lowLatch=1
+    elif [[ "$capacity" > "$lowPercent" ]];then
+        lowLatch=0
+    fi
+    sleep "$delay"
+done
+exit -1

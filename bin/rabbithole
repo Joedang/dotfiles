@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+# Automatically chain-view some Youtube videos.
+# Usage: rabbithole some seed words
+# Joe Shields, 2020-12-23
+
+vidHistoryFile="$HOME/.cache/rabbithole_history"
+randomDict=/usr/share/dict/american-english
+color_title='\e[32;1m' # green bold
+color_search='\e[33m' # yellow
+RST='\e[0m' # reset
+
+query="$@"
+theme=($@)
+themeLen=${#theme[@]}
+IFS_old="$IFS"
+IFS='@'
+
+while :
+do
+    letsWatch=''
+    echo -e "Searching for: $color_search$query$RST"
+    vids=$( # Return a table with columns of runtime, video ID, thumbnail URL, title, description snippet.
+            # The list is sorted (~shortest videos first), and the runtime is m:ss, mm:ss, or h:mm:ss.
+            curl --silent --get --data-urlencode "search_query=$query" "https://www.youtube.com/results" \
+                | grep -oP '(?<=ytInitialData =).*?(?=</script>)' \
+                | jq -r '.contents.twoColumnSearchResultsRenderer.primaryContents
+                            .sectionListRenderer.contents[0].itemSectionRenderer.contents
+                            | map(select(.videoRenderer)) | map(.videoRenderer)
+                            | map(
+                                    .lengthText.simpleText
+                                    +"@"+.videoId
+                                    +"@"+.thumbnail.thumbnails[0].url
+                                    +"@"+.title.runs[0].text
+                                    +"@"+.descriptionSnippet.runs[0].text
+                                )[]' \
+                | sort -h 
+            )
+    echo -n "total vids returned: "
+    echo "$vids" | wc -l
+    while read -r runtime videoID thumbnail title desc
+    do
+        (( ++i ))
+        if grep -e "$videoID" "$vidHistoryFile" > /dev/null; then
+            echo -n "$videoID ($title): seen it... "
+        elif [[ ${#runtime} -gt 4 ]];then
+            echo -n "$videoID ($title): too long... "
+        else
+            letsWatch=true
+            echo
+            break
+        fi
+    done < <(echo "$vids")
+
+    if [[ -n "$letsWatch" ]]; then
+        echo -e "----- runtime: $runtime --- videoID: $videoID --- title: $color_title$title$RST -----"
+        display "$thumbnail" &
+        displayPID=$!
+        # Use a word from the theme, a random word to seed the next search, the title, the description snippet.
+        themeInd=$(( RANDOM % themeLen ))
+        query="${theme[$themeInd]} $(sort -R ${randomDict} | head -n1) $title $desc" 
+        flite -t "$title" -o /dev/stdout | play -q -V1 --volume 4 -
+        sleep 1
+        kill "$displayPID"
+        #read -p "press enter to continue"
+        mpv --really-quiet "https://www.youtube.com/watch?v=$videoID"
+        echo "$videoID" >> "$vidHistoryFile"
+        echo 'added to history'
+        sleep 1
+    else
+        echo End of the line, bud... You\'ve watched everything like that already!
+        break
+    fi
+done
+exit 0

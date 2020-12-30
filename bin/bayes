@@ -1,0 +1,130 @@
+#!/usr/bin/env bash
+# Update a probability based on a test result.
+# Joe Shields, 2020-12-30
+
+# cheat-sheet styles
+PS="\e[1m" # positive is bold
+NG="" # negative is plain
+
+CD="\e[3m" # condition is italic
+NC=""      # no condition is plain
+
+TP="\e[32m$PS$CD" # true positive is green (positive+condition)
+FN="\e[31m$NG$CD" # false negative is red (negative+condition)
+FP="\e[35m$PS$NC" # false positive is magenta (positive+condition)
+TN="\e[36m$NG$NC" # true negative is cyan (negative+condition)
+
+RS="\e[0m" # reset
+PH="" # place-holder
+
+helpText="Usage: $0 [OPTIONS] [Prior] [TPR] [TNR]
+
+Update a probability based on a test result using Bayes' Theorem.
+Everything is expressed as a percent (0 to 100), not a factor (0 to 1).
+
+Options:
+    -p          Only output the updated probability given a positive test result. (default is both)
+    -n          Only output the updated probability given a negative test result. (default is both)
+    -q          Quiet mode (much more machine-readable). 
+    -h          Display this help message.
+
+╭───────────────────────────────CHEAT SHEET────────────────────────────────╮
+│  Prevalence=Prior=C/~C   sensitivity=TPR=TP/C   specificity=TNR=TN/~C    │
+│                                                                          │
+│$RS              ┌$PS─positive (+)─$RS──────┬──────$NG─negative (-)─$RS┐                 │
+│$CD     condition│$TP True Positive (TP) $RS│$FN False Negative (FN)$RS│                 │
+│$RS        (C)   ├$PH──────────$PH┬─────────┴$PH────────────────────$PH┤                 │
+│$RS              │$FP FPFPFPFP $RS│$TN TNTNTNTNTNTNTNTNTNTNTNTNTNTN $RS│                 │
+│$RS              │$FP FPFPFPFP $RS│$TN TNTNTNTNTNTNTNTNTNTNTNTNTNTN $RS│                 │
+│$NC        NOT   │$FP   False  $RS│$TN TNTNTN    True    TNTNTNTNTN $RS│                 │
+│$NC     condition│$FP Positive $RS│$TN TNTNTN  Negative  TNTNTNTNTN $RS│                 │
+│$RS       (~C)   │$FP   (FP)   $RS│$TN TNTNTN    (TN)    TNTNTNTNTN $RS│                 │
+│$RS              │$FP FPFPFPFP $RS│$TN TNTNTNTNTNTNTNTNTNTNTNTNTNTN $RS│                 │
+│$RS              │$FP FPFPFPFP $RS│$TN TNTNTNTNTNTNTNTNTNTNTNTNTNTN $RS│                 │
+│$RS              └$PH──────────$PH┴$PH──────────────────────────────$PH┘                 │
+│                                                                          │
+│            P(+|C)*P(C)                            TPR*Prior              │   
+│  P(C|+)  = ───────────   aka:  newProb = ─────────────────────────────   │   
+│               P(+)                      Prior*TPR + (1-Prior)*(1-TNR)    │
+╰──────────────────────────────────────────────────────────────────────────╯
+https://en.wikipedia.org/wiki/Confusion_matrix
+"
+
+# Handle options.
+exitCode=0
+output='both'
+style='verbose'
+while getopts 'pnqh' name; do
+    case $name in
+        p) output='positive';;
+        n) output='negative';;
+        q) style='quiet';;
+        h) printf "$helpText"; exit 1 ;;
+        *) echo "unrecognized option: $name" 1>&2; printf "$helpText"; exit -1 ;;
+    esac
+done
+#echo "style: $style output: $output OPTIND: $OPTIND"
+#echo "args: $@"
+if shift $(( $OPTIND - 1 )); then
+    prior=$1
+    tpr=$2
+    tnr=$3
+fi
+
+# Prompt for input if something's missing.
+[[ -z "$prior" ]] && read -p 'prior, aka prevalence (%): ' prior
+[[ -z "$tpr"   ]] && read -p "true positive rate, aka TPR or sensitivity) (%): " tpr
+[[ -z "$tnr"   ]] && read -p "true negative rate, aka TNR or specificity) (%): " tnr
+
+# Do the calculations.
+# You'll have to capture stderr if you want to detect divide-by-zero errors
+CgivenPos=$(echo "scale=2; 100*$tpr*$prior/($prior*$tpr + (100-$prior)*(100-$tnr))" | bc)
+CgivenNeg=$(echo "scale=3; 100*(100-$tpr)*$prior/($prior*(100-$tpr)+(100-$prior)*$tnr)" | bc)
+[[ ! "$CgivenPos" ]] && echo "error computing P(C|+)" 1>&2 && exitCode=2
+[[ ! "$CgivenNeg" ]] && echo "error computing P(C|-)" 1>&2 && exitCode=3
+
+# Oputput the results.
+if [[ "$style" == verbose ]]; then
+    [[ "$output" =~ positive|both ]] && echo 'P(C|+) = '$CgivenPos'%'
+    [[ "$output" =~ negative|both ]] && echo 'P(C|-) = '$CgivenNeg'%'
+else
+    [[ "$output" =~ positive|both ]] && echo -n $CgivenPos
+    [[ "$output" == both ]]          && echo -n ' '
+    [[ "$output" =~ negative|both ]] && echo -n $CgivenNeg
+    echo 
+fi
+exit "$exitCode"
+
+# P(C|-)  = P(-|C)*P(C)   /           P(-)
+#         = FNR*Prior     /(Prior*TNR + (1-Prior)*FNR)
+#         = (1-TPR)*Prior /(Prior*TNR + (1-Prior)*(1-TPR))
+
+## key:   variable name
+## value: prompt to the user
+#declare -A prompts=(
+#                    [prior]="prior, aka prevalence %: " 
+#                    [tpr]="true positive rate (aka TPR, sensitivity) (%): " 
+#                    [tnr]="true negative rate (aka TNR, specificity) (%): " 
+#                    [ppv]="positive predictive value (aka PPV): " 
+#                    [fpr]="false positive rate (aka FPR) (%): " 
+#                    [fnr]="false negative rate (aka FNR) (%): " 
+#                )
+#vars=( prior tpr tnr ppv fpr fnr )
+#
+#echo "prompts are: ${prompts[@]}"
+#echo "vars are: $vars"
+#for var in ${vars[@]}
+#do
+#    read -p "${prompts[$vars]}" "$var"
+#    nset=0
+#    for var in ${vars[@]}
+#    do
+#        if [[ ${!var}x == x ]];then
+#            echo "$var is unset"
+#        else
+#            echo "$var is ${!var}"
+#            (( ++nset ))
+#        fi
+#    done
+#    echo
+#done

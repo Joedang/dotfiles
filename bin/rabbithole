@@ -1,10 +1,24 @@
 #!/usr/bin/env bash
 # Automatically chain-view some Youtube videos.
 # Usage: rabbithole some seed words
+# Dependencies: 
+#   jq, youtube-dl, mpv*, coreutils*, curl*, words (provides the dictionary)
+#   imagemagick* (provides `display`), flite*, sox* (provides `play`)
+# Starred dependencies can be easily replaced.
 # Joe Shields, 2020-12-23
+#
+# This script emulates the "Youtube rabbit hole" from the days of yore. 
+# You give it some seed words, and it searches those on YT.
+# It displays the thumbnail, reads the title aloud, 
+# and plays the shortest video that you haven't seen yet.
+# Then, it uses one of your seed words, a random word, the title of the video,
+# and the discription of the video to generate new search results and start the
+# process again.
+# This generally results in short, unexpected videos that the YT algorithm would
+# never have shown you, if you were watching with a browser.
 
-vidHistoryFile="$HOME/.cache/rabbithole_history"
-randomDict=/usr/share/dict/american-english
+vidHistoryFile="$HOME/.cache/rabbithole_history" # track the videos you've seen
+randomDict=/usr/share/dict/american-english # a dictionary file in your language
 color_title='\e[32;1m' # green bold
 color_search='\e[33m' # yellow
 RST='\e[0m' # reset
@@ -35,14 +49,15 @@ do
                                 )[]' \
                 | sort -h 
             )
+    # TODO: detect when curl gives an empty response and retry
     echo -n "total vids returned: "
     echo "$vids" | wc -l
     while read -r runtime videoID thumbnail title desc
     do
         (( ++i ))
-        if grep -e "$videoID" "$vidHistoryFile" > /dev/null; then
+        if grep -e "$videoID" "$vidHistoryFile" > /dev/null; then # check if it appears in the history
             echo -n "$videoID ($title): seen it... "
-        elif [[ ${#runtime} -gt 4 ]];then
+        elif [[ ${#runtime} -gt 4 ]];then # check if it's longer than 9:59 (weeds out hour-long videos)
             echo -n "$videoID ($title): too long... "
         else
             letsWatch=true
@@ -53,16 +68,16 @@ do
 
     if [[ -n "$letsWatch" ]]; then
         echo -e "----- runtime: $runtime --- videoID: $videoID --- title: $color_title$title$RST -----"
-        display "$thumbnail" &
+        display "$thumbnail" & # show the thumbnail and background the process
         displayPID=$!
         # Use a word from the theme, a random word to seed the next search, the title, the description snippet.
         themeInd=$(( RANDOM % themeLen ))
-        query="${theme[$themeInd]} $(sort -R ${randomDict} | head -n1) $title $desc" 
-        flite -t "$title" -o /dev/stdout | play -q -V1 --volume 4 -
+        query="${theme[$themeInd]} $(sort -R ${randomDict} | head -n1) $title $desc" # compose the new search query
+        flite -t "$title" -o /dev/stdout | play -q -V1 --volume 4 - # read the title aloud
         sleep 1
-        kill "$displayPID"
+        kill "$displayPID" # close the thumbnail
         #read -p "press enter to continue"
-        mpv --really-quiet "https://www.youtube.com/watch?v=$videoID"
+        mpv --really-quiet "https://www.youtube.com/watch?v=$videoID" # pley the video (youtube-dl must be in your path)
         echo "$videoID" >> "$vidHistoryFile"
         echo 'added to history'
         sleep 1

@@ -1,139 +1,20 @@
-#!/bin/bash
-# step through each input
-for w in $@
-do
-	# break each word into characters and make them upper-case
-	for c in `echo $w | grep -o . | tr '[:lower:]' '[:upper:]'`
-	do
-		# giant case statement defining pronunciation
-		case $c in
-		A)
-			echo Alpha
-			;;
-		B)
-			echo Bravo
-			;;
-		C)
-			echo Charlie
-			;;
-		D)
-			echo Delta
-			;;
-		E)
-			echo Echo
-			;;
-		F)
-			echo Foxtrot
-			;;
-		G)
-			echo Golf
-			;;
-		H)
-			echo Hotel
-			;;
-		I)
-			echo India
-			;;
-		J)
-			echo Juliett
-			;;
-		K)
-			echo Kilo
-			;;
-		L)
-			echo Lima
-			;;
-		M)
-			echo Mike
-			;;
-		N)
-			echo November
-			;;
-		O)
-			echo Oscar
-			;;
-		P)
-			echo Papa
-			;;
-		Q)
-			echo Quebec
-			;;
-		R)
-			echo Romeo
-			;;
-		S)
-			echo Sierra
-			;;
-		T)
-			echo Tango
-			;;
-		U)
-			echo Uniform
-			;;
-		V)
-			echo Victor
-			;;
-		W)
-			echo Whiskey
-			;;
-		X)
-			echo X-ray
-			;;
-		Y)
-			echo Yankee
-			;;
-		Z)
-			echo Zulu
-			;;
-		1)
-			echo one
-			;;
-		2)
-			echo two
-			;;
-		3)
-			echo three
-			;;
-		4)
-			echo four
-			;;
-		5)
-			echo five
-			;;
-		6)
-			echo six
-			;;
-		7)
-			echo seven
-			;;
-		8)
-			echo eight
-			;;
-		9)
-			echo niner
-			;;
-		0)
-			echo zero
-			;;
-		\.)
-			echo dot
-			;;
-		/)
-			echo stroke
-			;;
-		\\)
-			echo backslash
-			;;
-		-)
-			echo dash
-			;;
-		\ )
-			echo space
-			;;
-		*)
-			# all other characters are returned as-is
-			echo $c
-			;;
-		esac
-	done
+#!/usr/bin/env bash
+# Return the NATO pronunciation of a string.
+# Joe Shields, 2021-01-05
+
+declare -A names=( \
+    [A]=Alpha   [B]=Bravo [C]=Charlie [D]=Delta  [E]=Echo     [F]=Foxtrot [G]=Golf   [H]=Hotel  [I]=India \
+    [J]=Juliet  [K]=Kilo  [L]=Lima    [M]=Mike   [N]=November [O]=Oscar   [P]=Papa   [Q]=Quebec [R]=Romeo \
+    [S]=Sierra  [T]=Tango [U]=Uniform [V]=Victor [W]=Whiskey  [X]=X-ray   [Y]=Yankee [Z]=Zulu \
+    [1]=one [2]=two [3]=three [4]=four [5]=five [6]=six [7]=seven [8]=eight [9]=niner [0]=zero \
+    ['.']=dot ['/']=stroke [\\]=backslash [-]=dash [' ']=space ["'"]=apostrophe \
+)
+
+chars="$(echo "$*" | tr '[:lower:]' '[:upper:]')"
+len=${#chars}
+for (( i=0; i<$len; ++i )); do
+    char="${chars: $i:1}" # single out the character
+    trans="${names[$char]}" # lookup the pronunciaiton
+    trans="${trans:=$char}" # default to printing as-is
+    echo "$trans"
 done

@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# examine some directly-typed characters
+# This captures characters from the read built-in and reports their:
+# escape code, octal value, decimal value, hexidecimal value, unicode name, unicode meaning,
+# and literal appearance (highlighted between single quotes.)
+# Joe Shields, 2021-01-04
+
+# You can update the list of unicode characters like so:
+# curl https://www.unicode.org/Public/UCD/latest/ucd/UnicodeData.txt > UnicodeData.txt
+
+IFS_old="$IFS"
+IFS='' # turn off wordsplitting (so things like space and tab aren't ignored)
+# Use -d to not break on newlines when they're piped in. Instead, break on a null byte.
+read -r -d '' -p 'Send NULL (usually Ctrl+2) to terminate.'$'\n''Type some characters to examine: ' chars
+IFS="$IFS_old"
+echo
+KEY_HL=$'\e[1;30;106m' # style to highlight literals
+RST=$'\e[0m'
+len=${#chars}
+for (( i=0; i<$len; ++i ))
+do
+    literal="${chars: $i:1}"
+    #name="$(grep -o $(printf '^0*%04x;[^;]*' "'${chars: $i:1}") /home/joedang/.local/share/UnicodeData.txt)"
+    IFS=';' read -a unicodeData <<< "$(grep -o $(printf '^0*%04x;.*' "'$literal") /home/joedang/.local/share/UnicodeData.txt)"
+    int=$(printf '%d' "'$literal")
+    binary=''
+    while (( int ));do # until int is zero
+        binary=$(( int & 1 ))$binary # prepend the least bit
+        (( int >>= 1 )) # shift all the bits one lower
+    done
+    name="${unicodeData[1]}"
+    meaning="${unicodeData[10]}"
+    echo    "-------------------- character $(( i+1 )) of $len -----"
+    printf  "                     escaped: %q\n"                "$literal"
+    echo    "                      binary: $binary"
+    printf  '                       octal: 0%o\n'               "'$literal"
+    printf  '                     decimal: %d\n'                "'$literal"
+    printf  '                 hexidecimal: 0x%x\n'              "'$literal"
+    echo    "                unicode name: $name"
+    echo    "             unicode meaning: $meaning"
+    echo    "highlighted in double braces: {{$KEY_HL${literal}$RST}}"
+    #echo   "unicode data: ${unicodeData[@]}"
+    echo
+done

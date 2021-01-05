@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Scroll the tail of the input.
+# Joe Shields, 2021-01-05
+
+while getopts 'n:' name; do
+    case "$name" in
+        n) n="$OPTARG" ;;
+        *) echo unrecognized option ;;
+    esac
+done
+n=${n:=$(( $(tput lines)-1 ))} # default to using the whole screen
+jump=1
+clear -x # scroll the screen, but don't kill the scrollback buffer
+while IFS='' read -rd $'\n' line; do # read the input, one line at a time
+    contents+="$line"$'\n' # reconstruct the full input
+    echo -en "$contents" | tail -n "$n" # output the last few lines
+    echo -en "\e[${jump}A" # move cursor up to the top (to redraw over what was just printed)
+    (( jump < n && ++jump )) # keep track of how many lines need to be redrawn
+done
+echo -en "\e[${jump}B" # move cursor down

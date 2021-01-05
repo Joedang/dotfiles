@@ -21,7 +21,7 @@ for (( i=0; i<$len; ++i ))
 do
     literal="${chars: $i:1}"
     #name="$(grep -o $(printf '^0*%04x;[^;]*' "'${chars: $i:1}") /home/joedang/.local/share/UnicodeData.txt)"
-    IFS=';' read -a unicodeData <<< "$(grep -o $(printf '^0*%04x;.*' "'$literal") /home/joedang/.local/share/UnicodeData.txt)"
+    IFS=';' read -a unicodeData <<< "$(grep -io $(printf '^0*%x;.*' "'$literal") /home/joedang/.local/share/UnicodeData.txt)"
     int=$(printf '%d' "'$literal")
     binary=''
     while (( int ));do # until int is zero

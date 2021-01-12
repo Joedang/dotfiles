@@ -16,9 +16,31 @@
 #done
 # }}}
 
+# parameters {{{
 equivFile="$HOME/.local/share/UnicodeEquivalents.txt"
 dataUrl=https://www.unicode.org/Public/UCD/latest/ucd/UnicodeData.txt
 dataLocation="$HOME/.local/share/UnicodeData.txt"
+helpText="Usage: ${0##*/} [OPTIONS] [TEXT ...]
+
+Replace standard ASCII characters with random Unicode look-alikes.
+
+Options:
+    -g  Generate (or regenerate) the list of look-alike characters.
+    -h  Display this help text.
+
+If no TEXT is in the arguments, characters will be read from stdin.
+So, this command may be used in a pipeline.
+
+If the UnicodeData.txt file or the list of look-alike characters are not present,
+they will be downloaded or generated, respectively.
+
+The effect yields very stylized 'cursed' text. If you want something more subtle, 
+an easy solution would be to remove the extravagant characters from the
+look-alike file. (The first character of every line is the ASCII character, the
+remaining characters are the look-alikes.) Of course, you can also tweak the 
+patterns and exceptions used to generate that file.  "
+# }}}
+
 declare -A namePatterns=( # {{{
 # The patterns are used to search in the Unicode data file when generating visual equivalents.
 # They identify candidates for look-alike characters.
@@ -228,7 +250,7 @@ generateEquivalents() { # {{{
             curl "$dataUrl" > "$dataLocation" # download the file
         fi
     } 1>&2 # send all this block's output to stderr
-    echo Generating visually equivalent character list... 1>&2
+    echo Generating visually equivalent character list: "$equivFile" 1>&2
     {
         for key in "${!namePatterns[@]}";do
             # search the Unicode data for named-alike chars, exclude problem chars and stuff where name-alike != look-alike
@@ -255,33 +277,8 @@ generateEquivalents() { # {{{
         done
     } > "$equivFile"
 } # }}}
-
-while getopts 'gh' name; do
-    case $name in
-        g) generateEquivalents;;
-        h) echo help text ;;
-    esac
-done
-
-if [[ ( ! -f "$equivFile" ) ]];then
-    echo "$equivFile does not exist. It will be [re]generated."
-    generateEquivalents
-fi
-
-# read in the pre-processed look-alikes
-declare -A equivs
-while IFS='\n' read line; do
-    leading=${line: 0:1}
-    trailing=${line: 1}
-    equivs["$leading"]="$trailing"
-done < "$equivFile"
-
-# Translate ASCII characters into Unicode look-alikes
-input="$@"
-nchar=${#input}
-asciiChars="${!equivs[*]}"
-for (( i=0; i<nchar; ++i )); do
-    C=${input: $i:1} # select the ith character from the input
+equivalizeChar() { # {{{
+    local C="$1"
     if [[ ! "$asciiChars" =~ "$C" ]]; then # we don't have a visual equivalent
         echo -n "$C" # pass the character through unchanged
     fi
@@ -294,5 +291,53 @@ for (( i=0; i<nchar; ++i )); do
     #done
     #echo "C: $C cEquiv: $cEquiv cEquivs: $cEquivs j: $j cEquivsLen: $cEquivsLen"
     echo -n "$cEquiv"
+} # }}}
+
+# main program flow {{{
+while getopts 'gh' name; do # process option flags
+    case $name in
+        g) generateEquivalents;;
+        h) echo "$helpText" && exit 1;;
+    esac
 done
-echo
+
+if shift $(( $OPTIND - 1 )); then # shift to the first non-option arg; if there are arguments after the options
+    while [[ $? == 0 ]]; do # while the previous exit status (shift) is good
+        [[ "$1" ]] && input+="$1 "
+        shift
+    done
+fi
+if [[ -z "$input" ]];then
+    usestdin=true
+    input=${input: 0:-1} # snip off that trailing space
+else
+    usestdin=false # if there was no input, use stdin
+fi
+
+if [[ ! -f "$equivFile" ]];then
+    echo "$equivFile does not exist. It will be [re]generated."
+    generateEquivalents
+fi
+
+declare -A equivs
+while IFS='' read -rd $'\n' line; do # read in the pre-processed look-alikes
+    leading=${line: 0:1} # the first character
+    trailing=${line: 1} # everything but the first (index 0) character
+    equivs["$leading"]="$trailing" # use the leading char as the key
+done < "$equivFile"
+asciiChars="${!equivs[*]}"
+
+# Translate ASCII characters into Unicode look-alikes
+if [[ "$usestdin" == true ]]; then
+    while IFS='' read -rN1 C; do # convert characters coming from stdin
+        equivalizeChar "$C"
+    done
+else
+    nchar=${#input}
+    for (( i=0; i<nchar; ++i )); do # convert chars given as arguments
+        equivalizeChar "${input: $i:1}" # select the ith character from the input
+    done
+    echo
+fi
+# }}}
+exit 0

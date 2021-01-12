@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+equivText=$(echo "" | dmenu $@ -i -p "text to equivalize:" | /home/joedang/src/dotfiles/bin/equivalize)
+if [ -n "$equivText" ]; then
+    dunstify -u normal "copied to clipboard:" "$equivText"
+    echo -n "$equivText" | xclip -in -selection clipboard
+else
+    dunstify -u critical -t 5000 "nothing copied to clipboard"
+fi

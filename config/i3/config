@@ -10,6 +10,7 @@
 # i3 config file (v4)
 #
 # Please see https://i3wm.org/docs/userguide.html for a complete reference!
+# Check ~/.xsession-errors occasionally to see if things are going wrong.
 #
 # mod1 is Alt
 # mod4 is Super
@@ -73,7 +74,7 @@ exec --no-startup-id find -L ~/img/backgrounds  -printf '%p\n' \
                         | xargs feh --bg-fill
 
 # start a terminal
-exec --no-startup-id i3-msg 'workspace 1; exec kitty'
+exec --no-startup-id i3-msg 'workspace '$ws1'; exec kitty'
 
 # start the music daemon
 exec --no-startup-id pgrep mpd || mpd && mpc pause
@@ -97,6 +98,8 @@ exec_always /home/joedang/src/dotfiles/bin/batteryMonitor
 # }}}
 
 # key bindings {{{
+bindsym $mod+Prior exec notify-send "pageup pressed"
+bindsym $mod+Next exec notify-send "pagedown pressed"
 # variable assignment example
 #bindsym $mod+o exec "echo $(\
 #read -r x < <(echo bar);\
@@ -209,6 +212,9 @@ bindsym $mod+F2 exec --no-startup-id dmenu_run $dmenu_flags
 # installed.
 # bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
 
+# lauch the app finder
+bindsym XF86Launch1 exec "xfce4-appfinder"
+
 # simple calculator (just passes a string to calc)
 bindsym $mod+equal exec --no-startup-id echo "" | dmenu $dmenu_flags -p "calc:" -l 0 | calc | xargs -II dmenu $dmenu_flags -p \"I\"
 
@@ -223,6 +229,10 @@ bindsym $mod+Shift+u exec --no-startup-id /home/joedang/src/dotfiles/bin/dmenu-u
 
 # cursed text ("Zalgo" text)
 bindsym $mod+Shift+z exec --no-startup-id /home/joedang/src/dotfiles/bin/dmenu-zalgo $dmenu_flags
+
+# corrupted text
+bindsym $mod+Shift+equal exec --no-startup-id /home/joedang/src/dotfiles/bin/dmenu-equivalize $dmenu_flags
+
 
 # set the background
 #bindsym $mod+b exec find -L ~/img/backgrounds -printf '%f\n' | dmenu -i -l 10 -p 'select a new background' | 
@@ -243,8 +253,8 @@ bindsym $mod+Shift+m exec --no-startup-id ~/src/dotfiles/bin/dmenu-umount $dmenu
 
 # bindsym Print exec xfce4-screenshooter --save $HOME/img/capture/Screenshot_$(date +%Y-%m-%d_%H-%M-%S).png
 # bindsym Ctrl+Print exec xfce4-screenshooter --fullscreen --save $HOME/img/capture/Screenshot_$(date +%Y-%m-%d_%H-%M-%S).png
-bindsym --release Print exec --no-startup-id "scrot -sfl style=dash,color=red -e 'mv $f ~/img/capture/; xclip -selection clipboard -t image/png ~/img/capture/$f'"
-bindsym --release Ctrl+Print exec --no-startup-id scrot -e 'mv $f ~/img/capture/'
+bindsym --release Print exec --no-startup-id "scrot -zsfl style=dash,color=red -e 'mv $f ~/img/capture/; xclip -selection clipboard -t image/png ~/img/capture/$f && dunstify \\"image copied to clipboard\\" \\"$f\\"'"
+bindsym --release Ctrl+Print exec --no-startup-id scrot -ze 'mv $f ~/img/capture/ && dunstify \\"image copied to clipboard\\" \\"$f\\"'
 
 # bring up a digital clock
 bindsym $mod+t exec --no-startup-id \
@@ -253,6 +263,18 @@ bindsym $mod+t exec --no-startup-id \
 
 # rerun the capsRemap script
 bindsym $mod+c exec --no-startup-id /home/joedang/src/dotfiles/bin/capsRemap
+
+# (intended for Firefox) copy the link under the cursor and open it with mpv
+bindsym --release Ctrl+Mod1+p exec xdotool click 3 key a \
+                        && sleep 0.01 \
+                        && PATH=/home/joedang/.local/bin:$PATH mpv --quiet "$(xclip -out -selection clipboard)" 2>&1 \
+                        | zenity --text-info --filename=/dev/stdin
+
+# type the date
+bindsym $mod+Shift+i exec date -I | tr -d '\n' | xclip -in -selection clipboard && dunstify -u normal "copied to clipboard:" "$(date -I)"
+
+# visually display key bindings
+bindsym $mod+Shift+slash exec /home/joedang/src/bash/bindgraph/bindgraph.sh && wmctrl -a firefox && dunstify bingus
 # }}}
 
 # window navigation {{{
@@ -302,6 +324,9 @@ bindsym $mod+Shift+space floating toggle
 # change focus between tiling / floating windows
 bindsym $mod+space focus mode_toggle
 
+# toggle stickiness
+bindsym $mod+Mod1+grave sticky toggle
+
 # jump between windows by name, similar to Alt+Tab in popular DEs
 bindsym mod1+Shift+Tab exec --no-startup-id wmctrl -l | dmenu $dmenu_flags -i -p "switch to window" -l $(wmctrl -l | wc -l) | xargs -II wmctrl -i -a \"I\"
 
@@ -341,12 +366,16 @@ bindsym $mod+a focus parent
 
 # focus the child container
 bindsym $mod+z focus child
+
+# swap with the clicked window
+bindsym --release $mod+Shift+s exec --no-startup-id i3-msg swap container with id $(xwininfo | grep -Po '(?<=Window id: )0x[[:alnum:]]*')
 # }}}
 # }}}
 
 # workspaces {{{
 # Define names for default workspaces for which we configure key bindings later on.
 # We use variables to avoid repeating the names in multiple places.
+# The default workspaces for programs are defined in the "styling" section..
 set $ws0 "0"
 set $ws1 "1:🖳"
 set $ws2 "2:🖧"
@@ -403,7 +432,7 @@ bindsym mod1+Tab workspace back_and_forth
 
 # scratchpad stuff
 bindsym $mod+grave scratchpad show
-bindsym $mod+Shift+asciitilde move scratchpad
+bindsym $mod+Shift+grave move scratchpad
 
 # rename the current workspace
 bindsym $mod+Shift+comma exec --no-startup-id echo '' | dmenu $dmenu_flags -i -p "rename workspace: " | xargs -II i3-msg 'rename workspace to "I"'
@@ -448,9 +477,16 @@ mode "resize" {
 # You can also use any non-zero value if you'd like to have a border
 #default_border pixel 2
 default_border normal
-#for_window [class=".*"] border pixel 3
-for_window [class="XClock"] border pixel 3 floating enable 
-for_window [title="video0 - mpv"] border pixel 3 floating enable # auto float when viewing /dev/video0
+for_window [class=".*"]                 title_format (%instance) <b>%class → </b>%title
+for_window [class="XClock"]             border pixel 3 floating enable
+for_window [title="video0 - mpv"]       border pixel 3 floating enable # auto float when viewing /dev/video0
+for_window [title="Picture-in-Picture"] border pixel 3 floating enable, sticky enable
+for_window [class="Xfce4-appfinder"]    border pixel 3 floating enable
+for_window [class="Display"]            border pixel 3 floating enable, move absolute position center
+for_window [class="Firefox"]            move container to workspace $ws2
+for_window [class="Tor Browser"]        move container to workspace $ws2
+for_window [class="Thunderbird"]        move container to workspace $ws3
+for_window [class="Signal"]             move container to workspace $ws3
 
 #for_window [layout="stacking"] border normal 2
 

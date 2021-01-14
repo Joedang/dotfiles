@@ -233,6 +233,8 @@ bindsym $mod+Shift+z exec --no-startup-id /home/joedang/src/dotfiles/bin/dmenu-z
 # corrupted text
 bindsym $mod+Shift+equal exec --no-startup-id /home/joedang/src/dotfiles/bin/dmenu-equivalize $dmenu_flags
 
+# emoticon chooser
+bindsym $mod+Mod1+e exec --no-startup-id /home/joedang/src/dotfiles/bin/dmenu-emoticons $dmenu_flags
 
 # set the background
 #bindsym $mod+b exec find -L ~/img/backgrounds -printf '%f\n' | dmenu -i -l 10 -p 'select a new background' | 

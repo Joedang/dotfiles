@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+# Select an emoticon from a list using tags/keywords.
+# Joe Shields, 2021-01-13
+
+dmenuFlags=($@)
+#dmenuFlags=(-b -i -fn 'IBMPlexMono-Light.ttf:pixelsize=22' -nb '#222' -nf '#888' -sb '#80d' -sf '#fff')
+emoticonFile="$HOME/.local/share/emoticons"
+# The file at $emoticonFile should be formatted in the following way.
+# A line starts with three left curly braces, 
+# followed by the description/tags for the emoticon,
+# followed three right curly braces and a newline character.
+# i.e., {{{ classic lenny face }}}
+# The lines after that are the content of the emoticon, 
+# up until the next line with the {{{ description }}} format.
+# So, it would look something like this:
+#
+#{{{ classic lenny face }}}
+#( ͡° ͜ʖ ͡°)
+#{{{ classic donger }}}
+#ヽ༼ຈل͜ຈ༽ﾉ
+#{{{ crying tears look of disapproval wut }}}
+#ಥ_ಥ
+
+declare -a emoticons
+declare -a descriptions
+emoticon=''
+echo "reading from the file"
+i=0
+while IFS='' read -r line; do
+    if [[ "$line" =~ \{\{\{.*\}\}\} ]]; then
+        emoticons[$i]="$emoticon"
+        descriptions[$i]="$desc"
+        (( ++i ))
+        desc="${line#\{\{\{*}"
+        desc="${desc%*\}\}\}}"
+        emoticon=''
+    else
+        [[ -n "$emoticon" ]] && prefix=$'\n' || prefix=''
+        emoticon+="$prefix$line"
+    fi
+done < "$emoticonFile"
+emoticons[$i]="$emoticon"
+descriptions[$i]="$desc"
+nemoticons=$i
+echo "nemoticons: $nemoticons"
+for (( i=1; i<=nemoticons; ++i )); do
+    e="${emoticons[$i]}"
+    e="${e//$'\n'/ }"
+    selections+="$i $e ${descriptions[$i]}"$'\n'
+done
+echo "getting selection from dmenu"
+selected=$(echo -n "$selections" | dmenu "${dmenuFlags[@]}" -i -p 'select a emoticon'  -l 10)
+i="${selected%% *}" # chop off everything after the number
+[[ -n "$i" ]] && emoticon="${emoticons[$i]}" || emoticon=''
+if [[ -n "$emoticon" ]]; then
+    echo -n "$emoticon" | xclip -in -selection clipboard
+    dunstify -u normal "copied to clipboard:" "$emoticon"
+    exit 0
+else
+    dunstify -u critical -t 5000 "nothing copied to clipboard"
+    exit 1
+fi

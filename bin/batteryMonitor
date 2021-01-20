@@ -8,11 +8,12 @@ lowPercent=25 # send a low-urgency notification when <= this percent
 critPercent=13 # send critical-urgency notifications <= this percent
 batDir=/sys/class/power_supply/BAT0 # directory of battery info
 delay=60 # seconds between checks
+logFile=$HOME/log/batteryMonitor.csv
 
 # initialization
 scriptName=${0##*/}
 PID_name=$(pgrep -f $scriptName)
-lowLatch=0 # whether a low-urgency notification has been sent since we dropped below the threshold
+capacity_prev=100 # start by assuming the battery is at 100%
 echo PID_name is $PID_name
 echo BASHPID is $BASHPID
 if [[ "$PID_name" != "$BASHPID" ]];then # this is not the only instance of this script running
@@ -22,20 +23,38 @@ fi
 echo script not yet started. continuing...
 ID=$(dunstify -u low -p "battery monitor started")
 sleep 5 # leave some time for the notification to be viewed
-
 # main loop
-while true 
+while :
 do
-    capacity=$(cat "$batDir"/capacity)
+    #capacity=$(cat "$batDir"/capacity)
+    read capacity < "$batDir/capacity" # read contents using built-ins to avoid process proliferation
+    #batStatus=$(cat "$batDir"/status)
+    read batStatus < "$batDir/status"
+    #charge_now=$(cat "$batDir"/charge_now)
+    read charge_now < "$batDir/charge_now"
     #printf "capacity: "$capacity"%%\n"
-    if [[ "$capacity" -le "$critPercent" ]];then
-        dunstify -u critical -t 0 -r "$ID" "Critically Low Battery: $capacity%"
-    elif [[ "$lowLatch" == 0 && "$capacity" -le "$lowPercent" ]];then
-        dunstify -u low -t 0 -r "$ID" "Low Battery: $capacity%"
-        lowLatch=1
-    elif [[ "$capacity" > "$lowPercent" ]];then
-        lowLatch=0
+    if (( capacity < capacity_prev ));then #
+        sign=-1
+        if (( capacity <= critPercent ));then
+            dunstify -u critical -t 0 -r "$ID" "Critically Low Battery: $capacity%"
+            # piping into `play` makes sure this isn't blocked by existing audio sources
+            flite -t "Criticallly low battery: $capacity%" -o /dev/stdout | play --volume 6 -
+            urgency=2
+        elif (( capacity <= lowPercent ));then
+            dunstify -u low -t 0 -r "$ID" "Low Battery: $capacity%"
+            flite -t "Low battery: $capacity%" -o /dev/stdout | play --volume 4 -
+            urgency=1
+        else
+            urgency=0
+        fi
+    elif (( capacity == capacity_prev ));then
+        sign=0
+    else 
+        sign=1
     fi
-    sleep "$delay"
+    echo "$EPOCHSECONDS,$capacity,$capacity_prev,$charge_now,$sign,$urgency,$batStatus" >> "$logFile"
+    capacity_prev="$capacity"
+    read -t "$delay" -d '' # use a bulit-in rather than spawning and killing a new sleep process every cycle
 done
+echo exited the loop somehow...
 exit -1

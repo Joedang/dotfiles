@@ -31,11 +31,11 @@ do
     # This hacky way of clearing the line has the wrong behavior in very small terminals.
     echo -ne "                                       \r"
     echo -ne "$remaining\r"
-    sleep 0.2
+    read -t 1 -d '' # use a bulit-in rather than spawning and killing a new sleep process every second
 done
 echo
 # TODO: Allow the message to be specified as an argument.
-notify-send -t 30000 -u critical "The $1 timer is up. $2"
+notify-send -t 0 -u critical "The $1 timer is up. $2"
 # TODO: Figure out a standalone alarm
 # TODO: Allow an audio file to be specified as an argument
 play -q ~/audio/samples/cuckoo-clock.ogg repeat 30

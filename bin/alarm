@@ -16,7 +16,7 @@ while (( EPOCHSECONDS < targetSeconds )); do
     # This hacky way of clearing the line has the wrong behavior in very small terminals.
     echo -ne "                                                                        \r"
     echo -ne "target: $* remaining: $remaining\r"
-    sleep 1
+    read -t 1 -d '' # use a bulit-in rather than spawning and killing a new sleep process every second
 done
 echo
 notify-send -t 0 -u critical "ALARM!" "It's $*."

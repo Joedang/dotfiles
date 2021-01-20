@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# A simple alarm that runs in the terminal.
+# It's basically my `countdown` script, but specifying the endpoint instead of the duration.
+# Joe Shields, 2021-01-20
+
+targetSeconds=$(date +%s --date="$*")
+if [ -z $targetSeconds ]
+then
+    echo invalid time supplied
+    exit -1
+fi
+echo Ctrl+C to end the alarm.
+while (( EPOCHSECONDS < targetSeconds )); do
+    # create a human-readable string of the time
+    remaining=$(units $(( targetSeconds - EPOCHSECONDS ))s 'day;hr;min;s')
+    # This hacky way of clearing the line has the wrong behavior in very small terminals.
+    echo -ne "                                                                        \r"
+    echo -ne "target: $* remaining: $remaining\r"
+    sleep 1
+done
+echo
+notify-send -t 0 -u critical "ALARM!" "It's $*."
+play -q ~/audio/samples/cuckoo-clock.ogg repeat 30
+exit 0

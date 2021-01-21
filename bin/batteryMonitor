@@ -14,6 +14,8 @@ logFile=$HOME/log/batteryMonitor.csv
 scriptName=${0##*/}
 PID_name=$(pgrep -f $scriptName)
 capacity_prev=100 # start by assuming the battery is at 100%
+# if available, use the built-in sleep instead of the system sleep
+[[ -r /usr/lib/bash/sleep ]] && enable -f '/usr/lib/bash/sleep' sleep
 echo PID_name is $PID_name
 echo BASHPID is $BASHPID
 if [[ "$PID_name" != "$BASHPID" ]];then # this is not the only instance of this script running
@@ -54,7 +56,7 @@ do
     fi
     echo "$EPOCHSECONDS,$capacity,$capacity_prev,$charge_now,$sign,$urgency,$batStatus" >> "$logFile"
     capacity_prev="$capacity"
-    read -t "$delay" -d '' # use a bulit-in rather than spawning and killing a new sleep process every cycle
+    sleep "$delay"
 done
 echo exited the loop somehow...
 exit -1

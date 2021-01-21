@@ -23,6 +23,8 @@ echo Ctrl+C to end the alarm.
 # This variable increments every second. It's a Bash feature.
 SECONDS=0
 intSTime=$(printf '%.0f' $stime)
+# if available, use the built-in sleep instead of the system sleep
+[[ -r /usr/lib/bash/sleep ]] && enable -f '/usr/lib/bash/sleep' sleep
 # echo intSTime is $intSTime 
 while [[ $SECONDS -lt $intSTime ]]
 do
@@ -31,7 +33,7 @@ do
     # This hacky way of clearing the line has the wrong behavior in very small terminals.
     echo -ne "                                       \r"
     echo -ne "$remaining\r"
-    read -t 1 -d '' # use a bulit-in rather than spawning and killing a new sleep process every second
+    sleep 1
 done
 echo
 # TODO: Allow the message to be specified as an argument.

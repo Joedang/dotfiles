@@ -9,9 +9,10 @@ set -e # exit upon errors
 # shortcuts to color text
 RED="\e[31m"
 GRN="\e[32m"
+YEL="\e[33m"
 BLU="\e[34m"
 RST="\e[39m"
-newsUrl='https://www.archlinux.org/news/'
+newsUrl='https://archlinux.org/news/'
 lastUpdate_dir=$HOME/.local/archNews
 lastUpdate_file=lastUpdate
 lastUpdate_path=$lastUpdate_dir/$lastUpdate_file
@@ -20,9 +21,23 @@ lastUpdate_path=$lastUpdate_dir/$lastUpdate_file
 
 # pick out things that look like an ISO date inside of <td> tags
 echo Requesting latest news...
-latestNews=$(
-    #cat sampleNews.html \
-    curl $newsUrl \
+latestNews=$( curl $newsUrl )
+newBlurbs=$(
+    echo "$latestNews" \
+    | awk '
+        /<td>[[:digit:]]{4}-[[:digit:]]{2}-[[:digit:]]{2}.*<\/td>/ { 
+            gsub(/\s*<[^>]*>\s*/, ""); 
+            printf $0 " ";
+        }
+        /title="View: / { 
+            sub(/.*title="View: [^>]*>/, ""); 
+            sub(/<\/a><\/td>.*/, ""); 
+            printf $0 "\n"; 
+        }' \
+    | head
+)
+latestDate=$(
+    echo "$latestNews" \
     | grep -oP '(?<=<td>)[[:digit:]]{4}-[[:digit:]]{2}-[[:digit:]]{2}.*?(?=</td>)' \
     | sort -r \
     | head -n 1
@@ -30,20 +45,21 @@ latestNews=$(
 
 lastUpdate=$(cat $lastUpdate_path)
 echo You last updated through this script on $lastUpdate.
-echo The latest Arch news was issued on $latestNews.
+echo The latest Arch news was issued on $latestDate.
+echo -e "$YEL$newBlurbs$RST"
 
 # concatenated dates:
-catDates=$(echo -e $lastUpdate\\n$latestNews)
+catDates=$(echo -e $lastUpdate\\n$latestDate)
 # concatenated and sorted dates:
-sortDates=$(echo -e $lastUpdate\\n$latestNews | sort -r)
+sortDates=$(echo -e $lastUpdate\\n$latestDate | sort -r)
 
-if [ "$catDates" = "$sortDates" ]
-then
-    echo -e "$GRN"There have been no new Arch news since your last update.$RST
+if [[ -z $lastUpdate || -z "$latestDate" ]]; then
+    echo "Something has gone wrong. lastUpdate or latestDate is empty."
+elif [[ "$catDates" = "$sortDates" ]]; then
+    echo -e "$GRN"There has been no new Arch news since your last update.$RST
     echo You should be good to go!
     echo $newsUrl
-elif [ "$lastUpdate" = "$latestNews" ]
-then
+elif [[ "$lastUpdate" = "$latestDate" ]]; then
     echo -e "$RED"There was a new update to the Arch news on the day you last updated through this script!$RST
     echo You should go read it before updating.
     echo -e $BLU$newsUrl$RST
@@ -56,8 +72,7 @@ else
     exit 2
 fi
 
-if [ "$1" = '-u' ]
-then
+if [[ "$1" = '-u' ]]; then
     echo -e Okay, let\'s update. \\n
     sudo pacman -Syu && date -I > $lastUpdate_path
 fi

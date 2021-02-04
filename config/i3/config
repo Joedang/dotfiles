@@ -42,6 +42,73 @@ set $dmenu_flags -b -i -fn 'IBMPlexMono-Light.ttf:pixelsize=22' -nb '#222' -nf '
 # font, it doesn’t scale on retina/hidpi displays.
 # }}}
 
+# workspaces {{{
+# Define names for default workspaces for which we configure key bindings later on.
+# We use variables to avoid repeating the names in multiple places.
+# The default workspaces for programs are defined in the "styling" section..
+set $ws0 "0:♫"
+set $ws1 "1:🖳"
+set $ws2 "2:🖧"
+set $ws3 "3:🖆"
+set $ws4 "4:🙭"
+set $ws5 "5"
+set $ws6 "6"
+set $ws7 "7"
+set $ws8 "8"
+set $ws9 "9"
+
+# propagate those names
+#rename workspace 0 to $ws0
+#rename workspace 1 to $ws1
+#rename workspace 2 to $ws2
+#rename workspace 3 to $ws3
+#rename workspace 4 to $ws4
+#rename workspace 5 to $ws5
+#rename workspace 6 to $ws6
+#rename workspace 7 to $ws7
+#rename workspace 8 to $ws8
+#rename workspace 9 to $ws9
+
+# switch to workspace
+bindsym $mod+0 workspace number $ws0
+bindsym $mod+1 workspace number $ws1
+bindsym $mod+2 workspace number $ws2
+bindsym $mod+3 workspace number $ws3
+bindsym $mod+4 workspace number $ws4
+bindsym $mod+5 workspace number $ws5
+bindsym $mod+6 workspace number $ws6
+bindsym $mod+7 workspace number $ws7
+bindsym $mod+8 workspace number $ws8
+bindsym $mod+9 workspace number $ws9
+
+# move focused container to workspace
+bindsym $mod+Shift+0 move container to workspace number $ws0
+bindsym $mod+Shift+1 move container to workspace number $ws1
+bindsym $mod+Shift+2 move container to workspace number $ws2
+bindsym $mod+Shift+3 move container to workspace number $ws3
+bindsym $mod+Shift+4 move container to workspace number $ws4
+bindsym $mod+Shift+5 move container to workspace number $ws5
+bindsym $mod+Shift+6 move container to workspace number $ws6
+bindsym $mod+Shift+7 move container to workspace number $ws7
+bindsym $mod+Shift+8 move container to workspace number $ws8
+bindsym $mod+Shift+9 move container to workspace number $ws9
+
+# move between adjacent workspaces
+bindsym $mod+n workspace next
+bindsym $mod+p workspace prev
+
+# switch to the last-used workspace
+bindsym mod1+Tab workspace back_and_forth
+
+# scratchpad stuff
+bindsym $mod+grave scratchpad show
+bindsym $mod+Shift+grave move scratchpad
+
+# rename the current workspace
+bindsym $mod+Shift+comma exec --no-startup-id echo '' | dmenu $dmenu_flags -i -p "rename workspace: " | xargs -II i3-msg 'rename workspace to "I"'
+#bindsym $mod+Shift+comma exec i3-input -F 'rename workspace to "%s"' -P 'New name: '
+# }}}
+
 # one-time startup {{{
 #exec_always to run something during a restart of i3
 exec --no-startup-id picom -b # see ~/.config/picom.conf
@@ -78,7 +145,7 @@ exec --no-startup-id i3-msg 'workspace '$ws1'; exec kitty'
 
 # start the music daemon
 exec --no-startup-id pgrep mpd || mpd && mpc pause
-exec --no-startup-id i3-msg 'exec kitty ncmpcpp; move scratchpad'
+exec --no-startup-id i3-msg "exec kitty ncmpcpp; move container to workspace $ws0"
 # }}}
 
 # every-time startup {{{
@@ -138,7 +205,7 @@ bindsym XF86AudioRaiseVolume \
         exec --no-startup-id \
         pactl set-sink-volume @DEFAULT_SINK@ +$volumeIncrement% \
         && $refresh_i3status \
-        && dunstify -r $audioNotifyID -u low -t $audioNotifyDelay -a SettingsNotify '🔊 '$( pactl list sinks | grep -m 1 Volume: | grep -o '[[:digit:]]*%' | head -n 1)
+        && dunstify -r $audioNotifyID -u low -t $audioNotifyDelay -a SettingsNotify '🔊 '$( pactl list sinks | grep -m 1 Volume: | grep -o '[[:digit:]]*%' | head -n 1)  #"post-chain comment"
 bindsym XF86AudioLowerVolume \
         exec --no-startup-id \
         pactl set-sink-volume @DEFAULT_SINK@ -$volumeIncrement% \
@@ -221,8 +288,9 @@ bindsym $mod+equal exec --no-startup-id echo "" | dmenu $dmenu_flags -p "calc:" 
 # simple unit conversion (just passes a string to units)
 bindsym $mod+u exec --no-startup-id \
                     units --compact --one-line --verbose \
-                        $(echo '' | dmenu $dmenu_flags -p 'you have: ') $(echo '' | dmenu $dmenu_flags -p 'you want: ') \
-                        | xargs -II dmenu $dmenu_flags -p 'I'
+                        "$(dmenu $dmenu_flags -p 'you have: ')" "$(dmenu $dmenu_flags -p 'you want: ')" \
+                        | xargs -I{} dunstify "{}"
+                        #| dmenu $dmenu_flags -p "result: "
 
 # select unicode characters
 bindsym $mod+Shift+u exec --no-startup-id /home/joedang/src/dotfiles/bin/dmenu-unicode $dmenu_flags
@@ -235,6 +303,12 @@ bindsym $mod+Shift+equal exec --no-startup-id /home/joedang/src/dotfiles/bin/dme
 
 # emoticon chooser
 bindsym $mod+Mod1+e exec --no-startup-id /home/joedang/src/dotfiles/bin/dmenu-emoticons $dmenu_flags
+
+# text-to-speech through dmenu
+bindsym $mod+Mod1+s exec --no-startup-id dmenu $dmenu_flags -p "text to say: " | xargs -I{} flite -t "{}" -o /dev/stdout | play -
+
+# mocking text
+bindsym $mod+Mod1+m exec --no-startup-id /home/joedang/src/dotfiles/bin/dmenu-mock $dmenu_flags
 
 # set the background
 #bindsym $mod+b exec find -L ~/img/backgrounds -printf '%f\n' | dmenu -i -l 10 -p 'select a new background' | 
@@ -276,7 +350,7 @@ bindsym --release Ctrl+Mod1+p exec xdotool click 3 key a \
 bindsym $mod+Shift+i exec date -I | tr -d '\n' | xclip -in -selection clipboard && dunstify -u normal "copied to clipboard:" "$(date -I)"
 
 # visually display key bindings
-bindsym $mod+Shift+slash exec /home/joedang/src/bash/bindgraph/bindgraph.sh && wmctrl -a firefox && dunstify bingus
+bindsym $mod+Shift+slash exec /home/joedang/src/bash/bindgraph/bindgraph.sh && wmctrl -a firefox && dunstify "binding visualization generated"
 # }}}
 
 # window navigation {{{
@@ -374,73 +448,6 @@ bindsym --release $mod+Shift+s exec --no-startup-id i3-msg swap container with i
 # }}}
 # }}}
 
-# workspaces {{{
-# Define names for default workspaces for which we configure key bindings later on.
-# We use variables to avoid repeating the names in multiple places.
-# The default workspaces for programs are defined in the "styling" section..
-set $ws0 "0"
-set $ws1 "1:🖳"
-set $ws2 "2:🖧"
-set $ws3 "3:🖆"
-set $ws4 "4"
-set $ws5 "5"
-set $ws6 "6"
-set $ws7 "7"
-set $ws8 "8"
-set $ws9 "9"
-
-# propagate those names
-#rename workspace 0 to $ws0
-#rename workspace 1 to $ws1
-#rename workspace 2 to $ws2
-#rename workspace 3 to $ws3
-#rename workspace 4 to $ws4
-#rename workspace 5 to $ws5
-#rename workspace 6 to $ws6
-#rename workspace 7 to $ws7
-#rename workspace 8 to $ws8
-#rename workspace 9 to $ws9
-
-# switch to workspace
-bindsym $mod+0 workspace number $ws0
-bindsym $mod+1 workspace number $ws1
-bindsym $mod+2 workspace number $ws2
-bindsym $mod+3 workspace number $ws3
-bindsym $mod+4 workspace number $ws4
-bindsym $mod+5 workspace number $ws5
-bindsym $mod+6 workspace number $ws6
-bindsym $mod+7 workspace number $ws7
-bindsym $mod+8 workspace number $ws8
-bindsym $mod+9 workspace number $ws9
-
-# move focused container to workspace
-bindsym $mod+Shift+0 move container to workspace number $ws0
-bindsym $mod+Shift+1 move container to workspace number $ws1
-bindsym $mod+Shift+2 move container to workspace number $ws2
-bindsym $mod+Shift+3 move container to workspace number $ws3
-bindsym $mod+Shift+4 move container to workspace number $ws4
-bindsym $mod+Shift+5 move container to workspace number $ws5
-bindsym $mod+Shift+6 move container to workspace number $ws6
-bindsym $mod+Shift+7 move container to workspace number $ws7
-bindsym $mod+Shift+8 move container to workspace number $ws8
-bindsym $mod+Shift+9 move container to workspace number $ws9
-
-# move between adjacent workspaces
-bindsym $mod+n workspace next
-bindsym $mod+p workspace prev
-
-# switch to the last-used workspace
-bindsym mod1+Tab workspace back_and_forth
-
-# scratchpad stuff
-bindsym $mod+grave scratchpad show
-bindsym $mod+Shift+grave move scratchpad
-
-# rename the current workspace
-bindsym $mod+Shift+comma exec --no-startup-id echo '' | dmenu $dmenu_flags -i -p "rename workspace: " | xargs -II i3-msg 'rename workspace to "I"'
-#bindsym $mod+Shift+comma exec i3-input -F 'rename workspace to "%s"' -P 'New name: '
-# }}}
-
 # resize window (you can also use the mouse for that) {{{
 bindsym $mod+r mode "resize"
 mode "resize" {
@@ -484,6 +491,7 @@ for_window [class="XClock"]             border pixel 3 floating enable
 for_window [title="video0 - mpv"]       border pixel 3 floating enable # auto float when viewing /dev/video0
 for_window [title="Picture-in-Picture"] border pixel 3 floating enable, sticky enable
 for_window [class="Xfce4-appfinder"]    border pixel 3 floating enable
+for_window [class="Pavucontrol"]        border pixel 3 floating enable
 for_window [class="Display"]            border pixel 3 floating enable, move absolute position center
 for_window [class="Firefox"]            move container to workspace $ws2
 for_window [class="Tor Browser"]        move container to workspace $ws2

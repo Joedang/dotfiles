@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+mockText=$(echo "" | dmenu $@ -i -p "text to mock:" | /home/joedang/src/dotfiles/bin/mock)
+if [ -n "$mockText" ]; then
+    dunstify -u normal "copied to clipboard:" "$mockText"
+    echo -n "$mockText" | xclip -in -selection clipboard
+else
+    dunstify -u critical -t 5000 "nothing copied to clipboard"
+fi

@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+# Translate text into mOcKiNg TeXt.
+# vim: foldmethod=marker:
+# Joe Shields, 2021-02-03
+
+# help text {{{
+helpText="Usage: ${0##*/} [OPTIONS] [TEXT ...]
+
+Convert some text into mOcKiNg TeXt WiTh AlTeRnAtInG lOwEr- AnD uPpEr-CaSe ChArAcTeRs.
+If no TEXT is given, characters will be read form stdin.
+
+Options:
+    -i  The first letter will be lower-case. (fOo BaR) (default)
+    -I  The first letter will be upper-case. (FoO bAr)
+    -h  Display this help text."
+# }}}
+
+# option handling {{{
+while getopts 'iIh' name; do # process option flags
+    case $name in
+        i) initialCap=0 ;; # first letter is lower case
+        I) initialCap=1 ;; # first letter gets capitalized
+        h) echo "$helpText" && exit 1;;
+    esac
+done
+# }}}
+
+# input selection {{{
+if shift $(( $OPTIND - 1 )); then # shift to the first non-option arg; if there are arguments after the options
+    while [[ $? == 0 ]]; do # while the previous exit status (shift) is good
+        [[ "$1" ]] && input+="$1 "
+        shift
+    done
+fi
+if [[ -z "$input" ]];then
+    usestdin=true
+    input=${input: 0:-1} # snip off that trailing space
+else
+    usestdin=false # if there was no input, use stdin
+fi
+# }}}
+
+#actual work {{{
+cap="${initialCap:=0}"
+mockChar() { # assumes $1 is a single character
+    if [[ "$1" =~ [[:alpha:]] ]]; then # if it's a letter
+        (( cap )) && echo -n "${1^*}" || echo -n "${1,*}" # if cap, capitalize, else make lower
+        (( cap = ! cap )) # toggle cap
+    else # if it's not a letter
+        echo -n "$1"
+    fi
+}
+
+if [[ "$usestdin" == true ]]; then
+    while IFS='' read -rN1 C; do # convert individual characters coming from stdin
+        mockChar "$C"
+    done
+else
+    nchar=${#input}
+    for (( i=0; i<nchar; ++i )); do # convert chars given as arguments
+        mockChar "${input: $i:1}" # select the ith character from the input
+    done
+    echo
+fi
+# }}}
+exit 0

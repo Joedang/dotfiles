@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Find the difference between the first and second input strings.
+
+first=$(echo "$1" | sed 's/\(.\)/\1\n/g') # put newlines after every character
+second=$(echo "$2" | sed 's/\(.\)/\1\n/g')
+diff --side-by-side --width=10 --minimal --color=auto <(echo "$first") <(echo "$second")
+exitCode=$?
+case $exitCode in
+    0) echo The strings are identical. 1>&2 ;;
+    1) echo The strings differ. 1>&2 ;;
+    *) ;;
+esac
+exit $exitCode

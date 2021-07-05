@@ -46,14 +46,14 @@ set $dmenu_flags -b -i -fn 'IBMPlexMono-Light.ttf:pixelsize=22' -nb '#222' -nf '
 # Define names for default workspaces for which we configure key bindings later on.
 # We use variables to avoid repeating the names in multiple places.
 # The default workspaces for programs are defined in the "styling" section..
-set $ws0 "0:♫"
-set $ws1 "1:🖳"
-set $ws2 "2:🖧"
-set $ws3 "3:🖆"
-set $ws4 "4:🙭"
-set $ws5 "5"
-set $ws6 "6"
-set $ws7 "7"
+set $ws0 "0♫"
+set $ws1 "1🖳"
+set $ws2 "2🖧"
+set $ws3 "3🖆"
+set $ws4 "4🙭"
+set $ws5 "5👑"
+set $ws6 "6$"
+set $ws7 "7♥"
 set $ws8 "8"
 set $ws9 "9"
 
@@ -162,6 +162,12 @@ exec_always xss-lock -- i3lock -i $HOME/img/lock --show-failed-attempt
 
 # send notificaitons when the battery is low (the script ensures only a single instance is run)
 exec_always /home/joedang/src/dotfiles/bin/batteryMonitor
+
+# show the PATH
+exec_always notify-send "PATH:" "$PATH"
+#exec_always notify-send "\$0:" "$0" # i3 gets run by /bin/sh
+#exec_always notify-send "\$1:" "$1" # with no arguments
+#exec_always notify-send "USER:" "$USER" # by the current user
 # }}}
 
 # key bindings {{{
@@ -329,8 +335,10 @@ bindsym $mod+Shift+m exec --no-startup-id ~/src/dotfiles/bin/dmenu-umount $dmenu
 
 # bindsym Print exec xfce4-screenshooter --save $HOME/img/capture/Screenshot_$(date +%Y-%m-%d_%H-%M-%S).png
 # bindsym Ctrl+Print exec xfce4-screenshooter --fullscreen --save $HOME/img/capture/Screenshot_$(date +%Y-%m-%d_%H-%M-%S).png
-bindsym --release Print exec --no-startup-id "scrot -zsfl style=dash,color=red -e 'mv $f ~/img/capture/; xclip -selection clipboard -t image/png ~/img/capture/$f && dunstify \\"image copied to clipboard\\" \\"$f\\"'"
-bindsym --release Ctrl+Print exec --no-startup-id scrot -ze 'mv $f ~/img/capture/ && dunstify \\"image copied to clipboard\\" \\"$f\\"'
+# bindsym --release Print exec --no-startup-id "scrot -zsfl style=dash,color=red -e 'mv $f ~/img/capture/; xclip -selection clipboard -t image/png ~/img/capture/$f && dunstify \\"image copied to clipboard\\" \\"$f\\"'"
+# bindsym --release Ctrl+Print exec --no-startup-id scrot -ze 'mv $f ~/img/capture/ && dunstify \\"image copied to clipboard\\" \\"$f\\"'
+bindsym --release Print exec --no-startup-id ~/src/dotfiles/bin/screenshot_section
+bindsym --release Ctrl+Print exec --no-startup-id ~/src/dotfiles/bin/screenshot_full
 
 # bring up a digital clock
 bindsym $mod+t exec --no-startup-id \
@@ -529,7 +537,7 @@ bar { # {{{
     hidden_state hide
     mode hide
     modifier $mod
-    font pango:IBM Plex Mono Light 12
+    font pango:IBM Plex Mono Light 9.5
     separator_symbol "‖"
 
     colors {

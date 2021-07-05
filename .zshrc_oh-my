@@ -97,6 +97,8 @@ else
   export EDITOR='vim'
 fi
 
+export ZSH_HIGHLIGHT_STYLES[comment]='fg=51' # don't make comments hecking invisible :eyeroll:
+
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
 

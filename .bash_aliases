@@ -83,6 +83,10 @@ quicklog() {
 alias ql='quicklog'
 # show quicklog entries from today and yesterday:
 alias qlc='cat $HOME/log/quick.log | grep -A 100 --color=never -e $(date -Idate) -e $(date -Idate -d yesterday)'
+alias scrot-box="scrot -sfl style=dash,color=red -e 'mv \$f ~/img/capture/; xclip -selection clipboard -t image/png ~/img/capture/\$f'"
+alias scrot-full="scrot -e 'mv \$f ~/img/capture/'"
+alias spellcheck="look"
+alias xinfo="echo Actually, it\\'s called xprop.; xprop"
 # }}} 
 # things to control the encrypted journal {{{
 alias jrnl-mount="encfs $XDG_DOCUMENTS_DIR/.journal $XDG_DOCUMENTS_DIR/journal"

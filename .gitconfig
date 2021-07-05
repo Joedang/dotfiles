@@ -25,5 +25,6 @@
 	k = !gitk --all # run the gitk tool on the whole history
 	vimdiff = difftool --tool=vimdiff # lazy alias
 	mt = mergetool # lazy alias
+    wdiff = diff --word-diff=plain
 [pull]
 	rebase = false

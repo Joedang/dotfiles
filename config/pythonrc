@@ -1,27 +1,32 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 # configuration for Python console
-
-print('using configuration script:', __loader__.get_filename()) # print the name of this script
-import os
-# print the environmental varialbe that should point to this script:
-#print('running configuration script:', os.getenv('PYTHONSTARTUP'))
-
 import sys
-import rlcompleter, readline
-import importlib
-import numpy as np
+if sys.flags.interactive
+if hasattr(sys, 'ps1'):
+    print('In interactive mode.')
+    print('using configuration script:', __loader__.get_filename()) # print the name of this script
 
-# prompt string. \001 and \002 delimit zero-width characters (see readline.h)
-sys.ps1 = u'\001\033[32m\002py' + str(sys.version_info.major) + u'➜\001\033[39m\002 ' 
-readline.parse_and_bind("tab: complete") # tab completion
+    import os
+    # print the environmental varialbe that should point to this script:
+    print('PYTHONSTARTUP:', os.getenv('PYTHONSTARTUP'))
 
-# sane aliases:
-def pwd():
-    return(os.getcwd())
-def ls():
-    return(os.listdir())
-def cd(directory):
-    return(os.chdir(directory))
-def reload(module):
-    importlib.reload(module)
+    import rlcompleter, readline
+    import importlib
+    import numpy as np
+
+    # prompt string. \001 and \002 delimit zero-width characters (see readline.h)
+    sys.ps1 = u'\001\033[32m\002py' + str(sys.version_info.major) + u'➜\001\033[39m\002 ' 
+    readline.parse_and_bind("tab: complete") # tab completion
+
+    # sane aliases:
+    def pwd():
+        return(os.getcwd())
+    def ls():
+        return(os.listdir())
+    def cd(directory):
+        return(os.chdir(directory))
+    def reload(module):
+        importlib.reload(module)
+else:
+    print('In non-interactive mode.')

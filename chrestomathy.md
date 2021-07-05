@@ -431,20 +431,20 @@ This is an example of a complex filter in ffmpeg.
 This strings together a bunch of other filters in a potentially non-linear way.
 
 ```bash
-#        ⬐video streams 0 and 1, respectively
-ffmpeg \
-    -i garyAnimation_alligned.gif \
-    -i psasMotto_YOLO.png \
-    -filter_complex "[0:v]scale=w=1056:h=-1, crop=w=1056:h=816:y=-100[b1], [b1][1:v]overlay" output.mp4
-#                     |     ⬑-----------------⬑---------filter names------------------⬏    |  | 
-#                     |         |      |   | |                          |    |   |         |  | 
-#                     ⬑automatic name for video 1                       |    |   |         |  |     
-#                               ⬑width ⬑height= nearest mod 1           |    |   |         |  |     
-#                                          ⬑ ⬑implied output and input streams   |         |  |         
-#                                                                       ⬑label output stream as b1                          
-#                                                                            ⬑use output labeled b1 as first input
-#                                                                                ⬑use video 1 as second input
-#                                                                                          ⬑  ⬑implied output
+ #        ⬐video streams 0 and 1, respectively
+ ffmpeg \
+     -i garyAnimation_alligned.gif \
+     -i psasMotto_YOLO.png \
+     -filter_complex "[0:v]scale=w=1056:h=-1, crop=w=1056:h=816:y=-100[b1], [b1][1:v]overlay" output.mp4
+ #                     |     ⬑-----------------⬑---------filter names------------------⬏    |  | 
+ #                     |         |      |   | |                          |    |   |         |  | 
+ #                     ⬑automatic name for video 1                       |    |   |         |  |     
+ #                               ⬑width ⬑height= nearest mod 1           |    |   |         |  |     
+ #                                          ⬑ ⬑implied output and input streams   |         |  |         
+ #                                                                       ⬑label output stream as b1                          
+ #                                                                            ⬑use output labeled b1 as first input
+ #                                                                                ⬑use video 1 as second input
+ #                                                                                          ⬑  ⬑implied output
 ```
 
 ### Normalizing Audio
@@ -741,7 +741,7 @@ documentclass: article
 classoption: twocolumn
 geometry: margin=0.75in
 numbersections: true
-#toc: true
+ #toc: true
 pagestyle: plain
 output:
   pdf_document:
@@ -915,8 +915,8 @@ It usually contains comments hinting at its syntax.
 
 Here's an example of fstab contents:
 ```
-# <file system> <mount point>   <type>  <options>       <dump>  <pass>
-# / was on /dev/sda2 during installation
+ # <file system> <mount point>   <type>  <options>       <dump>  <pass>
+ # / was on /dev/sda2 during installation
 UUID=c87dcf2c-bef5-4e7d-a4a0-cbd30cbaea5f /               ext4    discard,relatime,errors=remount-ro 0       1
 ```
 
@@ -1016,3 +1016,16 @@ Notably, `modprobe -c` will list what's installed and `modprobe MODULE_NAME` wil
 Sometimes, after getting a kernel update, you'll get errors related to kernel modules not being available.
 For example, you update your kernel and then install a package that implicitly installs a module.
 To address this, you should try rebooting, so you're using the newer kernel.
+
+## Web and Internet
+### Useragent String Spoofing
+In Firefox, go to `about:config` in the address bar and add a string variable called `general.useragent.override`.
+Simply paste in a string that corresponds to another browser.
+You can get a list of known useragent strings can be found here: `http://www.useragentstring.com/pages/useragentstring.php`.
+
+### IRC
+#### Weechat
+- `/connect freenode` to connect to the Freenode server.
+- `/join #coreboot` to join a room.
+- Alt+Up or Alt+Down to switch between buffers.
+- `/quit` to close Weechat completely.

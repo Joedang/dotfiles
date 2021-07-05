@@ -1,6 +1,7 @@
 # ~/.bashrc: executed by bash(1) for non-login shells.
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
+# TODO: clean out the cruft; genericize the references to certain paths?; improve readability
 
 # If not running interactively, don't do anything
 case $- in
@@ -43,11 +44,17 @@ if [ -n "$force_color_prompt" ]; then
     fi
 fi
 
-if [ "$color_prompt" = yes ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\n\033[1;32m\$\033[22;39m '
-else
-    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
-fi
+_exitstatus() {
+    status=$?
+    (( status != 0 )) && printf "\001\e[1;31m\002exit $status\n\001\e[0m\002"
+}
+
+PS1='$(_exitstatus)\[\e[32m\]\w\[\e[0m\]\n\e[32m\s➔\e[0m '
+#if [ "$color_prompt" = yes ]; then
+#    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\n\033[1;32m\$\033[22;39m '
+#else
+#    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+#fi
 unset color_prompt force_color_prompt
 
 # If this is an xterm set the title to user@host:dir

@@ -7,6 +7,7 @@
 
 general {
         colors = true
+        #output_format = "i3bar"
         interval = 5
         color_good = "#55FF55"
         color_degraded = "#CCCC33"
@@ -27,6 +28,7 @@ order += "memory"
 order += "volume master"
 order += "read_file brightness"
 order += "read_file covid"
+order += "read_file efficacy"
 order += "tztime local"
 
 wireless _first_ {
@@ -114,6 +116,13 @@ read_file covid {
         path = "/home/joedang/.local/status/covid/weeklyPercent"
         color_good = "#EAEAEA"
         format = "😷%content%"
+        #format = "%title: %content"
+}
+
+read_file efficacy {
+        path = "/home/joedang/.local/status/covid/myEfficacyOdds"
+        color_good = "#EAEAEA"
+        format = "💉%content"
         #format = "%title: %content"
 }
 

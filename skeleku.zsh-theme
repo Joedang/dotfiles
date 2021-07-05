@@ -73,9 +73,10 @@ test $UID -eq 0 && user_color='red'
 PROMPT='%(?..%{$fg_bold[red]%}exit %? 
 %{$reset_color%})'\
 '$timeMsg'\
+'%{$fg[$user_color]%}⎛'\
 '%{$bold_color%}$(git_prompt_status)%{$reset_color%}'\
 '$(git_prompt_info)'\
 '%{$fg[$user_color]%}%~
-%{$bold_color%}%(!.#.$)%{$reset_color%} '
+⎝%{$bold_color%}%(!.#.$)%{$reset_color%} '
 
 PROMPT2='%{$fg[red]%}\ %{$reset_color%}'

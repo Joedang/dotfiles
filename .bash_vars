@@ -6,14 +6,20 @@ test -z "$XDG_CONFIG_HOME" && export XDG_CONFIG_HOME=$HOME/.config
 # export the user-dirs variables
 test -f ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs && . ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs
 
+export INPUTRC="$HOME/.inputrc"
+
 # enable the config file for calc
 export CALCRC='~/.calcrc'
 
 # default location for Python REPL config
 export PYTHONSTARTUP=~/.config/pythonrc
 
+# home page for Lynx
+export WWW_HOME='https://duckduckgo.com/lite'
+
 # set the default editor to vim
 export EDITOR=`which vim`
+export BROWSER=`which firefox`
 
 # Track a single ssh-agent across multiple shells.
 # example of ssh-agent output:

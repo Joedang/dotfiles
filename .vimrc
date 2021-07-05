@@ -36,6 +36,20 @@ set softtabstop=4
 " use multiple spaces in place of tabs
 set expandtab
 
+"syn match rc_indentStart      /^\ \{4}/  nextgroup=rc_indentEven
+"syn match rc_indentEven        /\ \{4}/  contained nextgroup=rc_indentOdd
+"syn match rc_indentOdd         /\ \{4}/  contained nextgroup=rc_indentEven
+"
+"hi rc_indentStart ctermbg=Red   
+"hi rc_indentEven  ctermbg=Green 
+"hi rc_indentOdd   ctermbg=Blue 
+
+" view the highlighting info at a location
+noremap <Leader>H :echo "visible<"
+            \ . synIDattr(synID(line("."),col("."),1),"name") . '> top<'
+            \ . synIDattr(synID(line("."),col("."),0),"name") . "> translated<"
+            \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
+
 "set completeopt="menuone,preview,noinsert,popup"
 
 " use these chars to indicate whitespace
@@ -205,9 +219,23 @@ autocmd FileType markdown imap <c-l>cr <Esc>0f]a<Space>(!)<Esc>
 autocmd FileType markdown nmap <Leader>uk 0f[lr <Esc>
 autocmd FileType markdown imap <c-l>uk 0f[lr <Esc>
 
+function! MarkdownLevel()
+    let h = matchstr(getline(v:lnum), '^#\+')
+    if empty(h)
+        return "="
+    else
+        return ">" . len(h)
+    endif
+endfunction
+autocmd FileType markdown setlocal foldexpr=MarkdownLevel()
+autocmd FileType markdown setlocal foldmethod=expr
+
 " add an item to a list
 autocmd FileType tex nmap <Leader>it o\item 
 autocmd FileType tex imap <c-l>it \item 
+
+autocmd FileType sh nmap <Leader>fn ofunctionName() { # {{{<Return>} # }}}<Esc>k0
+autocmd FileType sh imap <c-l>fn functionName() { # {{{<Return>} # }}}<Esc>k0
 
 "~~~~~~~~~~ VUNDLE STUFF ~~~~~~~~~~
 set nocompatible              " be iMproved, required

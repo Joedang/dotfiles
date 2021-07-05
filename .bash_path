@@ -14,7 +14,7 @@ PATH=$DOTFILES_DIR/bin:$PATH
 #. /opt/openfoam30/etc/bashrc
 PATH=/usr/local/brlcad/bin:$PATH
 PATH=/usr/local/julia/bin:$PATH
-PATH=~/.local/bin:$PATH
+#PATH=~/.local/bin:$PATH # now handled in .profile
 PATH=/usr/local/datcom_plus/bin:$PATH
 PATH=/usr/sbin:$PATH
 PATH=/sbin:$PATH

@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+notify-send -u low "$(mpc current -f 'now playing: [%title% (%time%)]|[%file% (%time%)]')" "$(mpc current -f 'by %artist%, from %album%')"

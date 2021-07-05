@@ -45,7 +45,8 @@ nemoticons=$i
 echo "nemoticons: $nemoticons"
 for (( i=1; i<=nemoticons; ++i )); do
     e="${emoticons[$i]}"
-    e="${e//$'\n'/ }"
+    [[ "$e" =~ $'\n' ]] && e=''
+    #e="${e//$'\n'/ }"
     selections+="$i $e ${descriptions[$i]}"$'\n'
 done
 echo "getting selection from dmenu"

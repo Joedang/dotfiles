@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+echo -n 'starting timer: '
+date
+echo Ctrl+C to end the timer.
+SECONDS=0 # increments by 1 each second (Bash feature)
+while :; do
+    timer=$(units "$SECONDS"s 'day;hr;min;s')
+    # This hacky way of clearing the line has the wrong behavior in very small terminals.
+    echo -ne "                                       \r"
+    echo -ne "$timer   \r"
+    sleep 1
+done

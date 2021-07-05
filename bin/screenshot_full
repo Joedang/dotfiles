@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+scrot -ze 'mv $f ~/img/capture/ && dunstify "image copied to clipboard" "$f"'

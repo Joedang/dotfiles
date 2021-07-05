@@ -20,13 +20,13 @@ chosenDev=$(echo "$chosen" | awk '{print $1}')
 chosenMountpoint=$(echo "$chosen" | awk '{print $2}')
 chosenLabel=$(echo "$chosen" | awk '{print $4}')
 test -z "$chosen" && echo "no drive chosen" && exit 1
-if gio mount -u "$chosenMountpoint"
+if progOutput=$(gio mount -u "$chosenMountpoint" 2>&1)
 then
     dunstify -u normal "successfully unmounted" \
         "<tt>device: $chosenDev</tt>\n<tt>label: $chosenLabel</tt>\n<tt>mountpoint: $chosenMountpoint</tt>"
     exit 0
 else
     dunstify -u critical "failed to auto unmount" \
-        "<tt>device: $chosenDev</tt>\n<tt>label: $chosenLabel</tt>\n<tt>mountpoint: $chosenMountpoint</tt>"
+        "<tt>$progOutput</tt>\n<tt>device: $chosenDev</tt>\n<tt>label: $chosenLabel</tt>\n<tt>mountpoint: $chosenMountpoint</tt>"
     exit 1
 fi

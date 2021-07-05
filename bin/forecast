@@ -60,6 +60,7 @@ forecast=$(echo "$forecast_resp" \
             | xargs curl --silent \
             | jq -r ".properties.periods" \
         )
+errmsg forecast url: "$(echo "$forecast_resp" | jq -r .properties.forecast)"
 errmsg forecast_resp: $forecast_resp
 errmsg forecast: $forecast
 

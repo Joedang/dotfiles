@@ -9,7 +9,7 @@ MUSIC_LENGTH=16
 PERIOD=0.465
 ART_HEIGHT=$( wc -l "$ART" | awk '{print $1}')
 
-ogg123 $MUSIC 2> /dev/null & # play the music in the background with no output
+play "$MUSIC" 2> /dev/null & # play the music in the background
 START=$SECONDS
 i=1
 while (( SECONDS < START+MUSIC_LENGTH )) # while the music is playing

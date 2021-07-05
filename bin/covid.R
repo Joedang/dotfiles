@@ -196,11 +196,14 @@ legendBG <- rgb(0,0,0,0.85)
 plotInds <- which( (plotWindow[1] <= dat$submission_date) & (dat$submission_date <= plotWindow[2]) )
 today <- Sys.Date()
 today_str <- paste('today (', today, ')', sep='')
-weeks <- as.Date('2020-01-01') + as.difftime(0:52, units='weeks')
-months <- as.Date(c(
-                    '2020-01-01', '2020-02-01', '2020-03-01', '2020-04-01', '2020-05-01', '2020-06-01', 
-                    '2020-07-01', '2020-08-01', '2020-09-01', '2020-10-01', '2020-11-01', '2020-12-01'
-                    ))
+weeks <- as.Date('2020-01-01') + as.difftime(0:200, units='weeks')
+months <- c()
+for (y in 2020:2025) { # loops are gross, but work well here.
+    for (m in 1:12) {
+        months <- c(months, paste(y, sprintf("%02d", m), '01', sep='-'))
+    }
+}
+months <- as.Date(months)
 # }}}
 
 # daily new cases {{{

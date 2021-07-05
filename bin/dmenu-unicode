@@ -1,4 +1,4 @@
-#/usr/bin/env bash
+#!/usr/bin/env bash
 # search for a unicode symbol using dmenu
 # Joe Shields, 2020-11-11
 

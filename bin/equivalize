@@ -3,6 +3,11 @@
 # vim: foldmethod=marker:
 # Joe Shields, 2021-01-10
 
+# TODO
+# - [ ] incorporate the improvements from altchar.sh
+#       - [ ] get dem math symbols (and their exceptions) boiii
+# - [ ] incorporate the old italic block
+
 ## I generated the namePatterns and except_exclude arrays manually, but these snippets made it easier. {{{
 ## Generate an array that you can type the human-readable names into. (You'll need to manually escape stuff like " ' `)
 #for dec in 9 {32..126};do # list the printable ascii characters (including tab)
@@ -357,7 +362,7 @@ generateEquivalents() { # {{{
                                     grep -e "${namePatterns[$key]}" ~/.local/share/UnicodeData.txt \
                                     | grep -v -e '^009D' -e '^009F' -e 'COMBINING' -e 'ZERO WIDTH' \
                                         -e 'MEDEFAIDRIN' -e 'ADLAM' -e 'WARANG' -e 'OLD HUNGARIAN' \
-                                        -e 'OSAGE' -e 'GLAGOLITIC' -e 'CHEROKEE' \
+                                        -e 'OSAGE' -e 'GLAGOLITIC' -e 'CHEROKEE' -e 'TAG LATIN' \
                                 ) ) # indexes from 0
             keyLit=$(printf '\U'"$key")
             len=${#matches[@]}
@@ -376,6 +381,7 @@ generateEquivalents() { # {{{
             echo "$keyLit${equivalents_lit["$key"]}"
         done
     } > "$equivFile"
+    echo 'done generating equivalents'
 } # }}}
 equivalizeChar() { # {{{
     local C="$1"
@@ -409,9 +415,9 @@ if shift $(( $OPTIND - 1 )); then # shift to the first non-option arg; if there 
 fi
 if [[ -z "$input" ]];then
     usestdin=true
-    input=${input: 0:-1} # snip off that trailing space
 else
     usestdin=false # if there was no input, use stdin
+    input=${input: 0:-1} # snip off that trailing space
 fi
 
 if [[ ! -f "$equivFile" ]];then

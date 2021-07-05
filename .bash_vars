@@ -36,14 +36,17 @@ export SSH_AGENT_TRACKLOG=$HOME/log/ssh-agent-track.log
         echo ssh agent trackfile exists: "$SSH_AGENT_TRACKFILE"
         echo sourcing...
         source "$SSH_AGENT_TRACKFILE"
-        if ! ps -p $SSH_AGENT_PID o cmd='' > /dev/null
+        if [ "$(ps -p $SSH_AGENT_PID o cmd='')" != 'ssh-agent' ]
         then
             echo trackfile was out of date \(listed process not found\)
             echo starting a new agent...
             ssh-agent > "$SSH_AGENT_TRACKFILE"
+            source "$SSH_AGENT_TRACKFILE"
         fi
     else
         echo ssh agent trackfile does NOT exist: "$SSH_AGENT_TRACKFILE"
+        echo creating a new trackfile...
+        mkdir -p "$(dirname "$SSH_AGENT_TRACKFILE")" # in case the directory doesn't exist yet
         echo starting a new agent...
         ssh-agent > "$SSH_AGENT_TRACKFILE"
         source "$SSH_AGENT_TRACKFILE"

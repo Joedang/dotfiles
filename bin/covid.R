@@ -99,14 +99,15 @@ mdat <- data.frame( # data to use for the predictive model
                    active= active[predict_indices], 
                    growth=dailyGrowth[predict_indices]
 )
-m_growth <- lm(growth ~ poly(date,2), mdat)
-m_active <- lm(active ~ poly(date, 2), mdat)
+mdat$date_ct <- as.numeric(as.POSIXct(mdat$date))
+m_growth <- lm(growth ~ poly(date_ct,2), mdat)
+m_active <- lm(active ~ poly(date_ct,2), mdat)
 predictDays_past <- mdat$date
 predictDays_future <- rev(predictDays_past[1] + as.difftime(1:daysToPredict_forwards, units='days')) # predict a week into the future
 predictDays <- c(predictDays_future, predictDays_past)
 predictDays <- unique(predictDays)
-pactive <- predict(m_active, data.frame(date= predictDays))
-pred_growth <- predict(m_growth, data.frame(date=predictDays))
+pactive <- predict(m_active, data.frame(date_ct= as.numeric(as.POSIXct(predictDays)) ))
+pred_growth <- predict(m_growth, data.frame(date_ct= as.numeric(as.POSIXct(predictDays)) ))
 # growth rate *today*, based on the quadratic fit of the growth rate:
 pred_growth_today <- pred_growth[match(Sys.Date(), predictDays)]
 # weekly percent growth rate based on the above daily growth rate:

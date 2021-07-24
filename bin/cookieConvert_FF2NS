@@ -1,0 +1,47 @@
+#!/bin/bash
+# Create a cookies.txt style of file suitable for the --cookies argument of youtube-dl.
+# Note that youtube-dl will modify the cookies.txt file but not the cookies.sql file.
+# Example Usage: 
+#   cookieConvert_FF2NS $HOME/.mozilla/firefox/4jayc22s.default-release/cookies.sqlite > cookies.txt
+# Requires: Bash, sqlite3, cat, Unix-like system with /tmp/
+# code based on (unknown author):
+#   https://jackal.livejournal.com/2170227.html?nojs=1
+# used as a reference for Netscape cookie formatting:
+#   https://raw.githubusercontent.com/dandv/convert-chrome-cookies-to-netscape-format/master/convert-cookies.js
+
+function cleanup {
+    # echo "cleaning up..." > /dev/stderr
+    rm -f $TMPFILE
+    exit 0
+}
+trap cleanup  SIGHUP SIGINT SIGTERM # guarantee that the temp file gets cleaned up
+
+# This is the format of the sqlite database:
+# CREATE TABLE moz_cookies (id INTEGER PRIMARY KEY, name TEXT, value TEXT, host TEXT, path TEXT,expiry INTEGER, lastAccessed INTEGER, isSecure INTEGER, isHttpOnly INTEGER);
+
+# We have to copy cookies.sqlite, because FireFox has a lock on it
+#echo "creating temporary file..." > /dev/stderr
+TMPFILE=`mktemp /tmp/cookies.sqlite.XXXXXXXXXX`
+cat $1 >> $TMPFILE
+
+echo '# Netscape HTTP Cookie File'
+#echo "running the sqlite scipt..." > /dev/stderr
+sqlite3 -separator "\t" $TMPFILE << EOF
+.mode tabs
+.header off
+select host,
+case substr(host,1,1)='.' when 0 then 'FALSE' else 'TRUE' end,
+path,
+case isSecure when 0 then 'FALSE' else 'TRUE' end,
+expiry,
+name,
+value
+from moz_cookies;
+EOF
+cleanup
+#echo "done." > /dev/stderr
+
+# ----- The output looks like this (some data redacted): -----
+# Netscape HTTP Cookie File
+#.google.com	TRUE	/	TRUE	NNNNNNNNNN	SSID	XXXXXXXXXX
+#.youtube.com	TRUE	/	TRUE	NNNNNNNNNN	__Secure-3PAPISID	XXXXXXXXXX

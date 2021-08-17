@@ -44,6 +44,7 @@ my $STDOLD;
 
 # functions {{{
 sub ID2color { # convert a color ID into an HSV color that graphvis understands
+    # red and purple are reserved for indicating urgent and focused containers, so colors are limited to green through blue
     return "0." . ($colorID%6+2) . ",1,0.5";
 }
 
@@ -54,7 +55,7 @@ sub get_depth {
     my $d = 0;
     my $child_depth = 0;
 
-    for my $child (@{$node->{nodes}}) {
+    for my $child (@{$node->{nodes}}) { # find the maximum depth among the children
         $child_depth = get_depth($child);
         if ($child_depth+1 gt $d) {
             $d = $child_depth+1;
@@ -63,8 +64,8 @@ sub get_depth {
     return $d;
 }
 
-sub add_dummy {
-    my ($parent, $depth) = @_;
+sub add_dummy { # recursively add dummy nodes until the max depth
+    my ($parent, $depth) = @_; # depth is the depth of THIS dummy node, not the parent
     my $color = ID2color();
 
     if ($depth le $max_depth) {
@@ -75,37 +76,37 @@ sub add_dummy {
     }
 }
 
-sub print_node {
-    my ($node, $depth) = @_;
-    my $pid = $node->{id};
-    my @children = (@{$node->{nodes}}, @{$node->{floating_nodes}});
+sub print_node { # print a node and all its children (recursively)
+    my ($node, $depth) = @_; # depth refers to the node being printed
+    my $pid = $node->{id}; # use the i3 container IDs ad IDs for nodes (unique integer)
+    my @children = (@{$node->{nodes}}, @{$node->{floating_nodes}}); # concatenation of tiling and floating children
     my $name = $node->{name};
-    my $maxNameLength = 20;
-    my $color = ID2color();
-    my $fillcolor = $color;
+    my $maxNameLength = 20+3; # container names longer than this will get truncated (the +3 accounts for the ellipsis)
+    my $color = ID2color(); # color of the node border
+    my $fillcolor = $color; # color the node and exiting edges are filled with
+    my $label= ''; # text to be shown on the node
 
-    if (length($name) > ($maxNameLength+3)) {
+    if (length($name) > ($maxNameLength)) { # truncate the name
         $name = substr($node->{name}, 0, $maxNameLength) . "...";
     }
-    if ($node->{focused} == 1) {
+    if ($node->{focused} == 1) { # reassign border color if focused
         $color = "0.8,1,0.7";
     }
-    if ($node->{urgent} == 1) {
+    if ($node->{urgent} == 1) { # reassign border color if urgent
         $color = "0,1,0.8";
     }
-    $label= '';
-    if ($node->{type} cmp "con") {
-    #if (1) {
+    if ($node->{type} cmp "con") { # if the container type is not "con", add it to the label
         $label = $label . $node->{type} . "\n";
     }
-    if (length($node->{window_properties}->{class})) {
+    if (length($node->{window_properties}->{class})) { # if the container has a class, add it to the label
         $label = $label . $node->{window_properties}->{class} .":\n";
     }
-    if (length($name)) {
+    if (length($name)) { # if the container has a name, add it to the label
         $label = $label . "\\\"" . $name . "\\\"" . "\n";
     }
-    $label = $label . "(" .  $node->{layout} . ")\n";
+    $label = $label . "(" .  $node->{layout} . ")\n"; # add the layout to the label
     print $node->{id}, " [label=\"$label\" color=\"$color\" fillcolor=\"$fillcolor\"]\n";
+    # useful for debugging:
     #print $node->{id}, " [label=\"", 
     #    "name: ",        $name,    "\n",
     #    "namelength: ",        length($name),    "\n",
@@ -123,15 +124,15 @@ sub print_node {
     #    "]\n";
     #print "edge [color=\"0.", $colorID%10, ",1,0.5\"]";
 
-    print "// scalar \@children: @children\n";
+    #print "// scalar \@children: @children\n";
     if (scalar @children) { # if length of children > 0
-        for my $child (@children) {
-            print "{edge [color=\"$color\"] {", $pid, "} -> ", $child->{id}, "}\n";
+        for my $child (@children) { # loop over all children of this node
+            print "{edge [color=\"$fillcolor\"] {", $pid, "} -> ", $child->{id}, "}\n"; # draw the edge to the child
             $colorID++;
-            print_node($child, $depth+1);
+            print_node($child, $depth+1); # print the child
         }
     } else {
-        add_dummy($pid, $depth+1);
+        add_dummy($pid, $depth+1); # fill the remainder with dummy nodes
     }
 }
 # }}}
@@ -141,23 +142,24 @@ $max_depth = get_depth($tree);
 
 open ($STDOLD, '>&', STDOUT); # copy STDOUT to another filehandle
 
-open(STDOUT, ">>" . $gvname); # redirect STDOUT to tmp
+open(STDOUT, ">>" . $gvname); # redirect STDOUT to the graph file
 print "// max depth: ", $max_depth, "\n";
+# graph file header:
 print "
         digraph G {
-            graph [layout=dot rankdir=TB color=lightgray bgcolor=gray overlap=false splines=true]
+            graph [layout=dot rankdir=TB color=lightgray bgcolor=\"1,0,0.2\" overlap=false splines=true]
             edge [color=blue penwidth=8]
             node [color=black fontcolor=lightgray style=filled penwidth=8]
             ";
-print_node($tree, 0);
-print "}\n";
+print_node($tree, 0); # print the whole tree to the file
+print "}\n"; # end of file
 
 # restore STDOUT
-close(STDOUT);
-open (STDOUT, '>&', $STDOLD);
+close(STDOUT); # close the graph file
+open (STDOUT, '>&', $STDOLD); # reopen the original stdout
 
-system("neato", ($gvname, "-Tpdf", "-o", $pdfname));
-print "filenames: " . $gvname . " " . $pdfname . "\n";
-system("xdg-open", $pdfname);
+system("neato", ($gvname, "-Tpdf", "-o", $pdfname)); # convert the graph file to a pdf
+print "filenames: " . $gvname . " " . $pdfname . "\n"; # print the file locations to stdout
+system("xdg-open", $pdfname); # open the pdf
 close(STDOUT);
 # }}}

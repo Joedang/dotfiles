@@ -1,0 +1,163 @@
+#!/usr/bin/env perl
+# Create a graph graph showing the tree of containers in i3.
+# Joe Shields, 2021-08-17
+# Dependencies: perl-anyevent-i3, graphvis, /tmp/
+# useful references: 
+#   /usr/share/doc/i3/ipc.html
+#   contrib/dump-asy.pl and contrib/gtk-tree-watch.pl within the i3 sources
+
+# libraries {{{
+use AnyEvent::I3; # for getting info from i3
+use File::Temp; # temporary file creation
+use FileHandle; # temporary file creation
+binmode STDOUT, ":utf8"; # encode output as UTF-8
+#use diagnostics;
+#use utf8;                       # Source code is encoded using UTF-8.
+#use open ':encoding(utf-8)';    # Sets the default encoding for handles opened in scope.
+#use IPC::Cmd qw[can_run];
+#use v5.10;
+# }}}
+
+# variables {{{
+my $i3 = i3();
+my $tree = $i3->get_tree->recv;
+my $dummyID = 0; # for identifying dummy nodes
+my $colorID = 0; # for coloring nodes
+my $maxdepth = 0; # maximum distance from the root to a leaf
+my $tmpdir = "/tmp/i3tree"; # where to store files
+    mkdir($tmpdir);
+    if (not -d $tmpdir) {
+        print "unable to create temporary directory $tmpdir\n";
+        $tmpdir = File::Temp->newdir("/tmp/i3tree_XXXXXXXX");
+        print "using $tmpdir instead...";
+    }
+my $gvname = "$tmpdir/tree.gv";
+my $pdfname = "$tmpdir/tree.pdf";
+my $tmpgv = FileHandle->new;
+#my $tmppdf = FileHandle->new;
+$tmpgv->open("> $gvname");
+#$tmppdf->open("> $pdfname");
+#my $tmpgv = File::Temp->new(UNLINK => 0, SUFFIX => '.gv');
+#my $tmppdf = File::Temp->new(UNLINK => 0, SUFFIX => '.pdf');
+my $STDOLD;
+# }}}
+
+# functions {{{
+sub ID2color { # convert a color ID into an HSV color that graphvis understands
+    return "0." . ($colorID%6+2) . ",1,0.5";
+}
+
+sub get_depth {
+    # distance from this node to the furthest leaf (not the depth of this node from the root)
+    # leaves are depth 0
+    my ($node) =@_;
+    my $d = 0;
+    my $child_depth = 0;
+
+    for my $child (@{$node->{nodes}}) {
+        $child_depth = get_depth($child);
+        if ($child_depth+1 gt $d) {
+            $d = $child_depth+1;
+        }
+    }
+    return $d;
+}
+
+sub add_dummy {
+    my ($parent, $depth) = @_;
+    my $color = ID2color();
+
+    if ($depth le $max_depth) {
+        $dummyID++;
+        print "{edge [color=\"$color\" style=invis] {", $parent, "} -> dummy", $dummyID, "}\n";
+        print "dummy", $dummyID, "[label=\"dummy${dummyID}\ndepth: ${depth}\" color=\"$color\" style=invis]\n";
+        add_dummy("dummy${dummyID}", $depth+1);
+    }
+}
+
+sub print_node {
+    my ($node, $depth) = @_;
+    my $pid = $node->{id};
+    my @children = (@{$node->{nodes}}, @{$node->{floating_nodes}});
+    my $name = $node->{name};
+    my $maxNameLength = 20;
+    my $color = ID2color();
+    my $fillcolor = $color;
+
+    if (length($name) > ($maxNameLength+3)) {
+        $name = substr($node->{name}, 0, $maxNameLength) . "...";
+    }
+    if ($node->{focused} == 1) {
+        $color = "0.8,1,0.7";
+    }
+    if ($node->{urgent} == 1) {
+        $color = "0,1,0.8";
+    }
+    $label= '';
+    if ($node->{type} cmp "con") {
+    #if (1) {
+        $label = $label . $node->{type} . "\n";
+    }
+    if (length($node->{window_properties}->{class})) {
+        $label = $label . $node->{window_properties}->{class} .":\n";
+    }
+    if (length($name)) {
+        $label = $label . "\\\"" . $name . "\\\"" . "\n";
+    }
+    $label = $label . "(" .  $node->{layout} . ")\n";
+    print $node->{id}, " [label=\"$label\" color=\"$color\" fillcolor=\"$fillcolor\"]\n";
+    #print $node->{id}, " [label=\"", 
+    #    "name: ",        $name,    "\n",
+    #    "namelength: ",        length($name),    "\n",
+    #    "type: ",        $node->{type},    "\n",
+    #    "layout: ",      $node->{layout},  "\n",
+    #    "urgent: ",      $node->{urgent},  "\n",
+    #    "focused: ",     $node->{focused}, "\n",
+    #    "instance: ",    $node->{window_properties}->{instance},    "\n",
+    #    "class: ",       $node->{window_properties}->{class},    "\n",
+    #    "depth: ",       $depth,    "\n",
+    #    "colorID ",       $colorID,    "\n",
+    #    "\", ",
+    #    "color=\"$color\",",
+    #    "fillcolor=\"$fillcolor\"", 
+    #    "]\n";
+    #print "edge [color=\"0.", $colorID%10, ",1,0.5\"]";
+
+    print "// scalar \@children: @children\n";
+    if (scalar @children) { # if length of children > 0
+        for my $child (@children) {
+            print "{edge [color=\"$color\"] {", $pid, "} -> ", $child->{id}, "}\n";
+            $colorID++;
+            print_node($child, $depth+1);
+        }
+    } else {
+        add_dummy($pid, $depth+1);
+    }
+}
+# }}}
+
+# execution {{{
+$max_depth = get_depth($tree);
+
+open ($STDOLD, '>&', STDOUT); # copy STDOUT to another filehandle
+
+open(STDOUT, ">>" . $gvname); # redirect STDOUT to tmp
+print "// max depth: ", $max_depth, "\n";
+print "
+        digraph G {
+            graph [layout=dot rankdir=TB color=lightgray bgcolor=gray overlap=false splines=true]
+            edge [color=blue penwidth=8]
+            node [color=black fontcolor=lightgray style=filled penwidth=8]
+            ";
+print_node($tree, 0);
+print "}\n";
+
+# restore STDOUT
+close(STDOUT);
+open (STDOUT, '>&', $STDOLD);
+
+system("neato", ($gvname, "-Tpdf", "-o", $pdfname));
+print "filenames: " . $gvname . " " . $pdfname . "\n";
+system("xdg-open", $pdfname);
+close(STDOUT);
+# }}}

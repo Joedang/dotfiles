@@ -87,6 +87,10 @@ alias scrot-box="scrot -sfl style=dash,color=red -e 'mv \$f ~/img/capture/; xcli
 alias scrot-full="scrot -e 'mv \$f ~/img/capture/'"
 alias spellcheck="look"
 alias xinfo="echo Actually, it\\'s called xprop.; xprop"
+alias shazam="echo Actually it\\'s called kazam.; kazam"
+alias lockScreen="i3lock -i $HOME/img/lock --show-failed-attempt"
+alias mansplain="man"
+alias et="exiftool"
 # }}} 
 # things to control the encrypted journal {{{
 alias jrnl-mount="encfs $XDG_DOCUMENTS_DIR/.journal $XDG_DOCUMENTS_DIR/journal"

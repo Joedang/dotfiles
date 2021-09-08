@@ -16,6 +16,9 @@ map [fullscreen] i recolor
 map [normal]     f toggle_fullscreen
 map [fullscreen] f toggle_fullscreen
 
+map [normal]     b toggle_statusbar
+map [fullscreen] b toggle_statusbar
+
 map [normal]     p print
 map [fullscreen] p print
 

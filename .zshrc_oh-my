@@ -87,6 +87,11 @@ source $DOTFILES_DIR/.bash_path
 source $DOTFILES_DIR/.bash_aliases
 source ~/.local/.bashrc
 
+# If `fortune` is installed, run it when starting a new shell.
+if which fortune > /dev/null; then
+    fortune -sa
+fi
+
 # You may need to manually set your language environment
 # export LANG=en_US.UTF-8
 

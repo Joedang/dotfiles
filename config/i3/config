@@ -51,7 +51,7 @@ set $ws1 "1🖳"
 set $ws2 "2🖧"
 set $ws3 "3🖆"
 set $ws4 "4🙭"
-set $ws5 "5👑"
+set $ws5 "5〄"
 set $ws6 "6$"
 set $ws7 "7♥"
 set $ws8 "8"
@@ -183,8 +183,8 @@ bindsym $mod+Next exec notify-send "pagedown pressed"
 bindsym $mod+Ctrl+l exec --no-startup-id systemctl suspend
 bindsym Ctrl+Mod1+l exec --no-startup-id systemctl suspend
 # just lock the screen
-# bindsym $mod+Ctrl+l exec i3lock -i $HOME/img/lock --show-failed-attempt
-# bindsym Ctrl+Mod1+l exec i3lock -i $HOME/img/lock --show-failed-attempt
+bindsym $mod+Ctrl+Shift+l exec i3lock -i $HOME/img/lock --show-failed-attempt
+bindsym Ctrl+Mod1+Shift+l exec i3lock -i $HOME/img/lock --show-failed-attempt
 
 # reload the configuration file
 bindsym $mod+Shift+c reload
@@ -271,6 +271,9 @@ bindsym Ctrl+XF86MonBrightnessDown exec --no-startup-id \
 #bindsym XF86MonBrightnessDown       exec --no-startup-id xbacklight -dec 5  -time 100 -steps 10
 #bindsym Shift+XF86MonBrightnessDown exec --no-startup-id xbacklight -dec 10 -time 100 -steps 10
 #bindsym $mod+F8 exec --no-startup-id dunstify -r $brightnessNotifyID -u low -t $brightnessNotifyDelay -a SettingsNotify  '🌞 '$(cat /sys/class/backlight/acpi_video0/brightness)/15
+
+# show network usage
+bindsym $mod+Shift+F5 exec --no-startup-id notify-send 'WiFi usage:' "$(/home/joedang/src/dotfiles/bin/wifiUsage)"
 # }}}
 
 # launchers {{{
@@ -354,11 +357,17 @@ bindsym --release Ctrl+Mod1+p exec xdotool click 3 key a \
                         && PATH=/home/joedang/.local/bin:$PATH mpv --quiet "$(xclip -out -selection clipboard)" 2>&1 \
                         | zenity --text-info --filename=/dev/stdin
 
-# type the date
+# copy the date the the clipboard
 bindsym $mod+Shift+i exec date -I | tr -d '\n' | xclip -in -selection clipboard && dunstify -u normal "copied to clipboard:" "$(date -I)"
 
+# copy the time the the clipboard
+bindsym $mod+Shift+t exec date '+%H:%M:%S %Z' | tr -d '\n' | xclip -in -selection clipboard && dunstify -u normal "copied to clipboard:" "$(date '+%H:%M:%S %Z')"
+
 # visually display key bindings
-bindsym $mod+Shift+slash exec /home/joedang/src/bash/bindgraph/bindgraph.sh && wmctrl -a firefox && dunstify "binding visualization generated"
+bindsym $mod+Shift+slash exec /home/joedang/src/bash/bindgraph/bindgraph.sh \
+    && dunstify "binding visualization generated" \
+    && i3-msg [urgent="latest" class="firefox"] focus 
+    # ^ This focus change fails if the FF window was already active, but if that's the case we've already won.
 # }}}
 
 # window navigation {{{
@@ -502,7 +511,7 @@ for_window [class="Xfce4-appfinder"]    border pixel 3 floating enable
 for_window [class="Pavucontrol"]        border pixel 3 floating enable
 for_window [class="Display"]            border pixel 3 floating enable, move absolute position center
 for_window [class="Firefox"]            move container to workspace $ws2
-for_window [class="Tor Browser"]        move container to workspace $ws2
+#for_window [class="Tor Browser"]        move container to workspace $ws2
 for_window [class="Thunderbird"]        move container to workspace $ws3
 for_window [class="Signal"]             move container to workspace $ws3
 

@@ -25,3 +25,10 @@ fi
 if [ -d "$HOME/.local/bin" ] ; then
     export PATH="$HOME/.local/bin:$PATH"
 fi
+
+# add in the dotfiles stuff
+# TODO: figure out a more elegant way to handle environmental variables to work accross all shells.
+# (It's gonna have to be done through .profile, I think.)
+if [ -d "$HOME/src/dotfiles/bin" ] ; then
+    export PATH="$HOME/src/dotfiles/bin:$PATH"
+fi

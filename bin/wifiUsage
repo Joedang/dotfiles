@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+awk '
+    BEGIN {i=0}; 
+    /wlp2s0/ {
+        i++; 
+        rx[i]=$2; 
+        tx[i]=$10;
+    } 
+    END {
+        up =   (tx[2]-tx[1])/4;
+        down = (rx[2]-rx[1])/4;
+        if (up > 1e3) { 
+            up = up/1e3;
+            up_prefix = "k";
+        };
+        if (up > 1e3) { 
+            up = up/1e3;
+            up_prefix = "M";
+        };
+        if (up > 1e3) { 
+            up = up/1e3;
+            up_prefix = "G";
+        };
+        if (down > 1e3) { 
+            down = down/1e3;
+            down_prefix = "k";
+        };
+        if (down > 1e3) { 
+            down = down/1e3;
+            down_prefix = "M";
+        };
+        if (down > 1e3) { 
+            down = down/1e3;
+            down_prefix = "G";
+        };
+        up_pretty =   sprintf( "%0.3f " up_prefix   "b/s", up );
+        down_pretty = sprintf( "%0.3f " down_prefix "b/s", down );
+        print "up: " up_pretty "\n" "down: " down_pretty
+    }
+' <(cat /proc/net/dev; sleep 4; cat /proc/net/dev) | column -t -R 2

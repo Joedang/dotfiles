@@ -147,7 +147,7 @@ print "// max depth: ", $max_depth, "\n";
 # graph file header:
 print "
         digraph G {
-            graph [layout=dot rankdir=TB color=lightgray bgcolor=\"1,0,0.2\" overlap=false splines=true]
+            graph [layout=dot rankdir=LR color=lightgray bgcolor=\"1,0,0.2\" overlap=false splines=true]
             edge [color=blue penwidth=8]
             node [color=black fontcolor=lightgray style=filled penwidth=8]
             ";

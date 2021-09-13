@@ -197,14 +197,23 @@ legendBG <- rgb(0,0,0,0.85)
 plotInds <- which( (plotWindow[1] <= dat$submission_date) & (dat$submission_date <= plotWindow[2]) )
 today <- Sys.Date()
 today_str <- paste('today (', today, ')', sep='')
-weeks <- as.Date('2020-01-01') + as.difftime(0:200, units='weeks')
+thisYear <- as.integer(format(today, "%Y"))
+minYear <- as.integer(format(plotWindow[1], "%Y"))-1
+maxYear <- as.integer(format(plotWindow[2], "%Y"))+1
 months <- c()
-for (y in 2020:2025) { # loops are gross, but work well here.
+weeks <- c()
+for (Y in minYear:maxYear) { # loops are gross, but work well here.
     for (m in 1:12) {
-        months <- c(months, paste(y, sprintf("%02d", m), '01', sep='-'))
+        # %Y-%m-%d; the first dayj of every month of the year (see ?strftime)
+        months <- c(months, paste(Y, sprintf("%02d", m), '01', sep='-'))
+    }
+    for (W in 1:52) {
+        # %Y-%W-%w; every monday of every week of the year (see ?strftime)
+        weeks <- c(weeks, paste(Y, sprintf("%02d", W), '1', sep='-')) 
     }
 }
-months <- as.Date(months)
+months <- as.Date(months, format="%Y-%m-%d")
+weeks <- as.Date(weeks, format="%Y-%W-%w")
 # }}}
 
 # daily new cases {{{

@@ -372,10 +372,14 @@ bindsym $mod+Shift+slash exec /home/joedang/src/bash/bindgraph/bindgraph.sh \
 
 # window navigation {{{
 # change focus
-bindsym $mod+h focus left
-bindsym $mod+j focus down
-bindsym $mod+k focus up
-bindsym $mod+l focus right
+bindsym $mod+h     focus left
+bindsym $mod+Left  focus left
+bindsym $mod+j     focus down
+bindsym $mod+Down  focus down
+bindsym $mod+k     focus up
+bindsym $mod+Up    focus up
+bindsym $mod+l     focus right
+bindsym $mod+Right focus right
 
 # alternatively, you can use the cursor keys:
 #bindsym $mod+Left focus left

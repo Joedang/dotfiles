@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Reverse the arguments of cal, so you can specify things as "year month day", 
+# because only inbred neanderthal heathens do otherwise.
+# Joe Shields, 2021-09-14
+
+args=("$@")
+nArgs=${#args[@]}
+min=0
+max=$(( nArgs - 1 ))
+i=$max
+
+# I'm sure there's a one-liner way to do this, but I'm not sure what it is.
+newArgs=()
+while (( i >= min )); do
+    newArgs+=("${args[$i]}")
+    (( i-- ))
+done
+cal ${newArgs[@]}

@@ -1,57 +1,164 @@
 #!/usr/bin/env bash
-# output a bar depicting a percentage with a given width
+# Output a bar depicting a value within a range. (useful for progress bars)
 # Joe Shields, 2020-12-08
 # vim: set foldmethod=marker:
+# dependencies: 
+#   tput (for getting the width of the terminal)
+#   sed (for character substitution; could be replaced with parameter expansion)
 
 # Constants {{{
 # fancy-ish bar: ████├────┤
+declare -i MIN=0
+declare -i MAX=100
+declare -i width="$(tput cols || echo 80)"
+declare -i quantiles=0
 fillStartChar=''
 fillChar='█'
 fillEndChar=''
 emptyStartChar='├'
 emptyChar='─'
 emptyEndChar='┤'
-helpText="Usage: ${0##*/} [-w WIDTH] PERCENT
-Output a bar depicting a percentage, PERCENT, with a given width.
+QTL="\e[32m" # quantile style
+RST="\e[0m" # reset style
+nocolor='false'
+header='false'
+helpText="Usage: ${0##*/} [OPTIONS] VALUE
+
+Display a bar filled between a minimum and maximum value.
+Typically, this will be most useful for displaying progress bars.
 
 Options:
--w WIDTH    Specify the total width of the bar in characters. (default is 80)
--h          Display this message.  "
+    -m MIN      minimum value (default $MIN)
+    -M MAX      maximum value (default $MAX)
+    -w WIDTH    width of characters to print            (defaults to value from \`tput cols\`, or 80 if not available)
+    -q COUNT    number of quantiles                     (default $quantiles, 4 = quartiles)
+    -Q STYLE    display style for quantiles             (default \\$QTL)
+    -S CHAR     character for start of fill region      (default $fillStartChar)
+    -F CHAR     character for middle fill region        (default $fillChar)
+    -E CHAR     character for end of fill region        (default $fillEndChar)
+    -s CHAR     character for start of empty region     (default $emptyStartChar)
+    -f CHAR     character for middle of empty region    (default $emptyChar)
+    -e CHAR     character for end of empty region       (default $emptyEndChar)
+    -p          Plain display; do not use color. (equivalent to -q 0)
+    -H          Display a header of MIN, VALUE, and MAX.
+    -h          Display this help message.
+
+Example:
+\$ percentBar -w 12 -q 2 -H 60
+0;   60; 100
+$fillStartChar$fillChar$fillChar$fillChar$fillChar$QTL$fillChar$RST$fillEndChar$emptyStartChar$emptyChar$emptyChar$emptyChar$QTL$emptyEndChar$RST
+
+If VALUE is less than or equal to MIN (after rounding), the bar is completely empty.
+If VALUE is greater than or equal to MAX (after rounding), the bar is completely filled.
+The behavior is undefined for negative values, so only positive MIN, VALUE, and MAX should be used. 
+The behavior is undefined when MIN, MAX, VALUE, and COUNT are non-numeric.
+WIDTH must be greater than 0.
+
+Quantiles are used to visually identify approximate milestones (e.g., 25\%, 50\%, 75\%, and 100\% when using 4 quantiles).
+
+If there are problems getting the terminal width via \`tput cols\`, 
+the shell should warn you via stderr and WIDTH will default to 80.
+
+The start/fill/end values should not contain ANSI escape codes.
+End characters take priority over start charactes, which take priority over fill characters.
+So, a cramped bar may look like $fillEndChar$emptyEndChar or $fillStartChar$fillEndChar$emptyStartChar$emptyEndChar.
+"
 # }}}
 
 # Parse Options {{{
-declare -i perc=0
-declare -i width=80
-while getopts 'w:h' name
+while getopts 'm:M:w:q:Q:S:F:E:s:f:e:pHh' name
 do
     case "$name" in 
-        w)
-            width=$OPTARG
-            ;;
-        h)
-            echo "$helpText"
-            exit 1
-            ;;
-        *)
-            echo "Unknown option passed."
-            echo "$helpText"
-            exit -1
-            ;;
+        m) MIN="$OPTARG";;
+        M) MAX="$OPTARG";;
+        w) width="$OPTARG";;
+        q) quantiles="$OPTARG";;
+        Q) QTL="$OPTARG";;
+        S) fillStartChar="$OPTARG";;
+        F) fillChar="$OPTARG";;
+        E) fillEndChar="$OPTARG";;
+        s) emptyStartChar="$OPTARG";;
+        f) emptyChar="$OPTARG";;
+        e) emptyEndChar="$OPTARG";;
+        p) nocolor='true';;
+        H) header='true';;
+        h) echo -e "$helpText"; exit 1 ;;
+        *) echo "unrecognized option: $name" 1>&2; echo -e "$helpText"; exit -1 ;;
     esac
 done
 argArr=( "$@" )
 trailing="${argArr[@]:OPTIND-1}" # grab the trailing arguments
-perc="$trailing"
+val="$trailing"
 #(( perc==0 && ind==0 && text==0 && emoji==0 )) && text=1 # fallback if nothing set
+
+if [[ "$nocolor" == 'true' ]]; then
+    quantiles=0
+fi
+if [[ "$header" == 'true' ]]; then
+    true
+fi
 # }}}
 
-(( perc>100 )) && perc=100 # cap at 100%
+# determine the widths of the filled and unfilled sections {{{
+declare -i mil=0
+declare -i nfill=0
+declare -i nempty=0
+mil=$(( (1000*val - 1000*MIN)/(MAX-MIN) ))
+(( perc>1000 )) && mil=1000 # cap at 1000
 width=${width#-} # absolute value of width (remove - sign)
-nfill=$(( (width*perc+49)/100 )) # round symmetrically(ish) (width*(perc/100) +0.49)
+nfill=$(( (width*mil+499)/1000 )) # round symmetrically(ish) via the implicit floor(), i.e. (width*floor(mil/1000) +0.499)
 nfill=$(( nfill*(nfill>0) )) # treat negative percentages as zero
 nempty=$(( width-nfill ))
+# }}}
 
-printf "%${nfill}s"    | sed -e "s/ /$fillChar/g"  -e "s/$fillChar\$/$fillEndChar/"   -e "s/^$fillChar/$fillStartChar/"
-printf "%${nempty}s\n" | sed -e "s/ /$emptyChar/g" -e "s/$emptyChar\$/$emptyEndChar/" -e "s/^$emptyChar/$emptyStartChar/"
+# populate the filled/empty portions with characters {{{
+# create filled portion of bar
+#   create a string of spaces as long as the filled portion
+#   replace spaces with fill chars
+#   replace last fill char with fill end char
+#   replace first fill char with fill start char
+# similar procedure for empty portion of bar
+fillBar=$(printf "%${nfill}s"    | sed -e "s/ /$fillChar/g"  -e "s/$fillChar\$/$fillEndChar/"   -e "s/^$fillChar/$fillStartChar/")
+emptyBar=$(printf "%${nempty}s\n" | sed -e "s/ /$emptyChar/g" -e "s/$emptyChar\$/$emptyEndChar/" -e "s/^$emptyChar/$emptyStartChar/")
+bar="$fillBar$emptyBar"
+echo "fillBar: $fillBar"
+echo "emptyBar: $emptyBar"
+echo "bar: $bar"
+# }}}
 
-exit 0
+# color the quantile locaitons on the bar {{{
+
+#echo -n "$bar"
+#qtileLength=$(( width/quantiles ))
+#echo
+#echo "width: $width"
+#echo "qtileLength: $qtileLength"
+# example for quantiles=2
+# bar=${bar:0:qtileLength-1}$QTL${bar:qtileLength-1:1}$RST${bar:qtileLength:qtileLength-1}$QTL${bar:2*qtileLength-1:1}$RST
+
+coloredBar=""
+declare -i position1=0
+declare -i position2=0
+declare -i length=0
+if (( quantiles==0 )); then
+    coloredBar="$bar"
+elif (( width==1 )); then
+    coloredBar="$QTL$bar$RST"
+else
+    for (( q=0; q<quantiles; q++ )); do
+        position1="$position2"
+        position2=$(( (q+1)*width/quantiles ))
+        length=$(( position2-position1 ))
+        #echo "q: $q"
+        #echo "position: $position"
+        #coloredBar=$coloredBar${bar:q*qtileLength:qtileLength-1}$QTL${bar:(q+1)*qtileLength-1:1}$RST
+        coloredBar=$coloredBar${bar:position1:length-1}$QTL${bar:position2-1:1}$RST
+        #echo -e "coloredBar: \n$coloredBar"
+    done
+fi
+# }}}
+
+# output
+echo -e "$coloredBar"
+
+exit $?

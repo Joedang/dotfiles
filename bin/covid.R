@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 # info {{{
-# report the weekly Covid growth rate for Oregon
+# report the weekly Covid growth rate for your State
 # Joe Shields, 2020-09-14
 # vim: set foldmethod=marker:
 
@@ -30,12 +30,16 @@
 
 # TODO:
 # - either refactor things to either *convert* the data into a one-record-per-day format,  
-#   or tolerate time-series inconsistencies.
+#   or tolerate time-series inconsistencies. (probably not necessary)
 # - get everything into oldest-data-first
 # - introduce variables for misc stuff like week length
+# - make useable for multiple states
+#   - Use datasets:: state.name and state.abb to look up state names from codes (or vice versa).
 # info }}}
 
 # script configuration {{{
+stateCode <- 'MD'
+stateName <- 'Maryland'
 dateFormat <- '%Y-%m-%d\n' # format to use when printing dates
 dateRetrieved <- as.POSIXct(Sys.time()) # time the script was started
 outputDir <- paste(Sys.getenv('HOME'), '.local/status/covid/', sep='/') # path for the output files
@@ -65,7 +69,7 @@ cat( # if the script silently fails when refreshed through the GUI, this error w
     file=paste(outputDir, 'genmon.xml', sep=''),
     sep=''
 )
-url <- paste("http://data.cdc.gov/resource/9mfq-cb36.csv?$limit=", interestWindow+contagiousDays, "&$order=submission_date%20DESC&state=OR&$where=submission_date%20>=%20'2020-01-01'", sep='') # Socrata query URL 
+url <- paste("http://data.cdc.gov/resource/9mfq-cb36.csv?$limit=", interestWindow+contagiousDays, "&$order=submission_date%20DESC&state=", stateCode, "&$where=submission_date%20>=%20'2020-01-01'", sep='') # Socrata query URL 
 dat <- read.csv(url) # get the latest chunk of data
 nDays <- dim(dat)[1] # number of records returned (I'm assuming there's one record per day.)
 dataDate <- as.POSIXct(dat$submission_date[1]) # date of latest record
@@ -129,7 +133,7 @@ cat(
     file=paste(outputDir, 'weeklyPercent', sep='')
 )
 cat(
-    'Oregon\n', 
+    stateName, '\n', 
     file=paste(outputDir, 'state', sep='')
 )
 cat(
@@ -158,7 +162,7 @@ cat(
     sprintf(' %0.1f%%', weeklyPercent_pgt),
     '</span></txt>\n', 
     "<tool>", 
-    "weekly growth rate for COVID cases in Oregon\n", 
+    "weekly growth rate for COVID cases in ", stateName, "\n", 
     'data from: ', strftime(dataDate, format=dateFormat), 
     'stale: ', stale, 
     "</tool>\n", 
@@ -227,7 +231,7 @@ plot(
      #xlab= 'date',
      ylab= 'new cases'
 )
-title(main='Summary of COVID-19 Growth in Oregon')
+title(main=paste('Summary of COVID-19 Growth in', stateName))
 abline(v=oldestCaseDate, col='blue', lty='dashed')
 lines(
       as.Date(dat$submission_date), 

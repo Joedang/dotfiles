@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# grab an image from the webcam
+
+#            only one image only; show errors; don't overwrite; sane location
+f="$HOME/img/capture/Headshot_$(date +%Y-%m-%d_%H-%M-%S).jpg"
+ffmpeg -i /dev/video0 -frames 1 -loglevel error -n "$f" \
+    && xclip -selection clipboard -t image/jpeg "$f" \
+    && dunstify "image copied to clipboard" "$f"

@@ -6,7 +6,13 @@ test -z "$XDG_CONFIG_HOME" && export XDG_CONFIG_HOME=$HOME/.config
 # export the user-dirs variables
 test -f ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs && . ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs
 
-export INPUTRC="$HOME/.inputrc"
+# location of config file for readline (normally ~/.inputrc)
+export INPUTRC="$XDG_CONFIG_HOME/readline/inputrc"
+
+# Make ncurses apps use the terminal default colors as the ncurses default colors.
+# I think this only works if Lynx is compiled with ncurses color support... which should be extremely common.
+# This allows Lynx to have a transparent background, for example.
+export NCURSES_ASSUMED_COLORS='-1,-1'
 
 # enable the config file for calc
 export CALCRC='~/.calcrc'
@@ -16,6 +22,8 @@ export PYTHONSTARTUP=~/.config/pythonrc
 
 # home page for Lynx
 export WWW_HOME='https://duckduckgo.com/lite'
+export LYNX_CFG="$XDG_CONFIG_HOME/lynx/lynx.cfg"
+export LYNX_LSS="$XDG_CONFIG_HOME/lynx/lynx.lss"
 
 # set the default editor to vim
 export EDITOR=`which vim`

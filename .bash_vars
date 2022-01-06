@@ -27,7 +27,7 @@ export LYNX_LSS="$XDG_CONFIG_HOME/lynx/lynx.lss"
 
 # set the default editor to vim
 export EDITOR=`which vim`
-export BROWSER=`which firefox`
+export BROWSER=`which firefox 2>/dev/null`
 
 # Track a single ssh-agent across multiple shells.
 # example of ssh-agent output:
@@ -62,7 +62,7 @@ export SSH_AGENT_TRACKLOG=$HOME/log/ssh-agent-track.log
 } >> "$SSH_AGENT_TRACKLOG"
 
 # add ~/texmf to LaTeX's path:
-test -d ~/texmf && export TEXMFHOME="$HOME/texmf"
+test -d "~/texmf" && export TEXMFHOME="$HOME/texmf"
 
 # set the variable that points the gnupg.vim plugin to the current terminal
 # Only relevant once that plugin is fixed and I start using it.

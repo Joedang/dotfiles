@@ -71,20 +71,20 @@ esac
 # Aliases and path munging
 # These things are kept in separate files, to keep everything clean.
 # See /usr/share/doc/bash-doc/examples in the bash-doc package.
-test -f $HOME/.config/dotfiles/dotfiles.conf && . $HOME/.config/dotfiles/dotfiles.conf
-test -z $DOTFILES_DIR && DOTFILES_DIR=$HOME/dotfiles
+test -f "$HOME/.config/dotfiles/dotfiles.conf" && . "$HOME/.config/dotfiles/dotfiles.conf"
+test -z "$DOTFILES_DIR" && DOTFILES_DIR="$HOME/dotfiles"
 
-if [ -f $DOTFILES_DIR/.bash_aliases ]; then
-    . $DOTFILES_DIR/.bash_aliases
+if [ -f "$DOTFILES_DIR/.bash_aliases" ]; then
+    . "$DOTFILES_DIR/.bash_aliases"
 fi
-if [ -f $DOTFILES_DIR/.bash_path ]; then
-    . $DOTFILES_DIR/.bash_path
+if [ -f "$DOTFILES_DIR/.bash_path" ]; then
+    . "$DOTFILES_DIR/.bash_path"
 fi
-if [ -f $DOTFILES_DIR/.bash_vars ]; then
-    . $DOTFILES_DIR/.bash_vars
+if [ -f "$DOTFILES_DIR/.bash_vars" ]; then
+    . "$DOTFILES_DIR/.bash_vars"
 fi
-if [ -f ~/.local/.bashrc ]; then
-    . ~/.local/.bashrc
+if [ -f "~/.local/.bashrc" ]; then
+    . "~/.local/.bashrc"
 fi
 
 # enable programmable completion features (you don't need to enable
@@ -98,8 +98,8 @@ if ! shopt -oq posix; then
   fi
 fi
 
-if [[ -f ~/TODO.md ]]; then
+if [[ -f "~/TODO.md" ]]; then
 # 	pandoc ~/TODO.md -t html | lynx -stdin -dump
-	echo "There are $(wc -l ~/TODO.md | grep -o '[0-9]*\ ')lines remaining in ~/TODO.md!"
+	echo "There are $(wc -l "~/TODO.md" | grep -o '[0-9]*\ ')lines remaining in ~/TODO.md!"
 fi
 # w2do -l

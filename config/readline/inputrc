@@ -1,7 +1,15 @@
-set completion-ignore-case on
-set show-mode-in-prompt on
-set vi-cmd-mode-string "\001\033[33m\002(cmd)\001\033[39m\002"
-set vi-ins-mode-string "\001\033[32m\002(ins)\001\033[39m\002"
+# completion
+set completion-ignore-case on # case-insensitive completion
+set completion-map-case on # treat - and _ as equivalent in completion
+set colored-completion-prefix on # color the prefix used for completion differently
+set completion-query-items 30 # prompt whether you want to see more completions than this
+set menu-complete-display-prefix on # when cycling through a completion menu, come back to the original prefix
+set show-all-if-ambiguous on # show ambiguous completions immediately instead of pressing Tab twice
+set show-all-if-unmodified on # similar to the above, applied to things that would require multiple completions
+set visible-stats on # when completing file names, color based on the file type
+
+set history-size -1 # unlimited history
+set bell-style visible
 
 # force 8-bit character use
 # set meta-flag on
@@ -10,6 +18,9 @@ set vi-ins-mode-string "\001\033[32m\002(ins)\001\033[39m\002"
 # set output-meta on
 
 set editing-mode vi
+set show-mode-in-prompt on # show if you're in command or insert mode while in vi-like mode
+set vi-cmd-mode-string "\001\033[33m\002(cmd)\001\033[39m\002"
+set vi-ins-mode-string "\001\033[32m\002(ins)\001\033[39m\002"
 
 # automatically expand history references, e.g. !$ and tildes
 $if Bash
@@ -19,7 +30,7 @@ $if Bash
     set completion-ignore-case on
     set show-all-if-ambiguous on
     set completion-query-items 200
-    set match-hidden-files off
+    #set match-hidden-files off
 	set page-completions off
 
 	# set input-meta on
@@ -29,10 +40,15 @@ $endif
 $if mode=vi
     set keymap vi-insert
     "\C-l": clear-screen
-    "\C-p": history-search-backward
-    "\C-n": history-search-forward
     # alt dot cycles through last argument
     "\e.":yank-last-arg
+    "TAB":complete
+    "\C-n":menu-complete
+    "\C-p":menu-complete-backward
+
+    # better just to use j and k in command mode
+    #"\C-p": history-search-backward
+    #"\C-n": history-search-forward
 
     set keymap vi-command
     "D":kill-line

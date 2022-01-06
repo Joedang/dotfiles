@@ -221,6 +221,9 @@ autocmd FileType markdown imap <c-l>cr <Esc>0f]a<Space>(!)<Esc>
 " uncheck a TODO item
 autocmd FileType markdown nmap <Leader>uk 0f[lr <Esc>
 autocmd FileType markdown imap <c-l>uk 0f[lr <Esc>
+" turn on spell-checking for markdown
+autocmd FileType markdown set spell
+autocmd FileType text set spell
 
 function! MarkdownLevel()
     let h = matchstr(getline(v:lnum), '^#\+')

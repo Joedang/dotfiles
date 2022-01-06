@@ -89,7 +89,7 @@ source ~/.local/.bashrc
 
 # If `fortune` is installed, run it when starting a new shell.
 if which fortune > /dev/null; then
-    fortune -sa
+    fortune -s anarchism
 fi
 
 # You may need to manually set your language environment

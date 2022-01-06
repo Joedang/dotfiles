@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# just pass stdin through to stdout
+cat /dev/stdin

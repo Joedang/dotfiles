@@ -2,6 +2,10 @@ set page-padding 10
 set recolor-keephue true
 set default-bg "#222"
 set selection-clipboard clipboard
+set statusbar-home-tilde true
+
+# c = show command line, s = show statusbar, h = show horizontal scrollbar, v = show vertical scrollbar
+set guioptions ""
 
 map [normal]     + zoom in
 map [fullscreen] + zoom in

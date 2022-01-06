@@ -98,6 +98,7 @@ bindsym $mod+n workspace next
 bindsym $mod+p workspace prev
 
 # switch to the last-used workspace
+# TODO: Can I use wmctl to actually switch to the last-focused window?
 bindsym mod1+Tab workspace back_and_forth
 
 # scratchpad stuff
@@ -195,6 +196,12 @@ bindsym $mod+Shift+r restart
 bindsym $mod+Shift+p exec "bash -c 'pkill picom && sleep 1 && picom -b'"
 # exit i3 (logs you out of your X session)
 bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -B 'Yes, exit i3' 'i3-msg exit'"
+
+# control Dunst notifications
+bindsym Ctrl+space        exec --no-startup-id dunstctl 'close'
+bindsym Ctrl+Shift+space  exec --no-startup-id dunstctl 'close-all'
+bindsym Ctrl+grave        exec --no-startup-id dunstctl 'history-pop'
+bindsym Ctrl+Shift+period exec --no-startup-id dunstctl 'context'
 # }}}
 
 # media/function keys {{{
@@ -206,15 +213,28 @@ set $brightnessNotifyID 2
 set $brightnessNotifyDelay 2000
 set $backlightDir /sys/class/backlight/intel_backlight
 # Use pactl to adjust volume in PulseAudio.
+# This just sends a signal to update i3status. It doesn't actually kill the process.
 set $refresh_i3status killall -SIGUSR1 i3status
+# coarse volume control
 bindsym XF86AudioRaiseVolume \
         exec --no-startup-id \
         pactl set-sink-volume @DEFAULT_SINK@ +$volumeIncrement% \
         && $refresh_i3status \
-        && dunstify -r $audioNotifyID -u low -t $audioNotifyDelay -a SettingsNotify '🔊 '$( pactl list sinks | grep -m 1 Volume: | grep -o '[[:digit:]]*%' | head -n 1)  #"post-chain comment"
+        && dunstify -r $audioNotifyID -u low -t $audioNotifyDelay -a SettingsNotify '🔊 '$(pactl list sinks | grep -m 1 Volume: | grep -o '[[:digit:]]*%' | head -n 1)  #"post-chain comment"
 bindsym XF86AudioLowerVolume \
         exec --no-startup-id \
         pactl set-sink-volume @DEFAULT_SINK@ -$volumeIncrement% \
+        && $refresh_i3status \
+        && dunstify -r $audioNotifyID -u low -t $audioNotifyDelay -a SettingsNotify '🔉 '$(pactl list sinks | grep -m 1 Volume: | grep -o '[[:digit:]]*%' | head -n 1)
+# fine volume control (for the OCD need to get a particular number)
+bindsym Ctrl+XF86AudioRaiseVolume \
+        exec --no-startup-id \
+        pactl set-sink-volume @DEFAULT_SINK@ +1% \
+        && $refresh_i3status \
+        && dunstify -r $audioNotifyID -u low -t $audioNotifyDelay -a SettingsNotify '🔊 '$(pactl list sinks | grep -m 1 Volume: | grep -o '[[:digit:]]*%' | head -n 1)  #"post-chain comment"
+bindsym Ctrl+XF86AudioLowerVolume \
+        exec --no-startup-id \
+        pactl set-sink-volume @DEFAULT_SINK@ -1% \
         && $refresh_i3status \
         && dunstify -r $audioNotifyID -u low -t $audioNotifyDelay -a SettingsNotify '🔉 '$(pactl list sinks | grep -m 1 Volume: | grep -o '[[:digit:]]*%' | head -n 1)
 #bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -10% && $refresh_i3status
@@ -226,8 +246,12 @@ bindsym XF86AudioMute \
 #bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle && $refresh_i3status
 bindsym XF86AudioMicMute \
         exec --no-startup-id \
-        pactl set-source-mute @DEFAULT_SOURCE@ toggle \
-        && $refresh_i3status #\
+        "pactl set-source-mute @DEFAULT_SOURCE@ toggle \
+        && $refresh_i3status \
+        && dunstify -r $audioNotifyID -u low -t $audioNotifyDelay \
+        $(pactl list sources | sed -ne '/Source #1/,/Source #2/{/Mute: yes/{s/.*/❌🎤 muted/p}; /Mute: no/{s/.*/✅🎤 un-muted/p}}')"
+        #&& "dunstify -r $audioNotifyID -u low -t $audioNotifyDelay $(pactl list sources | awk 'BEGIN{m=0} /Source #1/{m=1} /Mute:/{if(m==1){print $2 exit}}' | sed -e 's/yes/❌🎤 muted/' -e 's/no/✅🎤 un-muted/')"
+        #&& dunstify -r $audioNotifyID -u low -t $audioNotifyDelay $(pactl list sources | awk 'BEGIN{m=0} /Source #1/{m=1} /Mute:/{if(m==1){print $2\;exit}}' | sed -e 's/yes/❌🎤 muted/' -e 's/no/✅🎤 un-muted/')
         #&& dunstify -r $audioNotifyID -u low -t $audioNotifyDelay $(pactl list sinks | grep -Pom 1 '(?<=Mute: ).*' | sed -e 's/yes/🔇 muted/' -e 's/no/🔊 un-muted/')
 #bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle && $refresh_i3status
 
@@ -246,26 +270,32 @@ bindsym XF86AudioPrev exec --no-startup-id playerctl previous || mpc prev
 # The firmware seems to grab these keys to control brightness, unless xfce4-power-manager is running.
 # coarse control
 bindsym XF86MonBrightnessUp exec --no-startup-id \
-        xbacklight -inc 10 && xbacklight -get > ~/.cache/backlight && $refreSH_I3status #\
-#        dunstify -r $brightnessNotifyID -u low -t $brightnessNotifyDelay -a SettingsNotify \
-#        "🌞 "$(echo '100*'$(cat $backlightDir/actual_brightness)"/"$(cat $backlightDir/max_brightness) | bc) \
-#        && $refreSH_I3status
+        xbacklight -inc 10 \
+        && xbacklight -get > ~/.cache/backlight \
+        && $refreSH_I3status \
+        && dunstify -r $brightnessNotifyID -u low -t $brightnessNotifyDelay -a SettingsNotify \
+        "🌞 "$(xbacklight -get)
+        #"🌞 "$(echo '100*'$(cat $backlightDir/actual_brightness)"/"$(cat $backlightDir/max_brightness) | bc)
 bindsym XF86MonBrightnessDown exec --no-startup-id \
-        xbacklight -dec 10 && xbacklight -get > ~/.cache/backlight && $refreSH_I3status #\
-#        dunstify -r $brightnessNotifyID -u low -t $brightnessNotifyDelay -a SettingsNotify \
-#        "🌚 "$(echo '100*'$(cat $backlightDir/actual_brightness)"/"$(cat $backlightDir/max_brightness) | bc) \
-#        && $refresh_i3status
+        xbacklight -dec 10 \
+        && xbacklight -get > ~/.cache/backlight \
+        && $refreSH_I3status \
+        && dunstify -r $brightnessNotifyID -u low -t $brightnessNotifyDelay -a SettingsNotify \
+        "🌚 "$(xbacklight -get)
+        #"🌚 "$(echo '100*'$(cat $backlightDir/actual_brightness)"/"$(cat $backlightDir/max_brightness) | bc)
 # fine control
 bindsym Ctrl+XF86MonBrightnessUp exec --no-startup-id \
-        xbacklight -inc 1 && xbacklight -get > ~/.cache/backlight && refreSH_I3status #\
-#        dunstify -r $brightnessNotifyID -u low -t $brightnessNotifyDelay -a SettingsNotify \
-#        "🌞 "$(echo '100*'$(cat $backlightDir/actual_brightness)"/"$(cat $backlightDir/max_brightness) | bc) \
-#        && $refreSH_I3status
+        xbacklight -inc 1 \
+        && xbacklight -get > ~/.cache/backlight \
+        && $refresh_i3status \
+        && dunstify -r $brightnessNotifyID -u low -t $brightnessNotifyDelay -a SettingsNotify \
+        "🌞 "$(xbacklight -get)
 bindsym Ctrl+XF86MonBrightnessDown exec --no-startup-id \
-        xbacklight -dec 1 && xbacklight -get > ~/.cache/backlight && $refresh_i3status #\
-#        dunstify -r $brightnessNotifyID -u low -t $brightnessNotifyDelay -a SettingsNotify \
-#        "🌚 "$(echo '100*'$(cat $backlightDir/actual_brightness)"/"$(cat $backlightDir/max_brightness) | bc) \
-#        && $refresh_i3status
+        xbacklight -dec 1 \
+        && xbacklight -get > ~/.cache/backlight \
+        && $refresh_i3status \
+        && dunstify -r $brightnessNotifyID -u low -t $brightnessNotifyDelay -a SettingsNotify \
+        "🌚 "$(xbacklight -get)
 #bindsym XF86MonBrightnessUp         exec --no-startup-id "xbacklight -inc 5  -time 100 -steps 10; dunstify brightness up"
 #bindsym Shift+XF86MonBrightnessUp   exec --no-startup-id xbacklight -inc 10 -time 100 -steps 10
 #bindsym XF86MonBrightnessDown       exec --no-startup-id xbacklight -dec 5  -time 100 -steps 10
@@ -292,13 +322,14 @@ bindsym $mod+F2 exec --no-startup-id dmenu_run $dmenu_flags
 bindsym XF86Launch1 exec "xfce4-appfinder"
 
 # simple calculator (just passes a string to calc)
-bindsym $mod+equal exec --no-startup-id echo "" | dmenu $dmenu_flags -p "calc:" -l 0 | calc | xargs -II dmenu $dmenu_flags -p \"I\"
+#bindsym $mod+equal exec --no-startup-id echo "" | dmenu $dmenu_flags -p "calc:" -l 0 | calc | xargs -II dmenu $dmenu_flags -p \"I\"
+bindsym $mod+equal exec --no-startup-id echo "" | dmenu $dmenu_flags -p "calc:" -l 0 | calc -p | xargs -I{} dunstify -- "{}"
 
 # simple unit conversion (just passes a string to units)
 bindsym $mod+u exec --no-startup-id \
                     units --compact --one-line --verbose \
-                        "$(dmenu $dmenu_flags -p 'you have: ')" "$(dmenu $dmenu_flags -p 'you want: ')" \
-                        | xargs -I{} dunstify "{}"
+                        -- "$(dmenu $dmenu_flags -p 'you have: ')" "$(dmenu $dmenu_flags -p 'you want: ')" \
+                        | xargs -I{} dunstify -- "{}"
                         #| dmenu $dmenu_flags -p "result: "
 
 # select unicode characters
@@ -342,6 +373,7 @@ bindsym $mod+Shift+m exec --no-startup-id ~/src/dotfiles/bin/dmenu-umount $dmenu
 # bindsym --release Ctrl+Print exec --no-startup-id scrot -ze 'mv $f ~/img/capture/ && dunstify \\"image copied to clipboard\\" \\"$f\\"'
 bindsym --release Print exec --no-startup-id ~/src/dotfiles/bin/screenshot_section
 bindsym --release Ctrl+Print exec --no-startup-id ~/src/dotfiles/bin/screenshot_full
+bindsym --release Shift+Print exec --no-startup-id ~/src/dotfiles/bin/headshot
 
 # bring up a digital clock
 bindsym $mod+t exec --no-startup-id \
@@ -507,7 +539,8 @@ mode "resize" {
 # You can also use any non-zero value if you'd like to have a border
 #default_border pixel 2
 default_border normal
-for_window [class=".*"]                 title_format (%instance) <b>%class → </b>%title
+#for_window [class=".*"]                 title_format (%instance) <b>%class → </b>%title
+for_window [class=".*"]                 title_format <b>%class → </b>%title
 for_window [class="XClock"]             border pixel 3 floating enable
 for_window [title="video0 - mpv"]       border pixel 3 floating enable # auto float when viewing /dev/video0
 for_window [title="Picture-in-Picture"] border pixel 3 floating enable, sticky enable
@@ -518,6 +551,8 @@ for_window [class="Firefox"]            move container to workspace $ws2
 #for_window [class="Tor Browser"]        move container to workspace $ws2
 for_window [class="Thunderbird"]        move container to workspace $ws3
 for_window [class="Signal"]             move container to workspace $ws3
+for_window [class="feh"]                floating enable
+for_window [title="Event Tester"]       floating enable
 
 #for_window [layout="stacking"] border normal 2
 
@@ -554,7 +589,7 @@ bar { # {{{
     separator_symbol "‖"
 
     colors {
-        background #111111cc
+        background #111111aa
         #background #111111
         statusline #dddddd
         separator #8b00dd

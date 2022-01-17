@@ -12,15 +12,15 @@ EXIT_OOPS=3    # unanticipated error
 # abort if you get errors
 set -e
 
-acroDir=$HOME/notes/acronyms
-KNOWNFILE=$acroDir/known.txt
-UNKNOWNFILE=$acroDir/unknown.txt
-BAKDIR=$acroDir/bak
+acroDir="$HOME/notes/acronyms"
+KNOWNFILE="$acroDir/known.txt"
+UNKNOWNFILE="$acroDir/unknown.txt"
+BAKDIR="$acroDir/bak"
 VERBOSITY=0
 
 function acro-find() {
 # Run acro-sfind, but provide some explanation of the error codes.
-	acro-sfind $@
+	acro-sfind "$@"
     ret=$?
 	if [ "$ret" -eq "$EXIT_GOOD" ]; then
 		return $ret
@@ -35,22 +35,22 @@ function acro-find() {
 
 function acro-ufind() {
 # run acro-sfind on the unknown acronyms.
-    acro-sfind $@ $UNKNOWNFILE
+    acro-sfind "$*" "$UNKNOWNFILE"
 }
 
 function acro-sfind() {
 # function description
     if [ -z "$2" ]; then
         if [[ $VERBOSITY == 1 ]]; then
-            echo no file given, defaulting to $KNOWNFILE 1>&2
+            echo no file given, defaulting to "$KNOWNFILE" 1>&2
         fi
-        F=$KNOWNFILE # default to editing the known acronyms
+        F="$KNOWNFILE" # default to editing the known acronyms
     else
         F="$2"
     fi
-	PATTERN=$1
+	PATTERN="$1"
     # case insensitive, lines that start with a string containing $letters, but no colon
-	if grep -iPe "^[^:]*?$PATTERN[^:]*?" $F
+	if grep -iPe "^[^:]*?$PATTERN[^:]*?" "$F"
 	then
 		return 0
 	else
@@ -60,61 +60,65 @@ function acro-sfind() {
 
 function acro-grep() {
 # simply pass the args on to grep
-    grep $@ $KNOWNFILE $UNKNOWNFILE
+    grep "$@" "$KNOWNFILE" "$UNKNOWNFILE"
 }
 
 function acro-known() {
 # function description
-    sort $KNOWNFILE
+    sort "$KNOWNFILE"
 }
 
 function acro-unknown() {
 # function description
-    sort $UNKNOWNFILE
+    sort "$UNKNOWNFILE"
 }
 
 function _acro-add() {
 # Append the args (assumed to be formatted as an acronym) to a file.
 # $1 is the file to add an acronym to.
 # The remaining args are the acronym entry.
-    F=$1
+    F="$1"
     shift
     if [ ! -f "$F" ]; then
-        mkdir -p `dirname "$F"`
+        echo "dirname F: $(dirname "$F")"
+        dirToCreate="$(print '%q' "$(dirname "$F")")"
+        # TODO: Well, something is fucky here. What kind of maniac creates a username with spaces in it anyways????
+        echo "dir: $dirToCreate"
+        mkdir -p "$dirToCreate"
         touch "$F"
     fi
-    echo "$@" >> $F
+    echo "$@" >> "$F"
 }
 
 function acro-define() {
 # Append the args (assumed to be formatted as an acronym) to the known file.
-    _acro-add $KNOWNFILE "$@"
+    _acro-add "$KNOWNFILE" "$@"
     # extract just the acronym
     ACRO=$(grep -iPoe "^[^:]*" <(echo "$@"))
     if [[ $VERBOSITY == 1 ]]; then
-        echo defined acronym: $ACRO
+        echo defined acronym: "$ACRO"
     fi
 
     # check if it needs to be removed from the unknown acronyms
-    if grep -i "^$ACRO$" $UNKNOWNFILE 1>&/dev/null; then
+    if grep -i "^$ACRO$" "$UNKNOWNFILE" 1>&/dev/null; then
         read -p "Found $ACRO in $UNKNOWNFILE. Remove it? (Y/n)" -r REPLY
-        if [[ $REPLY == [yY].* ]]; then # replied yes
+        if [[ "$REPLY" == [yY].* ]]; then # replied yes
             REMOVE=yes
-        elif [ -z $REPLY ]; then # just hit enter
+        elif [ -z "$REPLY" ]; then # just hit enter
             REMOVE=yes
         else # unrecognized response
             REMOVE=no
         fi
         if [ "$REMOVE" = 'yes' ]; then
             echo "Removing $ACRO from $UNKNOWNFILE ..."
-            sed -i "/^$ACRO$/Id" $UNKNOWNFILE # remove the acronym from the unknown list
+            sed -i "/^$ACRO$/Id" "$UNKNOWNFILE" # remove the acronym from the unknown list
         fi
     fi
 }
 
 function acro-udefine() {
 # Append the args (assumed to be formatted as an acronym) to the unknown file.
-    _acro-add $UNKNOWNFILE "$@"
+    _acro-add "$UNKNOWNFILE" "$@"
 }
 
 function acro-edit() {
@@ -122,22 +126,22 @@ function acro-edit() {
     if [ -z "$EDITOR" ]; then
         E=vim # default to vim
     else
-        E=$EDITOR
+        E="$EDITOR"
     fi
     if [ -z "$@" ]; then
         if [[ $VERBOSITY == 1 ]]; then
-            echo no file given, defaulting to $KNOWNFILE
+            echo "no file given, defaulting to $KNOWNFILE"
         fi
-        F=$KNOWNFILE # default to editing the known acronyms
+        F="$KNOWNFILE" # default to editing the known acronyms
     else
         F="$@"
     fi
-    $EDITOR $F
+    "$EDITOR" "$F"
 }
 
 function acro-uedit() {
 # edit the unknown file
-    acro-edit $UNKNOWNFILE
+    acro-edit "$UNKNOWNFILE"
 }
 
 function acro-sort() {
@@ -205,25 +209,25 @@ function acro-help() {
 	echo -e 'Run `which acro` if you'\'' don'\''t know where it is.'
 }
 
-cmd=$1 # grab the first arg
+cmd="$1" # grab the first arg
 shift # shift the remaining args forward (2 becomes 1, etc.)
 
 #### parse subcommands ####
-case $cmd in 
-	find)    acro-find    $@ ;;
-	ufind)   acro-ufind      ;;
-	sfind)   acro-sfind   $@ ;;
-    grep)    acro-grep    $@ ;;
-	known)   acro-known      ;;
-	unknown) acro-unknown    ;;
-	define)  acro-define  $@ ;;
-	udefine) acro-udefine $@ ;;
-    edit)    acro-edit    $@ ;;
-    uedit)   acro-uedit      ;;
-    sort)    acro-sort       ;;
-    backup)  acro-backup     ;;
-	init)    acro-init       ;;
-	help)    acro-help       ;;
+case "$cmd" in 
+	find)    acro-find    "$@" ;;
+	ufind)   acro-ufind        ;;
+	sfind)   acro-sfind   "$@" ;;
+    grep)    acro-grep    "$@" ;;
+	known)   acro-known        ;;
+	unknown) acro-unknown      ;;
+	define)  acro-define  "$@" ;;
+	udefine) acro-udefine "$@" ;;
+    edit)    acro-edit    "$@" ;;
+    uedit)   acro-uedit        ;;
+    sort)    acro-sort         ;;
+    backup)  acro-backup       ;;
+	init)    acro-init         ;;
+	help)    acro-help         ;;
 	*)
 		echo acro: \'$cmd\' is not a command. Run \'acro help\' for usage. 1>&2
 		exit 2

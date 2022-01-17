@@ -5,7 +5,7 @@
 # some navigation aliases {{{
 ## colored output for core stuff {{{
 if [ -x /usr/bin/dircolors ]; then # colored printing of directory contents
-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    test -r "~/.dircolors" && eval "$(dircolors -b "~/.dircolors")" || eval "$(dircolors -b)"
 fi
 alias ls='ls --color=auto'
 alias dir='dir --color=auto'
@@ -40,7 +40,7 @@ alias chonkers='du -hd1 * | sort -hr | head' # show the chonky dirs that take up
 alias path='echo -e "${PATH//:/\\n}"'
 
 # Clear the screen, go to the home dir, say the user and host name, list any running jobs, list dir contents 
-alias home='clear; cd $HOME; env echo -e "\e[36m$USER"\@$(uname -n)"\e[35m";jobs; env echo -en "\e[39m"; ls'
+alias home='clear; cd "$HOME"; env echo -e "\e[36m$(whoami)"\@$(uname -n)"\e[35m";jobs; env echo -en "\e[39m"; ls'
 alias hoe="home; echo 'What did you just call me?!'"
 # }}}
 # git aliases that are hard to build into .gitconfig {{{
@@ -95,13 +95,13 @@ quicklog() {
 }
 alias ql='quicklog'
 # show quicklog entries from today and yesterday:
-alias qlc='cat $HOME/log/quick.log | grep -A 100 --color=never -e $(date -Idate) -e $(date -Idate -d yesterday)'
+alias qlc='cat "$HOME/log/quick.log" | grep -A 100 --color=never -e $(date -Idate) -e $(date -Idate -d yesterday)'
 alias scrot-box="scrot -sfl style=dash,color=red -e 'mv \$f ~/img/capture/; xclip -selection clipboard -t image/png ~/img/capture/\$f'"
 alias scrot-full="scrot -e 'mv \$f ~/img/capture/'"
 alias spellcheck="look"
 alias xinfo="echo Actually, it\\'s called xprop.; xprop"
 alias shazam="echo Actually it\\'s called kazam.; kazam"
-alias lockScreen="i3lock -i $HOME/img/lock --show-failed-attempt"
+alias lockScreen='i3lock -i "$HOME/img/lock" --show-failed-attempt'
 alias mansplain="man"
 alias et="exiftool"
 hlview() {

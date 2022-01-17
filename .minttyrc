@@ -1,0 +1,12 @@
+ThemeFile=dracula
+Transparency=low
+Term=xterm-256color
+BellType=0
+FontHeight=12
+BoldAsFont=yes
+BoldAsColour=no
+AllowBlinking=yes
+Locale=en_US
+Charset=UTF-8
+CtrlShiftShortcuts=yes
+Printer=Microsoft Print to PDF

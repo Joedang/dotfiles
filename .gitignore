@@ -2,3 +2,5 @@
 
 # swap files
 *.swp
+
+config/dotfiles

@@ -21,6 +21,25 @@ syntax on
 filetype plugin on
 set omnifunc=syntaxcomplete#Complete
 
+" disable modelines at start, only evaluate the first 5 lines
+set nomodeline
+set modelines=5
+
+" toggle modelines on/off and display the status
+nmap   <Leader>ml :set modeline! modeline?<Return>
+vmap   <Leader>ml :set modeline! modeline?<Return>
+imap <c-l>ml <Esc>:set modeline! modeline?<Return>
+
+" key used for completions
+set wildchar=<Tab>
+
+" ignore case when completing file/directory names
+set wildignorecase
+
+" when hitting wildchar, complete as much as you can, then start the wildmenu
+set wildmode=longest:full
+set wildmenu
+
 " show hidden files in the NERD tree
 let NERDTreeShowHidden=1
 
@@ -91,6 +110,10 @@ let &t_EI = "\<Esc>[2 q" " block shape in normal mode
 " Set the default method of encryption for encrypted files
 " This is the strongest available by default, according to the help.
 set cryptmethod=blowfish2
+" When real security is required, use vim-gnupg. 
+" Just resave via gpg -a -r 'example@email.com' --encrypt foo.txt
+" Open the cipher text (foo.txt.asc) in Vim.
+" Remember to shred the clear text via shred -xzf foo.txt
 
 " add manually downloaded plugins
 set runtimepath+=$HOME/.vim/manual/*
@@ -119,10 +142,10 @@ command Reticule :set cuc! | :set cul!
 nmap <Leader>ret :Reticule<Return>
 vmap <Leader>ret :Reticule<Return>
 imap <c-l>ret <Esc>:Reticule<Return>a
-"function Reticule()
-"    set cuc!
-"    set cul!
-"endfunction
+
+" default to reticule on
+set cursorcolumn
+set cursorline
 
 " shortcuts for editing and reloading .vimrc
 command RCedit :ed $MYVIMRC

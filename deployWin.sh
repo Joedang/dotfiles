@@ -15,18 +15,13 @@ if [[ "$HOME" =~ ' ' ]]; then
     echo "\$HOME: $HOME"
 fi
 
-#cp -r .Renviron .Rprofile .bashrc .calcrc capsRemap.ahk .emacs .gitconfig .gitignore \
-#    .jupyter .profile .tmux.conf .vimrc config \
-#    --target-directory="$HOME"
-#cp .zshrc_oh-my "$HOME/.zshrc"
-#cp config/readline/inputrc "$HOME/.inputrc"
-#cp capsRemap.ahk "$HOME/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup/"
-#mkdir -p "$HOME/.vim/bundle"
-#git clone https://github.com/VundleVim/Vundle.vim "$HOME/.vim/bundle/Vundle.vim"
-#||||||| c3c5821
-# cp -r .Renviron .Rprofile .bashrc .calcrc .gitconfig \
-#	 .gitignore .profile .tmux.conf .vimrc bin \
-#	 --target-directory="$HOME"
+cp .zshrc_oh-my "$HOME/.zshrc"
+cp config/readline/inputrc "$HOME/.inputrc"
+cp capsRemap.ahk bindings.ahk     "$APPDATA/Microsoft/Windows/Start Menu/Programs/Startup/"
+#create-shortcut.exe capsRemap.ahk "$APPDATA/Microsoft/Windows/Start Menu/Programs/Startup/"
+#create-shortcut.exe bindings.ahk  "$APPDATA/Microsoft/Windows/Start Menu/Programs/Startup/"
+mkdir -p "$HOME/.vim/bundle"
+git clone https://github.com/VundleVim/Vundle.vim "$HOME/.vim/bundle/Vundle.vim"
 
 # array of filenames that should be copied to $HOME
 homeDots=( .bashrc .calcrc .emacs .gitconfig .gitignore .jupyter .profile .Renviron .Rprofile .tmux.conf .vimrc )
@@ -42,7 +37,7 @@ mkdir -p "$HOME/.config/dotfiles"
 
 # set the location of the dotfiles repo
 test -z "$DOTFILES_DIR" \
-    || echo "export DOTFILES_DIR='$dotDir'" >> "$HOME/.config/dotfiles/dotfiles.conf"
+    && echo "export DOTFILES_DIR='$dotDir'" >> "$HOME/.config/dotfiles/dotfiles.conf"
 
 # setup stuff for persistent ssh-agent
 mkdir -p "$HOME/log"
@@ -58,4 +53,5 @@ echo You\'re gonna want to install these:
 echo 'Git for Windows: https://git-scm.com/download/win'
 echo 'Autohotkey: https://www.autohotkey.com/download/ahk-install.exe'
 echo 'Greenshot: https://getgreenshot.org/downloads/'
-echo 'https://inkscape.org/'
+echo 'Inkscape: https://inkscape.org/'
+echo 'VcXsrv: https://sourceforge.net/projects/vcxsrv/'

@@ -1,6 +1,7 @@
 ; general key bindings for Windows
 
-Capslock::Esc ; remap the capslock key to escape
+; For some reason, this needs to be alone in its own script to be reliable...
+;Capslock::Esc ; remap the capslock key to escape
 
 ; close windows with Win+Shift+q
 #+q::

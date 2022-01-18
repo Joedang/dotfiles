@@ -8,6 +8,9 @@ set number
 " This allows pasting in chromeos (at least when not in tmux)
 set mouse=n
 
+" no flashy flashy
+set novb
+
 " Use extended mousey stuff; enables drag-resize within tmux
 " might break things with old terminals or terminal emulators
 set ttymouse=xterm2

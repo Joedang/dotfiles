@@ -27,7 +27,7 @@ export LYNX_LSS="$XDG_CONFIG_HOME/lynx/lynx.lss"
 
 # set the default editor to vim
 export EDITOR=`which vim`
-export BROWSER=`which firefox`
+export BROWSER=`which firefox 2>/dev/null`
 
 # Track a single ssh-agent across multiple shells.
 # example of ssh-agent output:

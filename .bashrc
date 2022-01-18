@@ -46,12 +46,15 @@ fi
 
 _exitstatus() {
     status=$?
-    (( status != 0 )) && printf "\001\e[1;31m\002exit $status\n\001\e[0m\002"
+    (( status != 0 )) && printf "\001\e[1;31m\002exit $status\001\e[0m\002\n"
 }
 PROMPT_COMMAND=_exitstatus
 
 #PS1='$(_exitstatus)\[\e[32m\]\w\[\e[0m\]\n\e[32m\s➔\e[0m '
-PS1='\[\e[32m\]\w\[\e[0m\]\n\e[32m\s➔\e[0m '
+#PS1='\[\e[32m\]\w\[\e[0m\]\n\e[32m\s➔\e[0m '
+# Unfortunately, the version of Bash that ships with Git for Windows misinterprets these \001 and \002 characters as smileys.
+# That's tolerable though.
+PS1='\[\001\e[32m\002\]\w\[\001\e[0m\002\]\n\001\e[32m\002\s➔\001\e[0m\002 '
 #if [ "$color_prompt" = yes ]; then
 #    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\n\033[1;32m\$\033[22;39m '
 #else
@@ -71,20 +74,20 @@ esac
 # Aliases and path munging
 # These things are kept in separate files, to keep everything clean.
 # See /usr/share/doc/bash-doc/examples in the bash-doc package.
-test -f $HOME/.config/dotfiles/dotfiles.conf && . $HOME/.config/dotfiles/dotfiles.conf
-test -z $DOTFILES_DIR && DOTFILES_DIR=$HOME/dotfiles
+test -f "$HOME/.config/dotfiles/dotfiles.conf" && . "$HOME/.config/dotfiles/dotfiles.conf"
+test -z "$DOTFILES_DIR" && DOTFILES_DIR="$HOME/dotfiles"
 
-if [ -f $DOTFILES_DIR/.bash_aliases ]; then
-    . $DOTFILES_DIR/.bash_aliases
+if [ -f "$DOTFILES_DIR/.bash_aliases" ]; then
+    . "$DOTFILES_DIR/.bash_aliases"
 fi
-if [ -f $DOTFILES_DIR/.bash_path ]; then
-    . $DOTFILES_DIR/.bash_path
+if [ -f "$DOTFILES_DIR/.bash_path" ]; then
+    . "$DOTFILES_DIR/.bash_path"
 fi
-if [ -f $DOTFILES_DIR/.bash_vars ]; then
-    . $DOTFILES_DIR/.bash_vars
+if [ -f "$DOTFILES_DIR/.bash_vars" ]; then
+    . "$DOTFILES_DIR/.bash_vars"
 fi
-if [ -f ~/.local/.bashrc ]; then
-    . ~/.local/.bashrc
+if [ -f "~/.local/.bashrc" ]; then
+    . "~/.local/.bashrc"
 fi
 
 # enable programmable completion features (you don't need to enable
@@ -98,8 +101,8 @@ if ! shopt -oq posix; then
   fi
 fi
 
-if [[ -f ~/TODO.md ]]; then
+if [[ -f "~/TODO.md" ]]; then
 # 	pandoc ~/TODO.md -t html | lynx -stdin -dump
-	echo "There are $(wc -l ~/TODO.md | grep -o '[0-9]*\ ')lines remaining in ~/TODO.md!"
+	echo "There are $(wc -l "~/TODO.md" | grep -o '[0-9]*\ ')lines remaining in ~/TODO.md!"
 fi
 # w2do -l

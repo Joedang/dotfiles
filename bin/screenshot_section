@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-scrot -zsfl style=dash,color=red -e 'mv $f ~/img/capture/; xclip -selection clipboard -t image/png ~/img/capture/$f && dunstify "image copied to clipboard" "$f"'
+scrot -zf --select=capture -l style=dash,color=red -e 'mv $f ~/img/capture/; xclip -selection clipboard -t image/png ~/img/capture/$f && dunstify "image copied to clipboard" "$f"'

@@ -29,7 +29,25 @@
     # the top and down respectively.
     # The width can be negative.  In this case the actual width is the
     # screen width minus the width defined in within the geometry option.
-    geometry = "300x5-10-10"
+    # geometry = "300x5-10-10"
+    # The geometry option was deprecated. Use width, height, origin, offset, and notification_limit instead.
+    
+    # dynamic width from 0 to 300
+    # width = (0, 300)
+    # constant width of 300
+    width = 300
+
+    # The maximum height of a single notification, excluding the frame.
+    height = 300
+
+    # Position the notification in the top right corner
+    origin = bottom-right
+
+    # Offset from the origin
+    offset = -10x-10
+
+    # Maximum number of notification (0 means no limit)
+    notification_limit = 10
 
     # Show how many messages are currently hidden (because of geometry).
     indicate_hidden = yes
@@ -276,20 +294,20 @@
     # "mod3" and "mod4" (windows-key).
     # Xev might be helpful to find names for keys.
 
-    # Close notification.
-    close = ctrl+space
+    # Close notification. deprecated option... adding to i3 config
+    # close = ctrl+space
 
-    # Close all notifications.
-    close_all = ctrl+shift+space
+    # Close all notifications. deprecated option... adding to i3 config
+    # close_all = ctrl+shift+space
 
-    # Redisplay last message(s).
+    # Redisplay last message(s). deprecated option... adding to i3 config
     # On the US keyboard layout "grave" is normally above TAB and left
     # of "1". Make sure this key actually exists on your keyboard layout,
     # e.g. check output of 'xmodmap -pke'
-    history = ctrl+grave
+    # history = ctrl+grave
 
-    # Context menu.
-    context = ctrl+shift+period
+    # Context menu. deprecated option... adding to i3 config
+    # context = ctrl+shift+period
 
 [urgency_low]
     # IMPORTANT: colors have to be defined in quotation marks.

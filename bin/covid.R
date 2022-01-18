@@ -70,6 +70,8 @@ cat( # if the script silently fails when refreshed through the GUI, this error w
     sep=''
 )
 url <- paste("http://data.cdc.gov/resource/9mfq-cb36.csv?$limit=", interestWindow+contagiousDays, "&$order=submission_date%20DESC&state=", stateCode, "&$where=submission_date%20>=%20'2020-01-01'", sep='') # Socrata query URL 
+print("Retreiving data...")
+print(url)
 dat <- read.csv(url) # get the latest chunk of data
 nDays <- dim(dat)[1] # number of records returned (I'm assuming there's one record per day.)
 dataDate <- as.POSIXct(dat$submission_date[1]) # date of latest record
@@ -222,11 +224,12 @@ weeks <- as.Date(weeks, format="%Y-%W-%w")
 
 # daily new cases {{{
 print("Plotting daily new cases...")
+# Either NaN or Inf values are breaking the script here when a state fails to report cases for a week or more.
 plot(
      as.Date(dat$submission_date[1:length(dailyGrowth)]),
      dat$new_case[1:length(dailyGrowth)],
      #main= 'Daily New Cases',
-     ylim= c(0, max(dat$new_case[plotInds])),
+     ylim= c(0, max(na.omit(dat$new_case[plotInds]))),
      xlim= plotWindow,
      #xlab= 'date',
      ylab= 'new cases'
@@ -263,7 +266,7 @@ plot(
 #                                   length(active)
 #                                   )) ]
 #                     )*plotElbowroom),
-     ylim= c(0, max(active[ 1:length(active) %in% plotInds ]*plotElbowroom)),
+     ylim= c(0, max(na.omit(active[ 1:length(active) %in% plotInds ]*plotElbowroom))),
      #main='Active Cases',
      #xlab= 'date',
      ylab= c('number of active cases\n(a) (cases)')
@@ -308,9 +311,9 @@ plot(
      dailyGrowth,
      xlim= plotWindow,
      #ylim= range(c(0, range(dailyGrowth[plotInds])*plotElbowroom)),
-     ylim= range(c(0, dailyGrowth[
+     ylim= range(c(0, na.omit(dailyGrowth[
                                      1:length(dailyGrowth) %in% plotInds
-                                 ]))*plotElbowroom,
+                                 ])))*plotElbowroom,
      type='l',
      #main='Daily Growth Rate',
      #xlab= 'date',

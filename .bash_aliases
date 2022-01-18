@@ -5,7 +5,7 @@
 # some navigation aliases {{{
 ## colored output for core stuff {{{
 if [ -x /usr/bin/dircolors ]; then # colored printing of directory contents
-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    test -r "~/.dircolors" && eval "$(dircolors -b "~/.dircolors")" || eval "$(dircolors -b)"
 fi
 alias ls='ls --color=auto'
 alias dir='dir --color=auto'
@@ -20,6 +20,7 @@ alias cls='clear; ls'
 alias clsd='clear; lsd'
 #alias ll='ls -alFh'
 alias ll='echo "\e[36mflags,   refs,owner, group, size,  modified, name\e[39m" ; ls -alFh'
+alias lth='ls -lth | head'
 alias la='ls -a'
 alias lla='ls -la'
 alias l='ls -CF'
@@ -27,13 +28,19 @@ alias lsd='ls -d -- */'
 alias cj='clear; jobs'
 alias clj='clear; jobs; ls'
 alias pl='pwd;ls'
+function cdlnk() { # follow a windows shortcut
+    # extract a string of printable characters starting like C:\ or D:\ et cetera
+    # exchange backslashes with forward slashes; exchange the C: head with /c
+    cd "$(grep -aoe '[[:upper:]]:\\[[:print:]]*' "$1" | sed -e 's/\\/\//g' -e 's/^C:/\/c/')"
+}
 function cdls() { 
     cd "$@"; ls; 
 }
 alias chonkers='du -hd1 * | sort -hr | head' # show the chonky dirs that take up a lot of space
+alias path='echo -e "${PATH//:/\\n}"'
 
 # Clear the screen, go to the home dir, say the user and host name, list any running jobs, list dir contents 
-alias home='clear; cd $HOME; env echo -e "\e[36m$USER"\@$(uname -n)"\e[35m";jobs; env echo -en "\e[39m"; ls'
+alias home='clear; cd "$HOME"; env echo -e "\e[36m$(whoami)"\@$(uname -n)"\e[35m";jobs; env echo -en "\e[39m"; ls'
 alias hoe="home; echo 'What did you just call me?!'"
 # }}}
 # git aliases that are hard to build into .gitconfig {{{
@@ -46,7 +53,13 @@ alias allsta=' find . -type d -name "\.git" \
 # }}}
 # miscellaneous abreviated aliases {{{
 infind() {
+    # use find to fuzzy match a word in the current directory
 	find -iname "*$1*"
+}
+inlocate() {
+    # use locate to fuzzy match a word in the current directory
+    # This is like an order of magnitude faster, but the database only gets updated when the cron job runs.
+    locate -i "$(pwd)/*$1*"
 }
 alias vl='/usr/share/vim/vim74/macros/less.sh'
 alias gcalc='gcalccmd'
@@ -72,7 +85,7 @@ alias psudo='sudo env PATH="$PATH"' # "path sudo" Use sudo with your current PAT
 alias ssay='spd-say'
 # default to vi-like key bindings for given programs
 alias info='info --vi-keys'
-alias lynx='lynx --vikeys --use_mouse --enable_scrollback'
+#alias lynx='lynx --vikeys --use_mouse --enable_scrollback' # handled in lynx.cfg now
 alias facecam='mpv --profile=low-latency --vf=hflip --geometry=20%x20%-5-25 /dev/video0'
 alias nmpc='ncmpcpp'
 quicklog() {
@@ -82,15 +95,18 @@ quicklog() {
 }
 alias ql='quicklog'
 # show quicklog entries from today and yesterday:
-alias qlc='cat $HOME/log/quick.log | grep -A 100 --color=never -e $(date -Idate) -e $(date -Idate -d yesterday)'
+alias qlc='cat "$HOME/log/quick.log" | grep -A 100 --color=never -e $(date -Idate) -e $(date -Idate -d yesterday)'
 alias scrot-box="scrot -sfl style=dash,color=red -e 'mv \$f ~/img/capture/; xclip -selection clipboard -t image/png ~/img/capture/\$f'"
 alias scrot-full="scrot -e 'mv \$f ~/img/capture/'"
 alias spellcheck="look"
 alias xinfo="echo Actually, it\\'s called xprop.; xprop"
 alias shazam="echo Actually it\\'s called kazam.; kazam"
-alias lockScreen="i3lock -i $HOME/img/lock --show-failed-attempt"
+alias lockScreen='i3lock -i "$HOME/img/lock" --show-failed-attempt'
 alias mansplain="man"
 alias et="exiftool"
+hlview() {
+    lynx <(source-highlight -i "$*" -o STDOUT) -force_html
+}
 # }}} 
 # things to control the encrypted journal {{{
 alias jrnl-mount="encfs $XDG_DOCUMENTS_DIR/.journal $XDG_DOCUMENTS_DIR/journal"
@@ -100,6 +116,10 @@ alias jrnl='jrnl-mount; vim $XDG_DOCUMENTS_DIR/journal/`date -I`.md; jrnl-umount
 # reference material {{{
 alias chrestomathy="vim $DOTFILES_DIR/chrestomathy.md"
 alias colorRef='cat <(colorCodes) <(colorBlocks) | less'
+ddg() {
+    lynx "https://lite.duckduckgo.com/lite/?q=$@"
+}
+alias search='ddg'
 # }}} 
 # silly ASCII things {{{
 alias gf='echo TFW no gf; fg'

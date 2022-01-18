@@ -1,0 +1,195 @@
+#!/bin/bash
+#TODO: handle the weird bit-overwriting behavior of ls
+
+# parameters {{{
+RST="\e[0m"
+RED="\e[91m"
+YEL="\e[33m"
+GRN="\e[32m"
+CYA="\e[96m"
+MAG="\e[95m"
+
+read -r -d '' helpText <<EOF
+Usage: ${0##*/} [[-u PERMS] [-g PERMS] [-o PERMS]] | [-l PERMS] | PERMS
+
+Convert a human-readable permission string (in the style of ls -l)
+to an octal mask (in the oldschool chmod style).
+
+Options:
+    -l PERMISSIONS  permission string in the style of ls
+                    This must be in chunks of 3 characters, each containing 'r', 'w', 'x', or '-'.
+    -u PERMISSIONS  permission string for the user   (string of 'r', 'w', 'x', or '-')
+    -g PERMISSIONS  permission string for the group  (string of 'r', 'w', 'x', or '-')
+    -o PERMISSIONS  permission string for the others (string of 'r', 'w', 'x', or '-')
+    -e              Echo the permission string.
+    -H              Highlight the output for easy reading.
+    -h              Display this help message.
+
+Examples:
+\$ ${0##*/} 1600 
+output
+
+Poorly formatted inputs may give unexpected results.
+
+POSIX file permissions are expressed as a bit mask.
+Each bit sets a certain permission for the file.
+These permissions come in groups of three.
+The group of most significant bits governs the user and group IDs
+of the process that gets created when executing the file,
+as well as whether users other than the file's owner may delete the file.
+(This is known as the "sticky bit".)
+The second-most significant group governs what the file's owner may do with the file.
+The third-most governs what the file's group may do.
+The least significant group governs what anyone may do.
+
+Obviously, there are important security implications to this mask.
+For example, if a file is owned by root, runs as root, but may be written by anyone,
+that effectively gives everyone root access, 
+since they can write whatever the want to the file and then let it run as root.
+
+One quirk of this system is that the bits which controll execution for a file
+are the bits which controll searching for a directory.
+However, this does not hide file names in that directory.
+It only hides contents and permissions.
+To hide everything in a directory, you must turn off the read bits.
+
+This mask is commonly displayed as an octal number, 
+since each octal digit comprises exactly one of these groups.
+However, it can be annoying to translate between the octal number and the permission mask,
+which is what this script is for.
+It's also common to omit the octal digit for process IDs and the sticky bit,
+since those are commonly 0.
+
+It's also common to display the mask in binary,
+replacing all 1s with a letter corresponding to the permission and all 0s with a dash.
+So, a mask with all the bits set would look like
+ugsrwxrwxrwx
+Although, because the ls -l command tries to save some space, you'd actually see
+rwSrwSrwT
+See below for an explanation.
+
+For each octal digit of the mask:
++4 allows reading, or sets process user ID
++2 allows writing, or sets process group ID
++1 allows execution, or sets sticky bit
+
+Each octal digit controlls the following permissions.
+fourth-from-right : process ID bits and sticky bit
+ third-from-right : the file's user
+second-from-right : users that are part of the file's group
+        far-right : users that aren't part of the file's user or group
+
+Expanded out from most to least significant bits, these are:
+     binary     | octal |     ls-style    | permission
+ -------------- | ----- |  -------------- | ----------
+100 000 000 000 |  4000 | u-- --- --- --- | process user ID is file owner ID (SetUID bit)
+010 000 000 000 |  2000 | -g- --- --- --- | process group ID is file group ID (SetGID bit)
+001 000 000 000 |  1000 | --s --- --- --- | file may only be deleted by its user (sticky bit)
+ -------------- | ----- |  -------------- | ----------
+000 100 000 000 |  0400 | --- r-- --- --- | user may read
+000 010 000 000 |  0200 | --- -w- --- --- | user may write
+000 001 000 000 |  0100 | --- --x --- --- | user may execute/search
+ -------------- | ----- |  -------------- | ----------
+000 000 100 000 |  0040 | --- --- r-- --- | group may read
+000 000 010 000 |  0020 | --- --- -w- --- | group may write
+000 000 001 000 |  0010 | --- --- --x --- | group may execute/search
+ -------------- | ----- |  -------------- | ----------
+000 000 000 100 |  0004 | --- --- --- r-- | anyone ("others") may read
+000 000 000 010 |  0002 | --- --- --- -w- | anyone ("others") may write
+000 000 000 001 |  0001 | --- --- --- --x | anyone ("others") may execute/search
+
+For example, the following mask would prevent anyone but the user from deleting the file,
+would allow the user to read, write and execute the file,
+would allow the group to read and write the file,
+and would not allow others to do anything with it:
+
+set ID/sticky--v v--group
+               1760
+          user--^ ^--other
+
+In the style of ls, this would look like
+--srwxrw----
+
+To make things more confusing, the actual output of ls -l would look like
+rwxrw---t
+The SetUID, SetGID, and sticky bits get drawn over the 
+user execution, group execution, and other execution bits respectively.
+SetUID and SetGID draw an "s", while the sticky bit draws a "t".
+If the corresponding execution bit is set at the same time, the letter is capitalized.
+EOF
+# }}}
+
+# parse inputs {{{
+while getopts 'l:s:u:g:o:eHh' name; do
+    case $name in
+        l) optLS="$OPTARG";break;;
+        s) optSTICKY="${OPTARG:0:3}";;
+        u) optUSER="${OPTARG:0:3}";;
+        g) optGROUP="${OPTARG:0:3}";;
+        o) optOTHER="${OPTARG:0:3}";;
+        e) echoLS=1;;
+        H) echoHighlight=1;;
+        h) printf "$helpText"; exit 1 ;;
+        *) echo "unrecognized option: $name" 1>&2; printf "$helpText"; exit -1 ;;
+    esac
+done
+shift $(( $OPTIND - 1 ))
+
+# for debugging
+#echo initial args:
+#echo "optLS    : $optLS"
+#echo "optSTICKY: $optSTICKY"
+#echo "optUSER  : $optUSER"
+#echo "optGROUP : $optGROUP"
+#echo "optOTHER : $optOTHER"
+# }}}
+
+# combine the stand-alone clusters {{{
+# strighten out any mis-ordered clusters
+function comb() {
+    [[ ("$1" == *r*) || ("$1" == *u*) ]] && result=r          || result=-
+    [[ ("$1" == *w*) || ("$1" == *g*) ]] && result="$result"w || result="$result"-
+    [[ ("$1" == *x*) || ("$1" == *s*) ]] && result="$result"x || result="$result"-
+    [[ "$1" =~ [^rwxugs-] ]] && echo bad chars in "$1" 1>&2
+    echo "$result"
+}
+
+if [[ -z "$optLS" ]]; then
+    [[ -z "$optSTICKY$optUSER$optGROUPcomb$optOTHER" ]] \
+        && optLS="$1" \
+        || optLS="$(comb $optSTICKY)$(comb $optUSER)$(comb $optGROUP)$(comb $optOTHER)"
+fi
+#echo "optLS    : $optLS"
+# }}}
+
+# echo the permissions, optionally color them {{{
+if (( echoLS == 1 )); then
+    (( echoHighlight == 1 )) \
+        && echo -e  "$MAG${optLS: -12:3}$GRN${optLS: -9:3}$YEL${optLS: -6:3}$RED${optLS: -3:3}$RST" \
+        || echo "$optLS"
+fi
+# }}}
+
+function badchar() { echo "bad charater at $(( len-i )): $char" 1>&2; }
+
+# interpret the permission string {{{
+if [[ -n "$optLS" ]]; then
+    len=${#optLS}
+    j=0
+    for ((i=0; i<len; i++)); do
+        marked=0
+        char=${optLS: -1}
+        optLS=${optLS%?}
+        case $(( i%3 )) in
+            0) [[ "$char" == x ]] || [[ "$char" == s && $j == 3 ]] && marked=1 || [[ "$char" == - ]] || badchar;;
+            1) [[ "$char" == w ]] && marked=1 || [[ "$char" == - ]] || badchar;;
+            2) [[ "$char" == r ]] && marked=1 || [[ "$char" == - ]] || badchar;;
+            *) echo error in case statement; exit -1;;
+        esac
+        (( n += marked*2**(i) ))
+        (( i%3 == 2 )) && (( j++ ))
+    done
+fi
+# }}}
+
+printf '%o\n' "$n"

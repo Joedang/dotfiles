@@ -33,12 +33,12 @@ order += "tztime local"
 
 wireless _first_ {
         #format_up = "📡 (%quality on %essid) %ip" 
-        format_up = "📡" 
-        format_down = "📡❌"
+        format_up = "W:%quality %essid" 
+        format_down = "" # "📡❌"
 }
 
 ethernet _first_ {
-        format_up = "E: %ip (%speed)"
+        format_up = "E:%ip"
         format_down = "" #"E: down"
 }
 

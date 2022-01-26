@@ -32,7 +32,8 @@ done
 cp .zshrc_oh-my "$HOME/.zshrc"
 cp config/readline/inputrc "$HOME/.inputrc"
 
-cp -r config "$HOME/.config" # copy the stuff bundled in config/
+mkdir -p "$HOME/.config"
+cp -r config/* "$HOME/.config/" # copy the stuff bundled in config/
 mkdir -p "$HOME/.config/dotfiles"
 
 # set the location of the dotfiles repo

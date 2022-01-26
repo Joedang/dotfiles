@@ -86,8 +86,8 @@ fi
 if [ -f "$DOTFILES_DIR/.bash_vars" ]; then
     . "$DOTFILES_DIR/.bash_vars"
 fi
-if [ -f "~/.local/.bashrc" ]; then
-    . "~/.local/.bashrc"
+if [ -f "$HOME/.local/.bashrc" ]; then
+    . "$HOME/.local/.bashrc"
 fi
 
 # enable programmable completion features (you don't need to enable

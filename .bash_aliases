@@ -93,6 +93,8 @@ alias j2a='jp2a --colors --background=dark'
 alias fp='firefox --private'
 alias norename='tmux set-window-option allow-rename off'
 alias xclip='xclip -selection clipboard'
+alias winclipcopy='/mnt/c/Windows/system32/clip.exe'
+alias winclippaste='/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -c Get-Clipboard'
 alias psudo='sudo env PATH="$PATH"' # "path sudo" Use sudo with your current PATH.
 alias ssay='spd-say'
 # default to vi-like key bindings for given programs

@@ -46,13 +46,23 @@ function lslnk() {
 function cdlnk() { # follow a windows shortcut
     cd "$(lslnk "$*")"
 }
+if [[ "$WINCOMPATABILITY" == "MINGW" ]]; then # git bash
+    #alias notify-send='ahk-notify-send'
+elif [[ "$WINCOMPATABILITY" == "WSL" ]]; then # WSL
+    #alias notify-send='ahk-notify-send'
+else # real Linux
+fi
 function mklnk() { # create a windows shortcut
     # Take advantage of AutoHotkey's ability to make Windows shortcuts... because there's no good builtin way!
     # https://i.kym-cdn.com/photos/images/original/000/889/900/492.gif
+    # TODO: make this work cleanly on WSL. (Currently, wslpath sucks because it errors-out when given a fictional path... which I need to do for the link path.)
     targetPath="$1"
     linkPath="$2"
     [[ -z "$linkPath" ]] && linkPath="$(basename "$targetPath").lnk" # if no link name given, behave like ln -s
-    echo "FileCreateShortcut,%A_WorkingDir%\\$(cygpath.exe -w "$targetPath"),$(cygpath.exe -w "$linkPath")" | '/c/Program Files/AutoHotkey/AutoHotkeyU64.exe' '*'
+    winTargetPath=$(cygpath.exe -w "$targetPath")
+    winLinkPath=$(cygpath.exe -w "$linkPath")
+
+    echo "FileCreateShortcut,%A_WorkingDir%\\$winTargetPath,$winLinkPath" | "$AHKEXE" '*'
 }
 # }}}
 # git aliases that are hard to build into .gitconfig {{{

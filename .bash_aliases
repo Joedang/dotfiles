@@ -28,11 +28,6 @@ alias lsd='ls -d -- */'
 alias cj='clear; jobs'
 alias clj='clear; jobs; ls'
 alias pl='pwd;ls'
-function cdlnk() { # follow a windows shortcut
-    # extract a string of printable characters starting like C:\ or D:\ et cetera
-    # exchange backslashes with forward slashes; exchange the C: head with /c
-    cd "$(grep -aoe '[[:upper:]]:\\[[:print:]]*' "$1" | sed -e 's/\\/\//g' -e 's/^C:/\/c/')"
-}
 function cdls() { 
     cd "$@"; ls; 
 }
@@ -42,6 +37,33 @@ alias path='echo -e "${PATH//:/\\n}"'
 # Clear the screen, go to the home dir, say the user and host name, list any running jobs, list dir contents 
 alias home='clear; cd "$HOME"; env echo -e "\e[36m$(whoami)"\@$(uname -n)"\e[35m";jobs; env echo -en "\e[39m"; ls'
 alias hoe="home; echo 'What did you just call me?!'"
+# }}}
+# stuff for surviving Windows {{{
+function lslnk() {
+    # extract a string of printable characters starting like C:\ or D:\ et cetera
+    cygpath.exe "$(grep -aoe '[[:upper:]]:\\[[:print:]]*' "$1")"
+}
+function cdlnk() { # follow a windows shortcut
+    cd "$(lslnk "$*")"
+}
+if [[ "$WINCOMPATABILITY" == "MINGW" ]]; then # git bash
+    #alias notify-send='ahk-notify-send'
+elif [[ "$WINCOMPATABILITY" == "WSL" ]]; then # WSL
+    #alias notify-send='ahk-notify-send'
+else # real Linux
+fi
+function mklnk() { # create a windows shortcut
+    # Take advantage of AutoHotkey's ability to make Windows shortcuts... because there's no good builtin way!
+    # https://i.kym-cdn.com/photos/images/original/000/889/900/492.gif
+    # TODO: make this work cleanly on WSL. (Currently, wslpath sucks because it errors-out when given a fictional path... which I need to do for the link path.)
+    targetPath="$1"
+    linkPath="$2"
+    [[ -z "$linkPath" ]] && linkPath="$(basename "$targetPath").lnk" # if no link name given, behave like ln -s
+    winTargetPath=$(cygpath.exe -w "$targetPath")
+    winLinkPath=$(cygpath.exe -w "$linkPath")
+
+    echo "FileCreateShortcut,%A_WorkingDir%\\$winTargetPath,$winLinkPath" | "$AHKEXE" '*'
+}
 # }}}
 # git aliases that are hard to build into .gitconfig {{{
 alias sta='git status'

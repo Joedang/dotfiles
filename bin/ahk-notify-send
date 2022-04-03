@@ -1,0 +1,8 @@
+#!/bin/bash
+# wrapper for AutoHotkey to stand-in for notify-send
+# TODO: parse notify-send options and translate them into the nearest AHK equivalents 
+#       instead of blindly passing them through, so that commas don't break everything, lol.
+title="$1"
+shift
+text="${@:-.}" # Default to '.' if no text was given. (If TrayTip is given no body text, it just silently displays nothing!)
+ahk TrayTip "$title", "$text"

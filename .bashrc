@@ -62,14 +62,14 @@ PS1='\[\001\e[32m\002\]\w\[\001\e[0m\002\]\n\001\e[32m\002\s➔\001\e[0m\002 '
 #fi
 unset color_prompt force_color_prompt
 
-# If this is an xterm set the title to user@host:dir
-case "$TERM" in
-xterm*|rxvt*)
-    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
-    ;;
-*)
-    ;;
-esac
+## If this is an xterm set the title to user@host:dir
+#case "$TERM" in
+#xterm*|rxvt*)
+#    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
+#    ;;
+#*)
+#    ;;
+#esac
 
 # Aliases and path munging
 # These things are kept in separate files, to keep everything clean.
@@ -77,17 +77,29 @@ esac
 test -f "$HOME/.config/dotfiles/dotfiles.conf" && . "$HOME/.config/dotfiles/dotfiles.conf"
 test -z "$DOTFILES_DIR" && DOTFILES_DIR="$HOME/dotfiles"
 
+if [ -f "$DOTFILES_DIR/.bash_vars" ]; then
+    . "$DOTFILES_DIR/.bash_vars"
+else
+    echo "$DOTFILES_DIR/.bash_vars"
+    echo "vars not found"
+fi
 if [ -f "$DOTFILES_DIR/.bash_aliases" ]; then
     . "$DOTFILES_DIR/.bash_aliases"
+else
+    echo "$DOTFILES_DIR/.bash_aliases"
+    echo "aliases not found"
 fi
 if [ -f "$DOTFILES_DIR/.bash_path" ]; then
     . "$DOTFILES_DIR/.bash_path"
-fi
-if [ -f "$DOTFILES_DIR/.bash_vars" ]; then
-    . "$DOTFILES_DIR/.bash_vars"
+else
+    echo "$DOTFILES_DIR/.bash_path"
+    echo "path not found"
 fi
 if [ -f "$HOME/.local/.bashrc" ]; then
     . "$HOME/.local/.bashrc"
+else
+    echo "$HOME/.local/.bashrc"
+    echo "local bashrc not found"
 fi
 
 # enable programmable completion features (you don't need to enable

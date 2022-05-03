@@ -178,6 +178,23 @@ vmap <Leader>tab :Tabularize
 
 nmap <Leader>toc :Toc<cr>:vertical res 20<cr>:set nonu<cr>:set nornu<cr>:set nowrap<cr>
 
+" automatically do the header for a script
+imap <c-l>sh <Esc>:call Shhead()<Return>
+nmap <leader>sh :call Shhead()<Return>
+command Shhead call Shhead()
+function! Shhead() 
+    let l:header=["#!/usr/bin/bash"
+                \ , "# DESCRIPTION"
+                \ , "# USAGE"
+                \ , "# DEPENDENCIES"
+                \ , "# Copyright " . system("date -I | tr -d '\n'") . ", Joe Shields"
+                \ , "# This work is free. You can redistribute it and/or modify it under the"
+                \ , "# terms of the Do What The Fuck You Want To Public License, Version 2,"
+                \ , "# as published by Sam Hocevar. See COPYING/WTFPL.txt for more details."
+                \ ]
+    call append(0, l:header)
+endfunction
+
 " convenient typo mappings:
 command W w
 command Q q

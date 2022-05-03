@@ -28,6 +28,7 @@ alias lsd='ls -d -- */'
 alias cj='clear; jobs'
 alias clj='clear; jobs; ls'
 alias pl='pwd;ls'
+alias duhsc='du -hsc * | sort -h'
 function cdlnk() { # follow a windows shortcut
     # extract a string of printable characters starting like C:\ or D:\ et cetera
     # exchange backslashes with forward slashes; exchange the C: head with /c

@@ -1,10 +1,13 @@
 #!/bin/bash
 
 # default location for config files
-test -z "$XDG_CONFIG_HOME" && export XDG_CONFIG_HOME=$HOME/.config
+test -z "$XDG_CONFIG_HOME" && export XDG_CONFIG_HOME="$HOME/.config"
+
+# default location for config files
+test -z "$XDG_CACHE_HOME" && export XDG_CACHE_HOME="$HOME/.cache"
 
 # export the user-dirs variables
-test -f ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs && . ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs
+test -f "${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs" && . "${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs"
 
 # location of config file for readline (normally ~/.inputrc)
 export INPUTRC="$XDG_CONFIG_HOME/readline/inputrc"
@@ -16,6 +19,12 @@ export NCURSES_ASSUMED_COLORS='-1,-1'
 
 # enable the config file for calc
 export CALCRC='~/.calcrc'
+
+# maxima configuration files
+export MAXIMA_USERDIR="$XDG_CONFIG_HOME/maxima"
+
+# irc client configs
+export WEECHAT_HOME="$XDG_CONFIG_HOME/weechat"
 
 # default location for Python REPL config
 export PYTHONSTARTUP=~/.config/pythonrc

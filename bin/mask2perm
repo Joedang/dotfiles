@@ -1,0 +1,40 @@
+#!/bin/bash
+#TODO: replicate the weird behavior of ls -l for the SetUID, SetGID, and sticky bits.
+read -r -d '' helpText <<EOF
+Usage: ${0##*/} [-h] MASK
+
+Convert an octal permission mask into a human-readable permission string.
+
+Options:
+    -h  Display this help message.
+
+Example:
+\$ ${0##*/} 600 
+rw-------
+
+For each octet of the mask:
++4 allows reading, or sets process user ID
++2 allows writing, or sets process group ID
++1 allows execution, or sets sticky bit
+far-right octet         : users that aren't part of the file's user or group
+second-from-right octet : users that are part of the file's group
+third-from-right octet  : the file's user
+fourth-from-right octet : process ID bits and sticky bit
+
+See perm2mask -h for more details.
+EOF
+
+while getopts 'h' name; do
+    case $name in
+        h) printf "$helpText"; exit 1 ;;
+        *) echo "unrecognized option: $name" 1>&2; printf "$helpText"; exit -1 ;;
+    esac
+done
+len=${#1}
+for ((i=0; i<len; i++)); do
+    n="${1:${i}:1}"
+    (( (n/4)%4 == 1 )) && printf r || printf -
+    (( (n/2)%2 == 1 )) && printf w || printf -
+    (( n%2 == 1     )) && printf x || printf -
+done
+printf '\n'

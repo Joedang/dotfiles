@@ -1,0 +1,14 @@
+#!/bin/bash
+# wrapper script to use AutoHotkey commands from within WSL or Git Bash
+# Joe Shields, 2022-04-02, http://www.wtfpl.net/txt/copying/
+
+if [[ -z "$AHKEXE" ]]; then # if executable path not already set
+    AHKEXE='/c/Program Files/AutoHotkey/AutoHotkeyU64.exe' # default to the one used for Git Bash
+    [[ -n $(uname -v | grep Microsoft) ]] && AHKEXE="/mnt$AHKEXE" # if we're in WSL, add that onto the executable path
+fi
+
+if [[ -z "$@" ]]; then # no arguments given
+    cat | "$AHKEXE" '*' # read from stdin
+else
+    echo "$@" | "$AHKEXE" '*' # execute arguments like a one-line script
+fi

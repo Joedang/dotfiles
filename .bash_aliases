@@ -5,7 +5,7 @@
 # some navigation aliases {{{
 ## colored output for core stuff {{{
 if [ -x /usr/bin/dircolors ]; then # colored printing of directory contents
-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    test -r "~/.dircolors" && eval "$(dircolors -b "~/.dircolors")" || eval "$(dircolors -b)"
 fi
 alias ls='ls --color=auto'
 alias dir='dir --color=auto'
@@ -41,8 +41,35 @@ alias chonkers='du -hd1 * | sort -hr | head' # show the chonky dirs that take up
 alias path='echo -e "${PATH//:/\\n}"'
 
 # Clear the screen, go to the home dir, say the user and host name, list any running jobs, list dir contents 
-alias home='clear; cd $HOME; env echo -e "\e[36m$USER"\@$(uname -n)"\e[35m";jobs; env echo -en "\e[39m"; ls'
+alias home='clear; cd "$HOME"; env echo -e "\e[36m$(whoami)"\@$(uname -n)"\e[35m";jobs; env echo -en "\e[39m"; ls'
 alias hoe="home; echo 'What did you just call me?!'"
+# }}}
+# stuff for surviving Windows {{{
+function lslnk() {
+    # extract a string of printable characters starting like C:\ or D:\ et cetera
+    cygpath.exe "$(grep -aoe '[[:upper:]]:\\[[:print:]]*' "$1")"
+}
+function cdlnk() { # follow a windows shortcut
+    cd "$(lslnk "$*")"
+}
+if [[ "$WINCOMPATABILITY" == "MINGW" ]]; then # git bash
+    #alias notify-send='ahk-notify-send'
+elif [[ "$WINCOMPATABILITY" == "WSL" ]]; then # WSL
+    #alias notify-send='ahk-notify-send'
+else # real Linux
+fi
+function mklnk() { # create a windows shortcut
+    # Take advantage of AutoHotkey's ability to make Windows shortcuts... because there's no good builtin way!
+    # https://i.kym-cdn.com/photos/images/original/000/889/900/492.gif
+    # TODO: make this work cleanly on WSL. (Currently, wslpath sucks because it errors-out when given a fictional path... which I need to do for the link path.)
+    targetPath="$1"
+    linkPath="$2"
+    [[ -z "$linkPath" ]] && linkPath="$(basename "$targetPath").lnk" # if no link name given, behave like ln -s
+    winTargetPath=$(cygpath.exe -w "$targetPath")
+    winLinkPath=$(cygpath.exe -w "$linkPath")
+
+    echo "FileCreateShortcut,%A_WorkingDir%\\$winTargetPath,$winLinkPath" | "$AHKEXE" '*'
+}
 # }}}
 # git aliases that are hard to build into .gitconfig {{{
 alias sta='git status'
@@ -82,6 +109,8 @@ alias j2a='jp2a --colors --background=dark'
 alias fp='firefox --private'
 alias norename='tmux set-window-option allow-rename off'
 alias xclip='xclip -selection clipboard'
+alias winclipcopy='/mnt/c/Windows/system32/clip.exe'
+alias winclippaste='/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -c Get-Clipboard'
 alias psudo='sudo env PATH="$PATH"' # "path sudo" Use sudo with your current PATH.
 alias ssay='spd-say'
 # default to vi-like key bindings for given programs
@@ -96,13 +125,13 @@ quicklog() {
 }
 alias ql='quicklog'
 # show quicklog entries from today and yesterday:
-alias qlc='cat $HOME/log/quick.log | grep -A 100 --color=never -e $(date -Idate) -e $(date -Idate -d yesterday)'
+alias qlc='cat "$HOME/log/quick.log" | grep -A 100 --color=never -e $(date -Idate) -e $(date -Idate -d yesterday)'
 alias scrot-box="scrot -sfl style=dash,color=red -e 'mv \$f ~/img/capture/; xclip -selection clipboard -t image/png ~/img/capture/\$f'"
 alias scrot-full="scrot -e 'mv \$f ~/img/capture/'"
 alias spellcheck="look"
 alias xinfo="echo Actually, it\\'s called xprop.; xprop"
 alias shazam="echo Actually it\\'s called kazam.; kazam"
-alias lockScreen="i3lock -i $HOME/img/lock --show-failed-attempt"
+alias lockScreen='i3lock -i "$HOME/img/lock" --show-failed-attempt'
 alias mansplain="man"
 alias et="exiftool"
 hlview() {

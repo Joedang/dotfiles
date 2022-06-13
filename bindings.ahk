@@ -13,6 +13,17 @@ return
     DllCall("LockWorkStation")
 return
 
+ClipNotify(){
+    Traytip, 'copied to clipboard:', %clipboard%,,
+}
+
+; copy the date to the clipboard Win+Shift+i
+#+i::
+    FormatTime, CurrentDateTime,, yyyy-MM-dd
+    clipboard=%CurrentDateTime%
+    ClipNotify()
+return
+
 ; fullscreen a window with Win+f
 #f::Send {F11} ; It would be nice to actually control the active window instead of remapping like this, but oh well...
 

@@ -43,6 +43,9 @@ set wildmenu
 " show hidden files in the NERD tree
 let NERDTreeShowHidden=1
 
+" do not sort bookmarks; use the order they appear in NERDTreeBookmarksFile
+let NERDTreeBookmarksSort=0
+
 " always show the tab line
 set showtabline=2
 

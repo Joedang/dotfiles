@@ -17,6 +17,12 @@ ClipNotify(){
     Traytip, 'copied to clipboard:', %clipboard%,,
 }
 
+; open calc instead of the useless Windows calculator app
++f::
+    MsgBox hello world
+    ;Run, wt,, "C:\WINDOWS\system32\wsl.exe" -d Arch -u joe --cd ~ -- calc
+return
+
 ; copy the date to the clipboard Win+Shift+i
 #+i::
     FormatTime, CurrentDateTime,, yyyy-MM-dd

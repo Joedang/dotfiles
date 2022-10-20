@@ -27,6 +27,7 @@ export LYNX_LSS="$XDG_CONFIG_HOME/lynx/lynx.lss"
 
 # set the default editor to vim
 export EDITOR=`which vim`
+export SUDO_EDITOR=`which vim`
 export BROWSER=`which firefox 2>/dev/null`
 
 # Track a single ssh-agent across multiple shells.
@@ -71,14 +72,15 @@ test -d "~/texmf" && export TEXMFHOME="$HOME/texmf"
 
 # Compatability for Linux-like environments on Windows
 AHKEXE='/c/Program Files/AutoHotkey/AutoHotkeyU64.exe'
-if [[ -n $(uname -v | grep Microsoft) ]]; then
+if [[ -n $(uname -a | grep -i microsoft) ]]; then
     WINCOMPATABILITY=WSL
     AHKEXE="/mnt$AHKEXE"
-elif [[ -n $(uname -v | grep MINGW) ]]; then
+elif [[ -n $(uname -a | grep -i MINGW) ]]; then
     WINCOMPATABILITY=MINGW # git bash
 else
     WINCOMPATABILITY='' # real linux
 fi
+export WINCOMPATABILITY AHKEXE
 
 ##### Make the output of `less` colored #####
 #           "stop all"="reset to defaults" (applies to so, us, mb, md, and mr)

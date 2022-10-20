@@ -3,6 +3,12 @@
 ; For some reason, this needs to be alone in its own script to be reliable...
 ;Capslock::Esc ; remap the capslock key to escape
 
+; reload this script
+#+c::
+    Traytip, 'reloading key bindings', %A_ScriptName%,,
+    Reload
+return
+
 ; close windows with Win+Shift+q
 #+q::
     WinClose A
@@ -16,6 +22,14 @@ return
 ClipNotify(){
     Traytip, 'copied to clipboard:', %clipboard%,,
 }
+
+; open calc in WSL and Windows Terminal instead of the useless Windows calculator app
+Launch_App2::
+    ; wrap in bash to get the nice readline prompts
+    ;Run, wt "C:\WINDOWS\system32\wsl.exe" -d Arch -u joe --cd ~ -- bash -c units -v1
+    Run, wt "C:\WINDOWS\system32\wsl.exe" -d Arch -u joe --cd ~ -- units -v1
+    ;Run, wt "C:\WINDOWS\system32\wsl.exe" -d Arch -u joe --cd ~ -- calc
+return
 
 ; copy the date to the clipboard Win+Shift+i
 #+i::

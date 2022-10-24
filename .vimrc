@@ -47,6 +47,9 @@ let NERDTreeShowHidden=1
 " (makes pressing L or H more useful)
 set scrolloff=0
 
+" do not sort bookmarks; use the order they appear in NERDTreeBookmarksFile
+let NERDTreeBookmarksSort=0
+
 " always show the tab line
 set showtabline=2
 

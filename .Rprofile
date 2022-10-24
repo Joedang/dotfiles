@@ -18,10 +18,11 @@ options(width='120') # wider terminal output
 options(pdfviewer='zathura') # wider terminal output
 options(menu.graphics=FALSE) # don't use the awful pop-up windows
 
-options(error = function() {
-        dump.frames()
-        print(last.dump)
-    }
-)
+# uncomment to get stack traces on errors:
+#options(error = function() {
+#        dump.frames()
+#        print(last.dump)
+#    }
+#)
 
 source('~/.Renviron')

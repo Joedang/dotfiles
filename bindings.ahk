@@ -36,10 +36,14 @@ return
     }
     WinSet, Transparent, %newTrans%, A
 return
+
+; super+shift+F9 for full opacity
 #+F9::
     WinGet, TransLevel, Transparent, A
     WinSet, Transparent, OFF, A
 return
+
+; super+F8 to reduce opacity
 #F8::
     WinGet, TransLevel, Transparent, A
     if (TransLevel = OFF) {
@@ -50,4 +54,14 @@ return
         newTrans := 0
     }
     WinSet, Transparent, %newTrans%, A
+return
+
+; Ctrl+Alt+mouseForward to toggle left-mouse on and off
+; pressing left-mouse also untoggles by sending a button-up event
+^!XButton2::
+    if (GetKeyState(LButton))
+        SendInput { LButton up }
+    else
+        SendInput { LButton down }
+    return
 return

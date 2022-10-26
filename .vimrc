@@ -43,6 +43,13 @@ set wildmenu
 " show hidden files in the NERD tree
 let NERDTreeShowHidden=1
 
+" allow the cursor to go all the way to the top and bottom of the screen
+" (makes pressing L or H more useful)
+set scrolloff=0
+
+" do not sort bookmarks; use the order they appear in NERDTreeBookmarksFile
+let NERDTreeBookmarksSort=0
+
 " always show the tab line
 set showtabline=2
 
@@ -191,8 +198,11 @@ nmap <leader>ad i<c-r>=strftime('%d/%m/%Y')<cr><Esc>
 imap <c-l>lt <c-r>=strftime('%H:%M:%S %z')<cr>
 nmap <leader>lt i<c-r>=strftime('%H:%M:%S %z')<cr><Esc>
 " UTC time
-imap <c-l>utc <c-r>=system('date -u "+%Y-%m-%d:%H:%M:%S %Z"')<cr>
-nmap <leader>utc i<c-r>=system('date -u "+%Y-%m-%d:%H:%M:%S %Z"')<cr><Esc>
+imap <c-l>utc <c-r>=system('date -u "+%Y-%m-%dT%H:%M:%SZ"')<cr>
+nmap <leader>utc i<c-r>=system('date -u "+%Y-%m-%dT%H:%M:%SZ"')<cr><Esc>
+" middle finger emoji
+imap <c-l>fu     🖕
+nmap <leader>fu i🖕<Esc>
 
 " command NT NERDTreeToggle
 " open a NERDTree tab ahead of all the other tabs
@@ -203,6 +213,23 @@ nmap <Leader>nt :NERDTreeToggle
 vmap <Leader>tab :Tabularize 
 
 nmap <Leader>toc :Toc<cr>:vertical res 20<cr>:set nonu<cr>:set nornu<cr>:set nowrap<cr>
+
+" automatically do the header for a script
+imap <c-l>sh <Esc>:call Shhead()<Return>
+nmap <leader>sh :call Shhead()<Return>
+command Shhead call Shhead()
+function! Shhead() 
+    let l:header=["#!/usr/bin/bash"
+                \ , "# DESCRIPTION"
+                \ , "# USAGE"
+                \ , "# DEPENDENCIES"
+                \ , "# Copyright " . system("date -I | tr -d '\n'") . ", Joe Shields"
+                \ , "# This work is free. You can redistribute it and/or modify it under the"
+                \ , "# terms of the Do What The Fuck You Want To Public License, Version 2,"
+                \ , "# as published by Sam Hocevar. See COPYING/WTFPL.txt for more details."
+                \ ]
+    call append(0, l:header)
+endfunction
 
 " convenient typo mappings:
 command W w
@@ -235,6 +262,9 @@ autocmd! User GoyoLeave Limelight!
 " add TODO list item 
 autocmd FileType markdown nmap <Leader>td o- [ ] 
 autocmd FileType markdown imap <c-l>td <Esc>o- [ ] 
+" find todo list item (any todo that isn't completed (X), cancelled (C), transferred (T), or failed (F))
+autocmd FileType markdown nmap <Leader>/td   /\[[^XCTFxctf]\]<Return>
+autocmd FileType markdown imap <c-l>/td <Esc>/\[[^XCTFxctf]\]<Return>
 " check off a TODO item
 autocmd FileType markdown nmap <Leader>ck 0f[lrX<Esc>
 autocmd FileType markdown imap <c-l>ck <Esc>0f[lrX<Esc>

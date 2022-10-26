@@ -28,6 +28,12 @@ alias lsd='ls -d -- */'
 alias cj='clear; jobs'
 alias clj='clear; jobs; ls'
 alias pl='pwd;ls'
+alias duhsc='du -hsc * | sort -h'
+function cdlnk() { # follow a windows shortcut
+    # extract a string of printable characters starting like C:\ or D:\ et cetera
+    # exchange backslashes with forward slashes; exchange the C: head with /c
+    cd "$(grep -aoe '[[:upper:]]:\\[[:print:]]*' "$1" | sed -e 's/\\/\//g' -e 's/^C:/\/c/')"
+}
 function cdls() { 
     cd "$@"; ls; 
 }
@@ -47,10 +53,13 @@ function cdlnk() { # follow a windows shortcut
     cd "$(lslnk "$*")"
 }
 if [[ "$WINCOMPATABILITY" == "MINGW" ]]; then # git bash
+    true
     #alias notify-send='ahk-notify-send'
 elif [[ "$WINCOMPATABILITY" == "WSL" ]]; then # WSL
+    true
     #alias notify-send='ahk-notify-send'
 else # real Linux
+    true
 fi
 function mklnk() { # create a windows shortcut
     # Take advantage of AutoHotkey's ability to make Windows shortcuts... because there's no good builtin way!

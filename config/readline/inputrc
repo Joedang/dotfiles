@@ -7,6 +7,7 @@ set menu-complete-display-prefix on # when cycling through a completion menu, co
 set show-all-if-ambiguous on # show ambiguous completions immediately instead of pressing Tab twice
 set show-all-if-unmodified on # similar to the above, applied to things that would require multiple completions
 set visible-stats on # when completing file names, color based on the file type
+set mark-symlinked-directories on # when completing a symlink to a directory, add a slash at the end
 
 set history-size -1 # unlimited history
 set bell-style visible

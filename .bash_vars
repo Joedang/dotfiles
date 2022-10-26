@@ -1,10 +1,13 @@
 #!/bin/bash
 
 # default location for config files
-test -z "$XDG_CONFIG_HOME" && export XDG_CONFIG_HOME=$HOME/.config
+test -z "$XDG_CONFIG_HOME" && export XDG_CONFIG_HOME="$HOME/.config"
+
+# default location for config files
+test -z "$XDG_CACHE_HOME" && export XDG_CACHE_HOME="$HOME/.cache"
 
 # export the user-dirs variables
-test -f ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs && . ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs
+test -f "${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs" && . "${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs"
 
 # location of config file for readline (normally ~/.inputrc)
 export INPUTRC="$XDG_CONFIG_HOME/readline/inputrc"
@@ -17,6 +20,12 @@ export NCURSES_ASSUMED_COLORS='-1,-1'
 # enable the config file for calc
 export CALCRC='~/.calcrc'
 
+# maxima configuration files
+export MAXIMA_USERDIR="$XDG_CONFIG_HOME/maxima"
+
+# irc client configs
+export WEECHAT_HOME="$XDG_CONFIG_HOME/weechat"
+
 # default location for Python REPL config
 export PYTHONSTARTUP=~/.config/pythonrc
 
@@ -27,6 +36,7 @@ export LYNX_LSS="$XDG_CONFIG_HOME/lynx/lynx.lss"
 
 # set the default editor to vim
 export EDITOR=`which vim`
+export SUDO_EDITOR=`which vim`
 export BROWSER=`which firefox 2>/dev/null`
 
 # Track a single ssh-agent across multiple shells.
@@ -71,14 +81,15 @@ test -d "~/texmf" && export TEXMFHOME="$HOME/texmf"
 
 # Compatability for Linux-like environments on Windows
 AHKEXE='/c/Program Files/AutoHotkey/AutoHotkeyU64.exe'
-if [[ -n $(uname -v | grep Microsoft) ]]; then
+if [[ -n $(uname -a | grep -i microsoft) ]]; then
     WINCOMPATABILITY=WSL
     AHKEXE="/mnt$AHKEXE"
-elif [[ -n $(uname -v | grep MINGW) ]]; then
+elif [[ -n $(uname -a | grep -i MINGW) ]]; then
     WINCOMPATABILITY=MINGW # git bash
 else
     WINCOMPATABILITY='' # real linux
 fi
+export WINCOMPATABILITY AHKEXE
 
 ##### Make the output of `less` colored #####
 #           "stop all"="reset to defaults" (applies to so, us, mb, md, and mr)

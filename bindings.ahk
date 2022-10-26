@@ -3,7 +3,7 @@
 ; For some reason, this needs to be alone in its own script to be reliable...
 ;Capslock::Esc ; remap the capslock key to escape
 
-; reload this script
+; reload this script (Win+Shift+c)
 #+c::
     Traytip, 'reloading key bindings', %A_ScriptName%,,
     Reload
@@ -35,6 +35,12 @@ return
 #+i::
     FormatTime, CurrentDateTime,, yyyy-MM-dd
     clipboard=%CurrentDateTime%
+    ClipNotify()
+return
+
+; wrapper for equivalize (Win+Shift+=)
+#+=::
+    RunWait, "%SYSTEMDRIVE%\Program Files\Git\git-bash.exe" "src/dotfiles/bin/equivalize-win.sh", %SYSTEMDRIVE%%HOMEPATH%, 
     ClipNotify()
 return
 

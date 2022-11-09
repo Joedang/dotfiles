@@ -8,6 +8,11 @@ set number
 " This allows pasting in chromeos (at least when not in tmux)
 set mouse=n
 
+" put the swap file next to the edited file if possible
+" otherwise, put it in .cache (with a unique name), if possible
+" otherwise, put it in /tmp (with a unique name), if possible
+set directory=.,~/.cache/vim/swap//,/tmp//
+
 " don't flash the screen when there's a bell
 set novb
 

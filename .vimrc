@@ -8,6 +8,11 @@ set number
 " This allows pasting in chromeos (at least when not in tmux)
 set mouse=n
 
+" put the swap file next to the edited file if possible
+" otherwise, put it in .cache (with a unique name), if possible
+" otherwise, put it in /tmp (with a unique name), if possible
+set directory=.,~/.cache/vim/swap//,/tmp//
+
 " don't flash the screen when there's a bell
 set novb
 
@@ -45,6 +50,13 @@ set complete+=kspell
 
 " show hidden files in the NERD tree
 let NERDTreeShowHidden=1
+
+" allow the cursor to go all the way to the top and bottom of the screen
+" (makes pressing L or H more useful)
+set scrolloff=0
+
+" do not sort bookmarks; use the order they appear in NERDTreeBookmarksFile
+let NERDTreeBookmarksSort=0
 
 " always show the tab line
 set showtabline=2
@@ -194,8 +206,11 @@ nmap <leader>ad i<c-r>=strftime('%d/%m/%Y')<cr><Esc>
 imap <c-l>lt <c-r>=strftime('%H:%M:%S %z')<cr>
 nmap <leader>lt i<c-r>=strftime('%H:%M:%S %z')<cr><Esc>
 " UTC time
-imap <c-l>utc <c-r>=system('date -u "+%Y-%m-%d:%H:%M:%S %Z"')<cr>
-nmap <leader>utc i<c-r>=system('date -u "+%Y-%m-%d:%H:%M:%S %Z"')<cr><Esc>
+imap <c-l>utc <c-r>=system('date -u "+%Y-%m-%dT%H:%M:%SZ"')<cr>
+nmap <leader>utc i<c-r>=system('date -u "+%Y-%m-%dT%H:%M:%SZ"')<cr><Esc>
+" middle finger emoji
+imap <c-l>fu     🖕
+nmap <leader>fu i🖕<Esc>
 
 " command NT NERDTreeToggle
 " open a NERDTree tab ahead of all the other tabs
@@ -255,6 +270,9 @@ autocmd! User GoyoLeave Limelight!
 " add TODO list item 
 autocmd FileType markdown nmap <Leader>td o- [ ] 
 autocmd FileType markdown imap <c-l>td <Esc>o- [ ] 
+" find todo list item (any todo that isn't completed (X), cancelled (C), transferred (T), or failed (F))
+autocmd FileType markdown nmap <Leader>/td   /\[[^XCTFxctf]\]<Return>
+autocmd FileType markdown imap <c-l>/td <Esc>/\[[^XCTFxctf]\]<Return>
 " check off a TODO item
 autocmd FileType markdown nmap <Leader>ck 0f[lrX<Esc>
 autocmd FileType markdown imap <c-l>ck <Esc>0f[lrX<Esc>

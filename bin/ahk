@@ -3,8 +3,10 @@
 # Joe Shields, 2022-04-02, http://www.wtfpl.net/txt/copying/
 
 if [[ -z "$AHKEXE" ]]; then # if executable path not already set
+    echo "AHKEXE is $AHKEXE"
     AHKEXE='/c/Program Files/AutoHotkey/AutoHotkeyU64.exe' # default to the one used for Git Bash
-    [[ -n $(uname -v | grep Microsoft) ]] && AHKEXE="/mnt$AHKEXE" # if we're in WSL, add that onto the executable path
+    [[ -n $(uname -a | grep -i microsoft) ]] && AHKEXE="/mnt$AHKEXE" # if we're in WSL, add that onto the executable path
+    echo defaulting to "$AHKEXE" >&2 # send message about where we think AHK is to stderr
 fi
 
 if [[ -z "$@" ]]; then # no arguments given

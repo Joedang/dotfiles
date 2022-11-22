@@ -53,10 +53,13 @@ function cdlnk() { # follow a windows shortcut
     cd "$(lslnk "$*")"
 }
 if [[ "$WINCOMPATABILITY" == "MINGW" ]]; then # git bash
+    true
     #alias notify-send='ahk-notify-send'
 elif [[ "$WINCOMPATABILITY" == "WSL" ]]; then # WSL
+    true
     #alias notify-send='ahk-notify-send'
 else # real Linux
+    true
 fi
 function mklnk() { # create a windows shortcut
     # Take advantage of AutoHotkey's ability to make Windows shortcuts... because there's no good builtin way!

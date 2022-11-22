@@ -4,12 +4,32 @@
 # Format is XDG_xxx_DIR="$HOME/yyy", where yyy is a shell-escaped
 # homedir-relative path, or XDG_xxx_DIR="/yyy", where /yyy is an
 # absolute path. No other format is supported.
-# 
+
+#  USER DIRECTORIES
 XDG_DESKTOP_DIR="$HOME/desk"
 XDG_DOWNLOAD_DIR="$HOME/dl"
 XDG_DOCUMENTS_DIR="$HOME/doc"
 XDG_MUSIC_DIR="$HOME/audio"
 XDG_PICTURES_DIR="$HOME/img"
 XDG_VIDEOS_DIR="$HOME/vid"
-XDG_TEMPLATES_DIR="$HOME/"
-XDG_PUBLICSHARE_DIR="$HOME/"
+XDG_TEMPLATES_DIR="$HOME"
+XDG_PUBLICSHARE_DIR="$HOME"
+
+# BASE DIRECTORIES
+# Where user-specific configurations should be written (analogous to /etc).
+XDG_CONFIG_HOME="$HOME/.config"
+
+# Where user-specific non-essential (cached) data should be written (analogous to /var/cache).
+XDG_CACHE_HOME="$HOME/.cache"
+
+# Where user-specific state files should be written (analogous to /var/lib).
+XDG_STATE_HOME="$HOME/.local/state"
+
+# Where user-specific data files should be written (analogous to /usr/share).
+XDG_DATA_HOME="$HOME/.local/share"
+
+# List of directories separated by : (analogous to PATH).
+# XDG_CONFIG_DIRS="/etc/xdg"
+
+# List of directories separated by : (analogous to PATH).
+# XDG_DATA_DIRS="/usr/local/share:/usr/share"

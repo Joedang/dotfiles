@@ -1,0 +1,118 @@
+#!/bin/bash
+# Add top/bottom text to an image in the classic meme style.
+# Joe Shields, 2022-12-24
+# vim: set foldmethod=marker:
+
+#set -vx # for debugging
+#set -e # exit immediately on error
+
+# help text {{{
+helpText="Usage: ${0##*/} INFILE [OPTIONS]
+
+Overlay TOP and BOTTOM text on an image in the classic meme format.
+
+Any image formats supported by Imagemagick should work, though the script is mainly intended for GIF files.
+This script attempts to use the 'impact' font by default.
+
+Options:
+    -t TOP          Overlay TOP on the north of the image (default: 'TOP TEXT')
+    -b BOTTOM       Overlay BOTTOM on the south of the image (default: 'BOTTOM TEXT')
+    -o OUTFILE      Filename to which output shall be written (default: 'INFILE-ttbt.EXT')
+                    EXT is the extension of INFILE.
+    -f FILLCOLOR    Color to fill the text (default: 'white')
+    -s STROKECOLOR  Color to stroke (outline) the text (default: 'black')
+    -k MAGICOPTS    Options to pass to Imagemagick, applying to text (default is empty)
+                    This is useful if you want to change the font.
+                    Note that MAGICOPTS does not effect the stroke or fill colors, or the text positioning.
+    -h              Display this help message.
+" # }}}
+
+# defaults {{{
+toptext='TOP TEXT'
+bottomtext='BOTTOM TEXT'
+infile="$1"
+noext="$(basename "$1")"
+noext=${noext%.*}
+fillcolor='white'
+strokecolor='black'
+verbose='false'
+
+inext="${infile##*.}"
+outfile="$noext"-ttbt."$inext"
+outext="${outfile##*.}"
+midext="$inext"
+#if [[ "$inext" = 'gif' ]] || [[ "$outext" = 'gif' ]]; then
+#    midext=gif
+#else
+#    midext="$inext"
+#fi
+
+shift # }}}
+
+# read options {{{
+while getopts 't:b:o:f:s:i:k:vh' name; do
+    case $name in
+        t) toptext="$OPTARG";;
+        b) bottomtext="$OPTARG";;
+        o) outfile="$OPTARG";;
+        f) fillcolor="$OPTARG";;
+        s) strokecolor="$OPTARG";;
+        k) magopts="$OPTARG";;
+        v) verbose='true';;
+        h) printf "$helpText"; exit 1 ;;
+        *) echo "unrecognized option: $name" 1>&2; printf "$helpText"; exit -1 ;;
+    esac
+done # }}}
+
+# setup {{{
+canvasheight="$(identify -ping -format '%H\n' "$infile" | head -n 1)" # get the canvas size
+pointsize=$(( canvasheight/10 ))
+strokewidth=$(( pointsize/10 ))
+inset=$(( pointsize/3 ))
+tempdir="$(mktemp -d)" # no trailing /
+# }}}
+
+# verbose output {{{
+function verb() {
+    [[ "$verbose" = 'true' ]] && echo "$@"
+}
+if [[ "$verbose" = 'true' ]]; then
+    echo infile: "$infile"
+    echo outfile: "$outfile"
+    echo inext: "$inext"
+    echo outext: "$outext"
+    echo toptext: "$toptext"
+    echo bottomtext: "$bottomtext"
+    echo fillcolor: "$fillcolor"
+    echo strokecolor: "$strokecolor"
+    echo pointsize: "$pointsize"
+    echo magopts: "$magopts"
+    echo canvasheight: "$canvasheight"
+    echo strokewidth: "$strokewidth"
+    echo tempdir: "$tempdir"
+    echo noext: "$noext"
+    echo verbose: "$verbose"
+fi # }}}
+
+# process frames {{{
+verb exploding infile...
+magick "$infile" -scene 1 +adjoin -coalesce "$tempdir/$noext"-%03d."$midext" # I probably need to coalesce too
+for f in $tempdir/*; do
+    verb modifying "$f"...
+    magick "$f" -pointsize "$pointsize" -font impact -style normal -weight bold -strokewidth "$strokewidth" $magopts \
+        -stroke "$strokecolor" -fill none         -gravity north -annotate +0+"$inset" "$toptext" \
+        -stroke none           -fill "$fillcolor" -gravity north -annotate +0+"$inset" "$toptext" \
+        -stroke "$strokecolor" -fill none         -gravity south -annotate +0+"$inset" "$bottomtext" \
+        -stroke none           -fill "$fillcolor" -gravity south -annotate +0+"$inset" "$bottomtext" \
+        "$f"
+done # }}}
+
+# recombine frames {{{
+verb recombining...
+magick "$tempdir/$noext"-???."$midext" -loop 0 -layers OptimizeFrame "$outfile"
+# }}}
+
+rm -rf "$tempdir"
+verb Done.
+#set +vx
+exit 0

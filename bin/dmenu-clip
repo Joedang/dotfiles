@@ -1,0 +1,30 @@
+#!/bin/sh
+# do some pipe magic to grab the stderr in a variable
+#OUTPUT=$({ ERR=$(dmenu_path | dmenu "$@" | ${SHELL:-"/bin/sh"} 2>&1 >&3 3>&-); } 3>&1)
+#ERR=$(dmenu_path | dmenu "$@" | /bin/sh 2>&1 >&3 3>&-); 
+#ERR=$(echo "echo good; echo bad 1>&2; exit 69" | /bin/sh 2>&1 >&3 3>&-); 
+#OUTPUT=$(echo "echo good; echo bad 1>&2; exit 69" | /bin/sh | {ERR=$(cat /dev/stderr)}); 
+# function testfunc() {
+#     echo good
+#     echo bad >&2
+#     return 69
+# }
+ERRFILE=$(mktemp) # make a temp file to grab errors
+#OUTPUT=$(testfunc 2>"$ERRFILE")
+OUTPUT=$(dmenu_path | dmenu -p "clip from:" "$@" | ${SHELL:-"/bin/sh"} 2>"$ERRFILE") # grab the output and save any errors in a temp file
+RETURN="$?" # grab the error code
+ERR=$(cat "$ERRFILE") # get the errors from the temp file
+rm "$ERRFILE"
+#{ ERR=$(dmenu_path | dmenu "$@" | ${SHELL:-"/bin/sh"} 2>&1 >&3 3>&-); } 3>&1 | { OUTPUT="$(cat)"; }
+# notify-send "OUTPUT:" "$OUTPUT"
+# notify-send "ERR:" "$ERR"
+# notify-send "RETURN:" "$RETURN"
+if [[ -z "$OUTPUT" ]]; then
+    notify-send -u critical "nothing copied to clipboard"
+else
+    echo -n "$OUTPUT" | xclip -i -selection clipboard \
+        && notify-send "copied to clipboard:" "$(xclip -o -selection clipboard)"
+fi
+if (( RETURN != 0 )) || [[ -n "$ERR" ]]; then
+    notify-send -u critical "exit $RETURN" "$ERR"
+fi

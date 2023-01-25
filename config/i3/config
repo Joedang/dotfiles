@@ -321,6 +321,9 @@ bindsym $mod+F2 exec --no-startup-id dmenu_run $dmenu_flags
 # lauch the app finder
 bindsym XF86Launch1 exec "xfce4-appfinder"
 
+# run a command and copy its stdout to the clipboard
+bindsym $mod+Mod1+d exec --no-startup-id dmenu-clip $dmenu_flags
+
 # simple calculator (just passes a string to calc)
 #bindsym $mod+equal exec --no-startup-id echo "" | dmenu $dmenu_flags -p "calc:" -l 0 | calc | xargs -II dmenu $dmenu_flags -p \"I\"
 bindsym $mod+equal exec --no-startup-id echo "" | dmenu $dmenu_flags -p "calc:" -l 0 | calc -p | xargs -I{} dunstify -- "{}"
@@ -366,6 +369,9 @@ bindsym $mod+Shift+b exec --no-startup-id \
 # mount and unmount removable storage devices (flash drives, SD cards, external disks)
 bindsym $mod+m exec --no-startup-id ~/src/dotfiles/bin/dmenu-mount $dmenu_flags
 bindsym $mod+Shift+m exec --no-startup-id ~/src/dotfiles/bin/dmenu-umount $dmenu_flags
+
+# password manager (type a selected password)
+bindsym $mod+Mod1+p exec --no-startup-id passmenu --type $dmenu_flags -l 10
 
 # bindsym Print exec xfce4-screenshooter --save $HOME/img/capture/Screenshot_$(date +%Y-%m-%d_%H-%M-%S).png
 # bindsym Ctrl+Print exec xfce4-screenshooter --fullscreen --save $HOME/img/capture/Screenshot_$(date +%Y-%m-%d_%H-%M-%S).png

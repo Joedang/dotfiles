@@ -44,7 +44,7 @@ dateFormat <- '%Y-%m-%d\n' # format to use when printing dates
 dateRetrieved <- as.POSIXct(Sys.time()) # time the script was started
 outputDir <- paste(Sys.getenv('HOME'), '.local/status/covid/', sep='/') # path for the output files
 avgWindow <- 7 # days; window over which the growth rate is averaged; does not necessarily need to be a week
-interestWindow <- 300 # days; period over which you want to know the number of active cases; must be greater than avgWindow
+interestWindow <- 60 # days; period over which you want to know the number of active cases; must be greater than avgWindow
 contagiousDays <- 20 # days; how long a case is considered "active" after reporting
 daysToPredict_forwards <- 14 # days; window over which to predict the growth rate and active cases
 daysToPredict_backwards <- ceiling(1.5*contagiousDays)

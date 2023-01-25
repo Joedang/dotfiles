@@ -572,6 +572,13 @@ To check the fingerprint of the host, you can do `ssh-keygen -lf ~/.ssh/known_ho
 
 GitHub publishes the fingerprints and IP addresses of their SSH servers at `https://api.github.com/meta`.
 
+## Networking
+- [a nice guide to wireguard VPN shenanigans](https://blogs.gnome.org/thaller/2019/03/15/wireguard-in-networkmanager/)
+- For something like Mullvad:
+    - Download the ZIP of the configuration files.
+    - Run `nmcli connection import type wireguard file mullvad-SERVERLABEL.conf` for each configuration file.
+    - Make sure you only have one VPN selected in the NetworkManager applet!
+
 ## Installing things from source
 My general strategy is to download an unzip the source into `/tmp/`. **Remember to do a checksum on the downloaded archive!** 
 

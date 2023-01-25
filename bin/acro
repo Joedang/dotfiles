@@ -180,6 +180,8 @@ function acro-help() {
     echo -e '                Search the known acronyms for PATTERN.'
     echo -e '                This is case insensitive and uses grep in Perl mode.'
     echo -e '                Including a colon (:) in the pattern will give weird results.'
+	echo -e 'acro add [PATTERN]'
+    echo -e '                alias for `acro find`.'
 	echo -e 'acro sfind [PATTERN] [FILE]'
 	echo -e '                Search the known acronyms for PATTERN with no interactivity.'
 	echo -e 'acro sfind [PATTERN]'
@@ -191,8 +193,10 @@ function acro-help() {
 	echo -e "acro define 'ACRO: EXPANSION -- BRIEF'"
 	echo -e '                Add an acronym to the known list.'
     echo -e '                ACRO must not contain a colon (:).'
-    echo -e '                EXPANSION must contain a colon (:) or a double dash (--).'
+    echo -e '                EXPANSION must not contain a colon (:) or a double dash (--).'
     echo -e '                BRIEF must not contain a double dash (--).'
+	echo -e "acro add 'ACRO: EXPANSION -- BRIEF'"
+	echo -e '                alias for `acro define`'
 	echo -e 'acro udefine    Add an acronym to the unknown list.'
 	echo -e 'acro edit [FILE]'
 	echo -e '                Edit the known list with $EDITOR or vim if not defined.'
@@ -215,12 +219,14 @@ shift # shift the remaining args forward (2 becomes 1, etc.)
 #### parse subcommands ####
 case "$cmd" in 
 	find)    acro-find    "$@" ;;
+    look)    acro-find    "$@" ;;
 	ufind)   acro-ufind        ;;
 	sfind)   acro-sfind   "$@" ;;
     grep)    acro-grep    "$@" ;;
 	known)   acro-known        ;;
 	unknown) acro-unknown      ;;
 	define)  acro-define  "$@" ;;
+    add)     acro-define  "$@" ;;
 	udefine) acro-udefine "$@" ;;
     edit)    acro-edit    "$@" ;;
     uedit)   acro-uedit        ;;

@@ -45,6 +45,9 @@ set wildignorecase
 set wildmode=longest:full
 set wildmenu
 
+" use the custom dictionary (~/.vim/en.utf-8.add) for word completion
+set complete+=kspell
+
 " show hidden files in the NERD tree
 let NERDTreeShowHidden=1
 

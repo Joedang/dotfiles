@@ -98,8 +98,7 @@ fi
 if [ -f "$HOME/.local/.bashrc" ]; then
     . "$HOME/.local/.bashrc"
 else
-    echo "$HOME/.local/.bashrc"
-    echo "local bashrc not found"
+    echo ~/.local/.bashrc not found
 fi
 
 # enable programmable completion features (you don't need to enable

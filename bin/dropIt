@@ -5,8 +5,8 @@
 
 ART=~/src/dotfiles/neat/dropTheBass.txt
 MUSIC=~/audio/samples/dropIt.ogg
-MUSIC_LENGTH=16
-PERIOD=0.465
+MUSIC_LENGTH=16 # seconds
+PERIOD=0.465 # seconds; best determined by guess-and-check
 ART_HEIGHT=$( wc -l "$ART" | awk '{print $1}')
 
 play "$MUSIC" 2> /dev/null & # play the music in the background

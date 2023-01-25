@@ -70,14 +70,6 @@ set softtabstop=4
 " use multiple spaces in place of tabs
 set expandtab
 
-"syn match rc_indentStart      /^\ \{4}/  nextgroup=rc_indentEven
-"syn match rc_indentEven        /\ \{4}/  contained nextgroup=rc_indentOdd
-"syn match rc_indentOdd         /\ \{4}/  contained nextgroup=rc_indentEven
-"
-"hi rc_indentStart ctermbg=Red   
-"hi rc_indentEven  ctermbg=Green 
-"hi rc_indentOdd   ctermbg=Blue 
-
 " view the highlighting info at a location
 noremap <Leader>H :echo "visible<"
             \ . synIDattr(synID(line("."),col("."),1),"name") . '> top<'
@@ -263,43 +255,32 @@ autocmd! User GoyoEnter Limelight
 autocmd! User GoyoLeave Limelight!
 
 "~~~~~~~~~~ FILETYPE SPECIFIC STUFF ~~~~~~~~~~
+" non-trivial stuff should go in ~/.vim/after/syntax/MYFILETYPE.vim
+" determine MYFILETYPE by running :set ft?
 
-" add TODO list item 
-autocmd FileType markdown nmap <Leader>td o- [ ] 
-autocmd FileType markdown imap <c-l>td <Esc>o- [ ] 
-" find todo list item (any todo that isn't completed (X), cancelled (C), transferred (T), or failed (F))
-autocmd FileType markdown nmap <Leader>/td   /\[[^XCTFxctf]\]<Return>
-autocmd FileType markdown imap <c-l>/td <Esc>/\[[^XCTFxctf]\]<Return>
-" check off a TODO item
-autocmd FileType markdown nmap <Leader>ck 0f[lrX<Esc>
-autocmd FileType markdown imap <c-l>ck <Esc>0f[lrX<Esc>
-" mark a TODO item as critical
-autocmd FileType markdown nmap <Leader>cr 0f]a<Space>(!)<Esc>
-autocmd FileType markdown imap <c-l>cr <Esc>0f]a<Space>(!)<Esc>
-" uncheck a TODO item
-autocmd FileType markdown nmap <Leader>uk 0f[lr <Esc>
-autocmd FileType markdown imap <c-l>uk 0f[lr <Esc>
-" turn on spell-checking for markdown
-autocmd FileType markdown set spell
+" look for my custom markdown syntax stuff
+if empty(globpath(&rtp, '/after/syntax/markdown.vim'))
+    echoerr "couldn't find markdown syntax file"
+endif
+
+" spell checking in plain text files
 autocmd FileType text set spell
-
-function! MarkdownLevel()
-    let h = matchstr(getline(v:lnum), '^#\+')
-    if empty(h)
-        return "="
-    else
-        return ">" . len(h)
-    endif
-endfunction
-autocmd FileType markdown setlocal foldexpr=MarkdownLevel()
-autocmd FileType markdown setlocal foldmethod=expr
 
 " add an item to a list
 autocmd FileType tex nmap <Leader>it o\item 
 autocmd FileType tex imap <c-l>it \item 
 
+" template for functions
 autocmd FileType sh nmap <Leader>fn ofunctionName() { # {{{<Return>} # }}}<Esc>k0
 autocmd FileType sh imap <c-l>fn functionName() { # {{{<Return>} # }}}<Esc>k0
+
+"syn match rc_indentStart      /^\ \{4}/  nextgroup=rc_indentEven
+"syn match rc_indentEven        /\ \{4}/  contained nextgroup=rc_indentOdd
+"syn match rc_indentOdd         /\ \{4}/  contained nextgroup=rc_indentEven
+"
+"hi rc_indentStart ctermbg=Red   
+"hi rc_indentEven  ctermbg=Green 
+"hi rc_indentOdd   ctermbg=Blue 
 
 "~~~~~~~~~~ VUNDLE STUFF ~~~~~~~~~~
 set nocompatible              " be iMproved, required

@@ -1,0 +1,3 @@
+# default theme (calling simply as "feh")
+feh --scale-down --auto-zoom -g 700x700 \
+    --info ";exiftool %F" --font "IBMPlexMono-Regular/10" --fontpath /usr/share/fonts/TTF/ 

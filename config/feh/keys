@@ -1,0 +1,36 @@
+# see KEYS CONFIG SYNTAX in man 1 feh
+# note: The S-<key> notation only applies to non-letters.
+#       If you want to bind something like S-r, 
+#       you need to just use R.
+
+# unbind the default actions for plus and minus keys, assign them to zoom in/out
+reload_plus
+reload_minus
+zoom_in equal C-equal C-plus
+zoom_out minus C-minus C-underscore
+zoom_default C-0 asterisk
+
+next_img
+prev_img
+next_img n Right
+prev_img p Left
+
+# use space to start/stop slideshows
+toggle_pause space
+
+#toggle_keep_vp k
+toggle_keep_vp
+
+scroll_left h
+scroll_down j
+scroll_up k
+scroll_right l
+
+# default is just r
+reload_image C-r
+
+# default is just R
+render 1-r
+
+orient_1 greater r
+orient_3 less R

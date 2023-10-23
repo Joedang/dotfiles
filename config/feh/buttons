@@ -1,0 +1,12 @@
+# see BUTTONS CONFIG SYNTAX in man 1 feh
+zoom_in  C-4
+zoom_out C-5
+
+# unbind next/previous from the scroll wheel
+next_img
+prev_img
+
+scroll_up 4
+scroll_down 5
+scroll_left S-4
+scroll_right S-5

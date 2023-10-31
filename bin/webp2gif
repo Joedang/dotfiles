@@ -1,0 +1,11 @@
+#!/usr/bin/python3
+# Convert a WEBP file into a GIF
+# usage: webp2gif myfile.webp myfile.gif
+# Joe Shields
+# 2023-10-31
+from PIL import Image
+import sys
+infile = sys.argv[1]
+outfile = sys.argv[2]
+im = Image.open(infile)
+im.save(outfile, 'gif', save_all=True, optimize=True, background=0)

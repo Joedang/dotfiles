@@ -1,0 +1,35 @@
+#!/bin/bash
+# edit the clipboard and print it to stdout
+#set -e # exit immediately on error
+
+myEditor="${EDITOR:-vim}" # default to vim
+myTerm='kitty' # use kitty as the term emulator (no obviously good way to get the default term. exo-open is almost what I need)
+
+if ! xclip -o -selection clipboard >> /dev/null; then
+    notify-send -u critical 'failed to get clipboard'
+    exit 1
+fi
+#notify-send 'creating tempfile'
+tempFile="$(mktemp /tmp/clipedit.XXXXXXXXXX)"
+#notify-send 'writing clipboard to file'
+xclip -o -selection clipboard >> "$tempFile" 
+#notify-send "editing file $tempFile"
+
+# It's important that the terminal emulator be called from within this script.
+# That way, whatever launches this script is responsible for maintaining the clipboard.
+# Otherwise, the clipboard would die with the terminal emulator.
+"$myTerm" "$myEditor" "$tempFile" # default to kitty, if exo-open can't find a default terminal emulator
+
+#notify-send 'printing file' "$(cat "$tempFile")"
+#cat "$tempFile"
+if [ -s "$tempFile" ] ; then
+    # file exists and is not empty
+    xclip -in -selection clipboard < "$tempFile" \
+        && notify-send 'copied to clipboard:' "$(xclip -out -selection clipboard)"
+else
+    notify-send -u critical "nothing copied to clipboard"
+fi
+
+# notify-send 'removing file'
+rm "$tempFile" || notify-send -u critical 'failed to remove file' "$tempFile"
+#set +e

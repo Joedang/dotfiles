@@ -1,2 +1,3 @@
 #!/usr/bin/env bash
-notify-send -u low "$(mpc current -f 'now playing: [%title% (%time%)]|[%file% (%time%)]')" "$(mpc current -f 'by %artist%, from %album%')"
+mpc readpicture "$(mpc current -f '%file%')" > /tmp/mpdNotificationAlbumArt
+notify-send -u low -i /tmp/mpdNotificationAlbumArt "$(mpc current -f 'now playing: [%title% (%time%)]|[%file% (%time%)]')" "$(mpc current -f 'by %artist%, from %album%')"

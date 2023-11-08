@@ -1,0 +1,7 @@
+#!/bin/bash
+# download and display a video thumbnail
+# Sadly, it doesn't seem like there's a way to get yt-dlp to write to /dev/stdout to enable piping...
+# https://github.com/yt-dlp/yt-dlp/issues/8548
+outDir="$(mktemp -d /tmp/thumbnail.XXXXXXXXXX)"
+yt-dlp --write-thumbnail -f none --ignore-no-formats-error -o "$outDir/%(title)s.%(ext)s" "$@"
+xdg-open "$outDir"/*

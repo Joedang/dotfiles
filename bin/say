@@ -1,0 +1,16 @@
+#!/bin/bash
+# wrapper for flite to easily TTS from the terminal
+# USAGE:
+# say hello world
+# echo hello world | say
+# DEPENDENCIES: flite, xargs, cat, play
+# Copyright 2023-08-31, Joe Shields
+# This work is free. You can redistribute it and/or modify it under the
+# terms of the Do What The Fuck You Want To Public License, Version 2,
+# as published by Sam Hocevar. See COPYING/WTFPL.txt for more details.
+
+if [[ -z "$@" ]]; then # no arguments given
+    cat | xargs -II flite -t \"I\" -o /dev/stdout | play - # read from stdin
+else
+    flite -t "$@" -o /dev/stdout | play - # execute arguments like a one-line script
+fi

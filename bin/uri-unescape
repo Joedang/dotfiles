@@ -1,0 +1,3 @@
+#!/usr/bin/perl
+use URI::Escape;
+print uri_unescape(join(" ", @ARGV));

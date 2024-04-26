@@ -1,4 +1,5 @@
 "~~~~~~~~~~ GLOBAL SETTINGS ~~~~~~~~~~ 
+set nocompatible " don't try to be compatible with Vi; required for Vundle
 
 " turn on line numbers
 set relativenumber
@@ -186,6 +187,10 @@ vmap <Leader>cu :s/^#\ \?//g<Return>
 " shortcut to show whitespace characters
 nmap <Leader>ws :set list!
 
+" search for Git conflict markers
+" TODO: figure out how to make this work, lol. It doesn't like the \(
+" nmap <Leader>/df /\(<<<<<<<\)\|\(|||||||\)\|\(>>>>>>>\)
+
 " dates and times:
 " Note that the dates will be in local time, not UTC!
 " ISO
@@ -286,7 +291,9 @@ autocmd FileType sh imap <c-l>fn functionName() { # {{{<Return>} # }}}<Esc>k0
 "hi rc_indentOdd   ctermbg=Blue 
 
 "~~~~~~~~~~ VUNDLE STUFF ~~~~~~~~~~
-set nocompatible              " be iMproved, required
+" Setting nocompatible has side effects on lots of other settings, 
+" so it's set at the top of the config instead.
+"set nocompatible              " be iMproved, required
 filetype off                  " required
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim

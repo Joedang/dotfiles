@@ -8,7 +8,6 @@
 	default = simple # by default, push the current branch to the same-name upstream branch
 [core]
 	editor = vim
-	excludesfile = ~/.gitignore # this file defines which pathname patterns to ignore
 [merge]
 	tool = vimdiff # use this program to manage merges
 	conflictstyle = diff3 # also show the original text before both changes

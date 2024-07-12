@@ -1,0 +1,2 @@
+#!/bin/bash
+md2html --github "$1" | lynx -stdin

@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-cat ~/dotfiles/neat/UTF-8-demo.txt
+cat ~/src/dotfiles/neat/UTF-8-demo.txt

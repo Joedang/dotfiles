@@ -92,6 +92,8 @@ fi
 export WINCOMPATABILITY AHKEXE
 
 ##### Make the output of `less` colored #####
+export LESS='--RAW-CONTROL-CHARS'
+export MANROFFOPT="-P -c" # I *think* this allows escape seqs to make it through nroff
 #           "stop all"="reset to defaults" (applies to so, us, mb, md, and mr)
 export LESS_TERMCAP_me=$'\e[0m'
 #     "start blinking"="magenta fg"

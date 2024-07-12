@@ -20,7 +20,10 @@ alias cls='clear; ls'
 alias clsd='clear; lsd'
 #alias ll='ls -alFh'
 alias ll='echo "\e[36mflags,   refs,owner, group, size,  modified, name\e[39m" ; ls -alFh'
-alias lth='ls -lth | head'
+#alias lth='ls -lth | head'
+lth() {
+    ls -lth "$@" | head
+}
 alias la='ls -a'
 alias lla='ls -la'
 alias l='ls -CF'
@@ -92,6 +95,9 @@ inlocate() {
     # This is like an order of magnitude faster, but the database only gets updated when the cron job runs.
     locate -i "$(pwd)/*$1*"
 }
+alias jeh='feh --scale-down --auto-zoom -g 700x700 --info ";exiftool %F" --font "IBMPlexMono-Regular/10" --fontpath /usr/share/fonts/TTF/'
+alias gpg-agent-reload='kill -SIGHUP "$(pgrep gpg-agent)"' # clear the password cache and re-read the config file
+alias gpg-end-graceperiod='gpg-agent-reload'
 alias vl='/usr/share/vim/vim74/macros/less.sh'
 alias gcalc='gcalccmd'
 alias trash='gvfs-trash' # TODO: figure out how to use the trash on Arch
@@ -140,11 +146,12 @@ alias et="exiftool"
 hlview() {
     lynx <(source-highlight -i "$*" -o STDOUT) -force_html
 }
+alias audiotag="id3v2"
 # }}} 
 # things to control the encrypted journal {{{
 alias jrnl-mount="encfs $XDG_DOCUMENTS_DIR/.journal $XDG_DOCUMENTS_DIR/journal"
 alias jrnl-umount="fusermount -u $XDG_DOCUMENTS_DIR/journal && df | grep $XDG_DOCUMENTS_DIR/journal | sed 's/^.*$/Seemingly failed to unmount journal./'"
-alias jrnl='jrnl-mount; vim $XDG_DOCUMENTS_DIR/journal/`date -I`.md; jrnl-umount'
+alias jrnl='jrnl-mount; vim $XDG_DOCUMENTS_DIR/journal/rolling.md; jrnl-umount'
 # }}} 
 # reference material {{{
 alias chrestomathy="vim $DOTFILES_DIR/chrestomathy.md"
@@ -153,6 +160,11 @@ ddg() {
     lynx "https://lite.duckduckgo.com/lite/?q=$@"
 }
 alias search='ddg'
+#alias rust-doc-lynx='lynx "$(rustup doc --path)"'
+function rust-doc-lynx() {
+    lynx "$(rustup doc --path "$@")"
+}
+alias rdl='rust-doc-lynx'
 # }}} 
 # silly ASCII things {{{
 alias gf='echo TFW no gf; fg'

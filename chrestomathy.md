@@ -934,7 +934,8 @@ If available, `genfstab -U` will automatically generate a vaid fstab of everythi
 `fdisk -l` will also tell you the UUID of your disks.
 
 ### GRUB
-`grub-install /dev/sdc` (or whatever drive, sda, sdb, et cetera...)
+when you need to apply grub updates:
+`grub-install /dev/sda` (or whatever drive, sda, sdb, et cetera...)
 `grub-mkconfig -o /boot/grub/grub.cfg`
 
 ### Live USBs

@@ -1,6 +1,6 @@
 #!/bin/bash
-BN=`basename $1`
-BN="${BN%.*}"
-# | sed 's/\.\w*$//'
-pandoc -f markdown_github $1 > /tmp/$BN.html
-xdg-open /tmp/$BN.html
+#md2html --github "$1" | base64 -w 0 | xargs -II -0 firefox "data:text/html;base64,I"
+BN=`basename "$1"` # remove directory stuff
+BN="${BN%.*}" # remove [only the last] file extension
+outFile="$(mktemp "/tmp/$BN.XXXXXXXXXX.html")"
+md2html --github "$1" -o "$outFile" && firefox "$outFile"

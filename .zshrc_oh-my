@@ -65,7 +65,7 @@ DISABLE_UNTRACKED_FILES_DIRTY="true"
 # The optional three formats: "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
 HIST_STAMPS="yyyy-mm-dd"
 # HISTSIZE=10000 # already set by .bash_hist
-SAVEHIST=100000
+SAVEHIST=1000000
 HISTFILE=~/.zsh_history
 
 # Would you like to use another custom folder than $ZSH/custom?
@@ -89,7 +89,7 @@ source ~/.local/.bashrc
 
 # If `fortune` is installed, run it when starting a new shell.
 if which fortune > /dev/null; then
-    fortune -s anarchism
+    fortune -s 10% maiq 10% dune 10% dune-messiah 10% children-of-dune 10% god-emperor-of-dune anarchism
 fi
 
 # You may need to manually set your language environment
@@ -101,6 +101,9 @@ if [[ -n $SSH_CONNECTION ]]; then
 else
   export EDITOR='vim'
 fi
+
+# pressing ctrl-v while in the equivalent of "normal mode" will open the current "line" (which can be multiple lines) in the editor 
+bindkey -M vicmd '^v' edit-command-line
 
 export ZSH_HIGHLIGHT_STYLES[comment]='fg=51' # don't make comments hecking invisible :eyeroll:
 

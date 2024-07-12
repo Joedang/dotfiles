@@ -59,6 +59,7 @@ battery all {
 
 cpu_temperature 0 {
         format = "🌡%degrees℃"
+        # Why do I need to keep incrementing the ...hwmonX... part of the path?
         path = "/sys/devices/platform/coretemp.0/hwmon/hwmon4/temp1_input"
         max_threshold = 75
         format_above_threshold = "🔥🌡%degrees℃"

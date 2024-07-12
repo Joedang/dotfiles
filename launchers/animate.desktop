@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=animate
+GenericName=Animation viewer
+Comment=Imagemagick animation viewer
+Exec=animate %u
+Terminal=false
+Type=Application
+Categories=Graphics;2DGraphics;Viewer;
+MimeType=image/gif;image/webp;image/heic;
+NoDisplay=true

@@ -15,7 +15,10 @@
     #
     # If this option is set to mouse or keyboard, the monitor option
     # will be ignored.
-    follow = mouse
+    follow = keyboard
+    # i3 doesn't set _NET_ACTIVE_WINDOW, 
+    # but the current `man 5 dunst` doesn't mention that requirement, 
+    # so we'll see if it #justworks.
 
     # The geometry of the window:
     #   [{width}]x{height}[+/-{x}+/-{y}]
@@ -44,7 +47,7 @@
     origin = bottom-right
 
     # Offset from the origin
-    offset = -10x-10
+    offset = 10x10
 
     # Maximum number of notification (0 means no limit)
     notification_limit = 10
@@ -193,7 +196,8 @@
     max_icon_size = 32
 
     # Paths to default icons.
-    icon_path = /usr/share/icons/gnome/16x16/status/:/usr/share/icons/gnome/16x16/devices/
+    #icon_path = /usr/share/icons/gnome/16x16/status/:/usr/share/icons/gnome/16x16/devices/
+    icon_path = /usr/share/icons/Adwaita/16x16/status/:/usr/share/icons/Adwaita/16x16/devices/:/usr/share/icons/Adwaita/16x16/legacy/
 
     ### History ###
 
@@ -274,7 +278,7 @@
     # will be executed in sequence.
     mouse_left_click = close_current
     #mouse_middle_click = do_action, close_current
-    mouse_middle_click = close_all
+    mouse_middle_click = context
     mouse_right_click = do_action
 
 # Experimental features that may or may not work correctly. Do not expect them

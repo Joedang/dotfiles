@@ -32,9 +32,8 @@ set nomodeline
 set modelines=5
 
 " toggle modelines on/off and display the status
-nmap   <Leader>ml :set modeline! modeline?<Return>
-vmap   <Leader>ml :set modeline! modeline?<Return>
-imap <c-l>ml <Esc>:set modeline! modeline?<Return>
+nmap   <Leader>ml :set modeline! modeline?<Return>:ed<Return>:set modeline?<Return>
+imap <c-l>ml <Esc>:set modeline! modeline?<Return>:ed<Return>:set modeline?<Return>
 
 " key used for completions
 set wildchar=<Tab>
@@ -166,6 +165,9 @@ vmap <Leader>! /(!)
 " shortcut for :tabnew MYFILE
 nmap <Leader>tn :tabnew 
 
+" close the current tab
+nmap <Leader>tc :tabclose<Return>
+
 " shortcut to turn on spelling
 nmap <Leader>sp :set spell!
 
@@ -174,10 +176,6 @@ nmap <Leader>hls :set hlsearch!
 
 " set the text width for highlighting purposes
 nmap <Leader>tw :set textwidth=
-
-" Comment the selection with a #
-vmap <Leader>cc I#<Space><Esc>
-vmap <Leader>cu :s/^#\ \?//g<Return>
 
 " match and highlight the word under the cursor
 " autocmd CursorMoved * exe printf('match IncSearch /\V\<%s\>/', escape(expand('<cword>'), '/\'))
@@ -200,8 +198,8 @@ nmap <leader>id i<c-r>=strftime('%Y-%m-%d')<cr><Esc>
 imap <c-l>ad <c-r>=strftime('%d/%m/%Y')<cr>
 nmap <leader>ad i<c-r>=strftime('%d/%m/%Y')<cr><Esc>
 " local time
-imap <c-l>lt <c-r>=strftime('%H:%M:%S %z')<cr>
-nmap <leader>lt i<c-r>=strftime('%H:%M:%S %z')<cr><Esc>
+imap <c-l>tl <c-r>=strftime('%H:%M:%S %z')<cr>
+nmap <leader>tl i<c-r>=strftime('%H:%M:%S %z')<cr><Esc>
 " UTC time
 imap <c-l>utc <c-r>=system('date -u "+%Y-%m-%dT%H:%M:%SZ"')<cr>
 nmap <leader>utc i<c-r>=system('date -u "+%Y-%m-%dT%H:%M:%SZ"')<cr><Esc>
@@ -242,25 +240,81 @@ command Q q
 command Wq wq
 command WQ wq
 
+"~~~~~~~~~~ LANGUAGE SERVER STUFF ~~~~~~~~~~
+if executable('rust-analyzer') " to install, run: rustup component add rust-analyzer
+    autocmd User lsp_setup call lsp#register_server({
+        \ 'name': 'Rust Language Server',
+        \ 'cmd': {server_info->['rust-analyzer']},
+        \ 'allowlist': ['rust'],
+        \ })
+endif
+
+if executable('pylsp') " pacman -S python-lsp-server
+    " pip install python-lsp-server
+    au User lsp_setup call lsp#register_server({
+        \ 'name': 'pylsp',
+        \ 'cmd': {server_info->['pylsp']},
+        \ 'allowlist': ['python'],
+        \ })
+endif
+
+function! s:on_lsp_buffer_enabled() abort
+    setlocal omnifunc=lsp#complete
+    setlocal signcolumn=yes
+    if exists('+tagfunc') | setlocal tagfunc=lsp#tagfunc | endif
+    nmap <buffer> <Leader>ldf   <plug>(lsp-definition)
+    nmap <buffer> <Leader>lds   <plug>(lsp-document-symbol-search)
+    nmap <buffer> <Leader>lws   <plug>(lsp-workspace-symbol-search)
+    nmap <buffer> <Leader>lrf   <plug>(lsp-references)
+    nmap <buffer> <Leader>li    <plug>(lsp-implementation)
+    nmap <buffer> <Leader>lt    <plug>(lsp-type-definition)
+    nmap <buffer> <Leader>lrn   <plug>(lsp-rename)
+    nmap <buffer> <Leader>lh    <plug>(lsp-hover)
+    nmap <buffer> <Leader>ldl   <plug>(lsp-document-diagnostics)
+    " undesired behavior when there are no errors
+    "nmap <buffer> <Leader>ldb   <plug>(lsp-document-diagnostics):q<Return>:lbefore<Return>
+    "nmap <buffer> <Leader>lda   <plug>(lsp-document-diagnostics):q<Return>:lafter<Return>
+    nmap <buffer> <Leader>la    <plug>(lsp-code-action-float)
+    " TODO: figure out a sensible binding to scroll the lsp popup
+    "nnoremap <buffer> <expr><c-U> lsp#scroll(+4)
+    "nnoremap <buffer> <expr><c-D> lsp#scroll(-4)
+
+    " automatically re-style the document when saving (obnoxious)
+    " let g:lsp_format_sync_timeout = 1000
+    " autocmd! BufWritePre *.rs,*.go call execute('LspDocumentFormatSync')
+
+    let g:lsp_diagnostics_enabled = 1
+    let g:lsp_diagnostics_signs_delay = 100
+    let g:lsp_diagnostics_virtual_text_enabled = 0
+    "let g:lsp_diagnostics_echo_cursor = 1 " Doesn't seem to work
+
+endfunction
+
+augroup lsp_install
+    au!
+    " call s:on_lsp_buffer_enabled only for languages that has the server registered.
+    autocmd User lsp_buffer_enabled call s:on_lsp_buffer_enabled()
+augroup END
+
 "~~~~~~~~~~  LIMELIGHT AND GOYO STUFF ~~~~~~~~~~ 
-" maps
-" toggle Limelight
-nmap <Leader>ll :Limelight!!
-" toggle Goyo
-nmap <Leader>gy :Goyo
-" Color name (:help cterm-colors) or ANSI code
-let g:limelight_conceal_ctermfg = 'gray'
-" Color name (:help gui-colors) or RGB color
-let g:limelight_conceal_guifg = 'DarkGray'
-" Highlighting priority (default: 10)
-"   Set it to -1 not to overrule hlsearch
-let g:limelight_priority = -1
-" highlight lines instead of paragraphs
-let g:limelight_bop = '^'
-let g:limelight_eop = '$'
-" tie it into goyo
-autocmd! User GoyoEnter Limelight
-autocmd! User GoyoLeave Limelight!
+" " maps
+" " toggle Limelight
+" nmap <Leader>ll :Limelight!!
+" " toggle Goyo
+" nmap <Leader>yo :Goyo
+" " Color name (:help cterm-colors) or ANSI code
+" let g:limelight_conceal_ctermfg = 'gray'
+" " Color name (:help gui-colors) or RGB color
+" let g:limelight_conceal_guifg = 'DarkGray'
+" " Highlighting priority (default: 10)
+" "   Set it to -1 not to overrule hlsearch
+" let g:limelight_priority = -1
+" " highlight lines instead of paragraphs
+" let g:limelight_bop = '^'
+" let g:limelight_eop = '$'
+" " tie it into goyo
+" autocmd! User GoyoEnter Limelight
+" autocmd! User GoyoLeave Limelight!
 
 "~~~~~~~~~~ FILETYPE SPECIFIC STUFF ~~~~~~~~~~
 " non-trivial stuff should go in ~/.vim/after/syntax/MYFILETYPE.vim
@@ -281,6 +335,12 @@ autocmd FileType tex imap <c-l>it \item
 " template for functions
 autocmd FileType sh nmap <Leader>fn ofunctionName() { # {{{<Return>} # }}}<Esc>k0
 autocmd FileType sh imap <c-l>fn functionName() { # {{{<Return>} # }}}<Esc>k0
+
+" Comment the selection with a #
+autocmd FileType sh vmap <Leader>cc I#<Space><Esc>
+autocmd FileType sh vmap <Leader>cu :s/^#\ \?//g<Return>
+
+autocmd FileType rust set foldmethod=syntax
 
 "syn match rc_indentStart      /^\ \{4}/  nextgroup=rc_indentEven
 "syn match rc_indentEven        /\ \{4}/  contained nextgroup=rc_indentOdd
@@ -320,6 +380,7 @@ Plugin 'alx741/vinfo' "tool for reading info pages with vim
 Plugin 'mrk21/yaml-vim' "indentation and highlighting for YAML
 Plugin 'jamessan/vim-gnupg' "integration with GPG; still buggy, use when fixed
 Plugin 'goerz/jupytext.vim' "for editing .ipynb files in the style of Rmarkdown; relies on Python's jupytext package
+Plugin 'prabirshrestha/vim-lsp'
 " Plugin 'csv.vim'
 " The following are examples of different formats supported.
 " Keep Plugin commands between vundle#begin/end.

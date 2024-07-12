@@ -80,23 +80,23 @@ second-from-right : users that are part of the file's group
         far-right : users that aren't part of the file's user or group
 
 Expanded out from most to least significant bits, these are:
-     binary     | octal |     ls-style    | permission
- -------------- | ----- |  -------------- | ----------
-100 000 000 000 |  4000 | u-- --- --- --- | process user ID is file owner ID (SetUID bit)
-010 000 000 000 |  2000 | -g- --- --- --- | process group ID is file group ID (SetGID bit)
-001 000 000 000 |  1000 | --s --- --- --- | file may only be deleted by its user (sticky bit)
- -------------- | ----- |  -------------- | ----------
-000 100 000 000 |  0400 | --- r-- --- --- | user may read
-000 010 000 000 |  0200 | --- -w- --- --- | user may write
-000 001 000 000 |  0100 | --- --x --- --- | user may execute/search
- -------------- | ----- |  -------------- | ----------
-000 000 100 000 |  0040 | --- --- r-- --- | group may read
-000 000 010 000 |  0020 | --- --- -w- --- | group may write
-000 000 001 000 |  0010 | --- --- --x --- | group may execute/search
- -------------- | ----- |  -------------- | ----------
-000 000 000 100 |  0004 | --- --- --- r-- | anyone ("others") may read
-000 000 000 010 |  0002 | --- --- --- -w- | anyone ("others") may write
-000 000 000 001 |  0001 | --- --- --- --x | anyone ("others") may execute/search
+     binary     | octal |   ls-style  | permission
+ -------------- | ----- | ----------- | ----------
+100 000 000 000 |  4000 | --s --- --- | process user ID is file owner ID (SetUID bit)
+010 000 000 000 |  2000 | --- --s --- | process group ID is file group ID (SetGID bit)
+001 000 000 000 |  1000 | --- --- --t | file may only be deleted by its user (sticky bit)
+ -------------- | ----- | ----------- | ----------
+000 100 000 000 |  0400 | r-- --- --- | user may read
+000 010 000 000 |  0200 | -w- --- --- | user may write
+000 001 000 000 |  0100 | --x --- --- | user may execute/search
+ -------------- | ----- | ----------- | ----------
+000 000 100 000 |  0040 | --- r-- --- | group may read
+000 000 010 000 |  0020 | --- -w- --- | group may write
+000 000 001 000 |  0010 | --- --x --- | group may execute/search
+ -------------- | ----- | ----------- | ----------
+000 000 000 100 |  0004 | --- --- r-- | anyone ("others") may read
+000 000 000 010 |  0002 | --- --- -w- | anyone ("others") may write
+000 000 000 001 |  0001 | --- --- --x | anyone ("others") may execute/search
 
 For example, the following mask would prevent anyone but the user from deleting the file,
 would allow the user to read, write and execute the file,

@@ -1,0 +1,10 @@
+#!/bin/bash
+# grab the list of new packages from the tmux copy buffer and see if there are any new packages being installed
+dir="$(mktemp -d /tmp/paccompare.XXXXXXXXXX)"
+echo "dir: $dir"
+pacman -Qq > "$dir/oldpkg"
+tmux show-buffer -b "$(tmux list-buffers -F '#{buffer_name}' | head -n 1)" \
+    | sed -e 's/\ \ /\n/g;s/-[[:digit:]].*$//' \
+    > "$dir/newpkg"
+echo "new packages:"
+diff "$dir/oldpkg" "$dir/newpkg" | grep -e '^>'

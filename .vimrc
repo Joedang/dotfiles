@@ -129,6 +129,24 @@ set runtimepath+=$HOME/.vim/manual/*
 
 "~~~~~~~~~~  GLOBAL MAPPINGS ~~~~~~~~~~ 
 
+" copy the contents of the default register to the X11 clipboard
+function! ClipCopy()
+    let l:content=shellescape(@")
+    call system("xclip -in -selection clipboard <<< ".l:content)
+    call system("notify-send 'copied to clipboard:' ".l:content)
+endfunction
+
+nmap <Leader>cc :call ClipCopy()<Return>
+vmap <Leader>cc y:call ClipCopy()<Return>
+
+" paste the contnets of the X11 clipboard after the current line
+function! ClipPaste()
+    call append( line('.'), split( system("xclip -out -selection clipboard"), "\n"))
+endfunction
+
+nmap <Leader>cp :call ClipPaste()<Return>
+imap <C-l>cp <Return><Esc>k:call ClipPaste()<Return>
+
 " To get around Chrome grabbing <C-w>
 " Mostly useful for ChromeOS terminal
 " Also just nice to do half as many key presses, lol.
@@ -337,8 +355,8 @@ autocmd FileType sh nmap <Leader>fn ofunctionName() { # {{{<Return>} # }}}<Esc>k
 autocmd FileType sh imap <c-l>fn functionName() { # {{{<Return>} # }}}<Esc>k0
 
 " Comment the selection with a #
-autocmd FileType sh vmap <Leader>cc I#<Space><Esc>
-autocmd FileType sh vmap <Leader>cu :s/^#\ \?//g<Return>
+"autocmd FileType sh vmap <Leader>cc I#<Space><Esc>
+"autocmd FileType sh vmap <Leader>cu :s/^#\ \?//g<Return>
 
 autocmd FileType rust set foldmethod=syntax
 

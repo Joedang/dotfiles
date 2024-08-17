@@ -317,10 +317,9 @@ bindsym $mod+Return exec kitty
 bindsym $mod+v exec /home/joedang/src/dotfiles/bin/clipedit
 
 # check what's in the clipboard
-bindsym $mod+Mod1+c exec notify-send -u low 'clipboard contents:' "$(xclip -out -selection clipboard)"
+bindsym $mod+c exec notify-send -u low 'clipboard contents:' "$(xclip -out -selection clipboard)"
 
 # say what's in the clipboard
-# echo hello world
 bindsym $mod+Ctrl+c exec --no-startup-id xclip -out -selection clipboard | xargs -0 -I{} flite -t \"{}\" -o /dev/stdout | play -
 
 # start dmenu (a program launcher)
@@ -408,7 +407,7 @@ bindsym $mod+t exec --no-startup-id \
     -fg '#530093' -bg '#111' -face 'IBM Plex Mono Light:size=24:style=Bold'
 
 # rerun the capsRemap script
-bindsym $mod+c exec --no-startup-id /home/joedang/src/dotfiles/bin/capsRemap
+bindsym $mod+Ctrl+Shift+c exec --no-startup-id /home/joedang/src/dotfiles/bin/capsRemap
 
 # (intended for Firefox) copy the link under the cursor and open it with mpv
 bindsym --release Ctrl+Mod1+p exec xdotool click 3 key a \
@@ -421,6 +420,9 @@ bindsym $mod+Shift+i exec date -I | tr -d '\n' | xclip -in -selection clipboard 
 
 # copy the time the the clipboard
 bindsym $mod+Shift+t exec date '+%H:%M:%S %Z' | tr -d '\n' | xclip -in -selection clipboard && dunstify -u normal "copied to clipboard:" "$(date '+%H:%M:%S %Z')"
+
+# show the calendar as a notification
+bindsym $mod+Mod1+c exec "cal --color=always | sed -e 's/\o33\[7m/<b>/g; s/\o33\[0m/<\/b>/g; s/^ *$//; 2,+99 s/ /_/g; 1 s/$/\o0/;' | xargs -0 -n 2 notify-send"
 
 # visually display key bindings
 bindsym $mod+Shift+slash exec /home/joedang/src/bash/bindgraph/bindgraph.sh \

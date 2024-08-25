@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="1920px"
+   height="1080px"
+   viewBox="0 0 1920 1080">
+  <sodipodi:namedview
+     pagecolor="#333333"
+     bordercolor="#4d4d4d"
+     borderopacity="1"
+     inkscape:showpageshadow="false"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="true"
+     inkscape:deskcolor="#1a1a1a"
+     inkscape:document-units="px"
+     showgrid="true"
+     inkscape:clip-to-page="false"
+     labelstyle="default"
+     borderlayer="true"
+     inkscape:zoom="0.3"
+     inkscape:window-width="1000"
+     inkscape:window-height="700"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1">
+    <inkscape:grid
+       id="64px"
+       units="px"
+       originx="0"
+       originy="0"
+       spacingx="64"
+       spacingy="64"
+       empcolor="#3f3fff"
+       empopacity="0.25"
+       color="#3f3fff"
+       opacity="0.125"
+       empspacing="4"
+       dotted="false"
+       gridanglex="30"
+       gridanglez="30"
+       visible="true" />
+  </sodipodi:namedview>
+</svg>

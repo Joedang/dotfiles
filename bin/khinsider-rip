@@ -1,0 +1,61 @@
+#!/bin/bash
+# Take the URL of an album from khinsider.com, download the MP3s of all the tracks and attemt to download the cover image.
+# The files will be placed in the current working directory.
+# usage: khinsider-rip ALBUMURL
+# example: khinsider-rip https://downloads.khinsider.com/game-soundtracks/album/wipeout-2097
+
+set +e
+EXIT=0
+
+# Main page that lists all the songs
+echo "getting content of main page..."
+mainHTML="$(curl "$1")"
+
+domain="$(echo "$1" | grep -oP 'https://.*?/' | sed 's,/$,,')"
+
+# Cover Image
+coverURL="$(echo "$mainHTML" | grep -m 1 -oi -e "https://.*/cover\.jpg" -e "https://.*/cover\.jpeg" -e "https://.*/cover\.png")"
+echo "coverURL: $coverURL"
+echo downloading cover...
+curl -sS --remote-name --no-clobber "$coverURL" 
+
+# Download individual files
+secondaryURLs=($(uri-unescape "$(echo "$mainHTML" | grep -o -e 'href=".*\.mp3'| uniq | sed "s,href=\",$domain",)")) # construct secondary urls
+echo "downloading tracks..."
+nProblems=0
+problemURLs=()
+for secondURL in "${secondaryURLs[@]}"; do
+    echo
+    echo "secondURL: $secondURL"
+    titleFromURL="$( uri-unescape "$secondURL" | sed 's,\.mp3,,g;s,https://.*/,,g')" # unescape special chars, remove file extension,           remove path
+    echo "titleFromURL: $titleFromURL"
+    mp3Name="$(      uri-unescape "$secondURL" | sed 's, ,_,g;   s,https://.*/,,g')" # unescape special chars, replace spaces with underscores, remove path
+    echo "mp3Name: $mp3Name"
+    mp3URL="$(curl -sS "$secondURL" | grep -m 1 -o 'https://[^"]*.mp3')" # download secondary page and extract mp3 URL
+    echo "mp3URL: $mp3URL"
+    echo "downloading mp3..."
+    if curl -sS --no-clobber "$mp3URL" -o "$mp3Name"; then
+        true
+    else
+        echo -e "\e[31;1mproblem downloading $mp3URL\e[0m" 1>&2
+        nProblems=$((nProblems+1))
+        problemURLs+=("$secondURL")
+    fi
+    #id3v2 -t "$titleFromURL" "$mp3Name" # uncomment if you want the title tag to be taken from the URL (useful when an album lacks title tags)
+done
+
+echo
+unexpecteds="$(file --brief * | grep -iv -e audio -e image)"
+if [[ "$unexpecteds" != '' ]]; then
+    echo "Unexpected files found:\n$unexpecteds"1>&2
+    EXIT=-1
+fi
+feh *.jpg *.jpeg *.png # use whatever image viewer you prefer
+if (($nProblems > 0)); then
+    echo -e "\e[31;1mproblematic downloads:\n" "${problemURLs[@]}"
+    EXIT="$nProblems"
+fi
+echo "Check that the cover image is acceptable! (It usually grabs the wrong one.)"
+echo DONE
+set -e
+exit $EXIT

@@ -1,0 +1,43 @@
+#!/usr/bin/bash
+# Choose a random black card and substitute in random white cards.
+# depends on this JSON file of all the CAH cards:
+# https://github.com/crhallberg/json-against-humanity/blob/latest/cah-all-compact.json
+# You can get a shorter customized "deck" here: https://crhallberg.com/cah/
+
+deckFile="$HOME/.local/share/cah-cards-compact.json" # configure the location of the JSON "deck"
+style=false # whether the white card text should recieve ANSI-escape styling
+styleStart=$'\e[4m' # ANSI-escape to style white cards (man console_codes)
+styleStop=$'\e[0m'
+replaceMe='RANDO-CARDRISIAN-REPLACEMENT-STRING'
+nBlack="$(jq "{black}.[] | length" "$deckFile")"
+nWhite="$(jq "{white}.[] | length" "$deckFile")"
+iBlack="$(( $RANDOM % $nBlack ))"
+nPick="$(jq "{black}.[].[$iBlack].pick" "$deckFile")"
+output="$(jq --raw-output "{black}.[].[$iBlack].text" "$deckFile" | sed "s/_/$replaceMe/g")"
+#nFields="$(tr -dc '_' <<< "$output" | wc -c)"
+nFields="$(grep -o "$replaceMe" <<< "$output" | wc -l)"
+
+#echo black card: $output
+#echo nPick: $nPick
+#echo nFields: $nFields
+
+for i in $(seq 0 $(( $nPick -1 )) ); do
+    # if there are more than 32767 white cards, they will start getting ignored (man bash | grep RANDOM):
+    iWhite="$(( $RANDOM % $nWhite ))"
+    # escape slashes and ampersands; remove trailing period:
+    whiteText="$(jq --raw-output "{white}.[].[$iWhite]" "$deckFile" | sed 's/\\/\\\\/g;s.\/.\\\/.g;s/\&/\\\&/g;s/\.$//')" 
+    #echo white card: $whiteText
+    if [[ "$style" == "true" ]]; then
+        whiteText="$styleStart$whiteText$styleStop"
+    fi
+    if (( $nFields == 0 )); then
+        output="$output"$'\n'"$whiteText"
+    else
+        output="$(sed -e "s/$replaceMe/$whiteText/" <<< "$output")"
+    fi
+done
+if (( $nFields == 0 )); then
+    output="$output." # restore trailing period
+fi
+
+echo -e $output
